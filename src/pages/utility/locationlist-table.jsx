@@ -40,7 +40,7 @@ const IndeterminateCheckbox = React.forwardRef(
   }
 );
 
-const UserPage = () => {
+const LocationPage = () => {
   const navigate = useNavigate();
   const [userData, setUserData] = useState([]);
   const [pageIndex, setPageIndex] = useState(0);
@@ -326,14 +326,14 @@ const UserPage = () => {
     setPageIndex(0); // Reset to first page whenever page size changes
   };
   if (loading) {
-    return <div>Loading Users...</div>; // Show loading indicator
+    return <div>Loading Locations...</div>; // Show loading indicator
   }
 
   return (
     <>
       <Card noborder>
         <div className="md:flex pb-6 items-center">
-          <h6 className="flex-1 md:mb-0 mb-3">Users</h6>
+          <h6 className="flex-1 md:mb-0 mb-3">Locations</h6>
           <div className="md:flex md:space-x-3 items-center flex-none rtl:space-x-reverse">
             <GlobalFilter filter={globalFilter} setFilter={setGlobalFilter} />
             <Button
@@ -350,11 +350,11 @@ const UserPage = () => {
             />
             <Button
               icon="heroicons:plus"
-              text="Add User"
+              text="Add Location"
               className="btn-dark font-normal btn-sm"
               iconClass="text-lg"
               onClick={() => {
-                navigate("/user-add");
+                navigate("/location-add");
               }}
             />
           </div>
@@ -526,4 +526,4 @@ const UserPage = () => {
   );
 };
 
-export default UserPage;
+export default LocationPage;

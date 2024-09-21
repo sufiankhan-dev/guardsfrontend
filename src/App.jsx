@@ -78,6 +78,12 @@ const TanstackTable = lazy(() => import("./pages/table/react-table"));
 const UserPage = lazy(() => import("./pages/utility/userTable"));
 const UserAddPage = lazy(() => import("./pages/utility/user-add"));
 const UserEditPage = lazy(() => import("./pages/utility/user-edit"));
+const LocationListPage = lazy(() =>
+  import("./pages/utility/locationlist-table")
+);
+const LocationAddPage = lazy(() => import("./pages/utility/location-add"));
+const EmployeesPage = lazy(() => import("./pages/utility/employee-table"));
+const EmployeesAddPage = lazy(() => import("./pages/utility/employee-add"));
 const VendorAddPage = lazy(() => import("./pages/utility/vendor-add"));
 const VendorEditPage = lazy(() => import("./pages/utility/vendor-edit"));
 const InvoicePreviewPage = lazy(() =>
@@ -103,7 +109,9 @@ const RoleAddPage = lazy(() => import("./pages/utility/role-add"));
 const RolePage = lazy(() => import("./pages/utility/roleTable"));
 const ProductAddPage = lazy(() => import("./pages/utility/product-add"));
 const ProductPage = lazy(() => import("./pages/utility/productTable"));
-const ProductPreviewPage = lazy(() => import("./pages/utility/product-preview"));
+const ProductPreviewPage = lazy(() =>
+  import("./pages/utility/product-preview")
+);
 const ProductEditPage = lazy(() => import("./pages/utility/product-edit"));
 
 // widget pages
@@ -164,9 +172,7 @@ import Rideredit from "./pages/utility/Rider-edit";
 
 function App() {
   return (
-    
     <main className="App  relative">
-      
       <Routes>
         <Route path="/" element={<AuthLayout />}>
           <Route path="/" element={<Login />} />
@@ -184,13 +190,16 @@ function App() {
         </Route>
         <Route path="/*" element={<Layout />}>
           {/* <Route path="dashboard" element={<Dashboard />} /> */}
-          <Route path="dashboard" element={
-            <PrivateRoute
-              element={Dashboard}
-              requiredAuthTypes={["admin", "vendor"]}
-            />
-          } />
-           {/* <Route path="discountt" element={
+          <Route
+            path="dashboard"
+            element={
+              <PrivateRoute
+                element={Dashboard}
+                requiredAuthTypes={["admin", "vendor"]}
+              />
+            }
+          />
+          {/* <Route path="discountt" element={
             <PrivateRoute
               element={BankingPage}
               requiredAuthTypes={[ "vendor"]}
@@ -246,9 +255,11 @@ function App() {
           <Route path="map" element={<MapPage />} />
           <Route path="table-basic" element={<BasicTablePage />} />
           <Route path="react-table" element={<TanstackTable />} />
-          <Route path="Customer" element={<UserPage />} />
+          <Route path="user" element={<UserPage />} />
+          <Route path="location" element={<LocationListPage />} />
           <Route path="vendor" element={<VendorPage />} />
-          <Route path="Customers-add" element={<UserAddPage />} />
+          <Route path="user-add" element={<UserAddPage />} />
+          <Route path="location-add" element={<LocationAddPage />} />
           <Route path="Customer-edit" element={<UserEditPage />} />
           <Route path="vendor-add" element={<VendorAddPage />} />
           <Route path="vendor-edit" element={<VendorEditPage />} />
@@ -260,8 +271,6 @@ function App() {
           <Route path="product-view" element={<Productview />} />
           <Route path="customer-view" element={<Customerview />} />
           <Route path="vendor-view" element={<Vendorview />} />
-
-
 
           <Route path="product-preview" element={<ProductPreviewPage />} />
           <Route path="product-edit" element={<ProductEditPage />} />
@@ -286,13 +295,16 @@ function App() {
           <Route path="wishlist" element={<Wishlist />} />
           <Route path="orders" element={<Orders />} />
           <Route path="order-details" element={<OrderDetails />} />
-          <Route path="product-catagroy" element={<Productcatagory />} />
+          {/* <Route path="product-catagroy" element={<Productcatagory />} /> */}
+          <Route path="employees" element={<EmployeesPage />} />
+          <Route path="employee-add" element={<EmployeesAddPage />} />
           <Route path="product-form" element={<Productcreateform />} />
           <Route path="category-edit" element={<Catagroyedit />} />
           <Route path="brands" element={<Brandtable />} />
           <Route path="brands-add" element={<Brandsadd />} />
           <Route path="brands-edit" element={<Brandsedit />} />
           <Route path="Vendor-category" element={<Vendorcatagory />} />
+          {/* <Route path="Location-list" element={<Vendorcatagory />} /> */}
           <Route path="vender-add" element={<Vendoradd />} />
           <Route path="vender-cata-edit" element={<Vendorcatagoryedit />} />
           <Route path="discout-table" element={<Discounttable />} />
@@ -304,24 +316,6 @@ function App() {
           <Route path="Order-view" element={<Orderview />} />
           <Route path="assign-order" element={<AssignOrder />} />
           <Route path="rider-edit" element={<Rideredit />} />
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
           <Route path="checkout" element={<Checkout />} />
           <Route path="add-product" element={<AddProduct />} />
@@ -356,7 +350,6 @@ function App() {
           }
         />
       </Routes>
-     
     </main>
   );
 }

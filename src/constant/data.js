@@ -1,4 +1,4 @@
-export const  menuItems = [
+export const menuItems = [
   {
     isHeadr: true,
     title: "menu",
@@ -8,10 +8,9 @@ export const  menuItems = [
     title: "Dashboard",
     icon: "heroicons-outline:home",
     isHide: true,
-    link:"dashboard"
-   
+    link: "dashboard",
   },
-  
+
   // {
   //   isHeadr: true,
   //   title: "apps",
@@ -204,13 +203,13 @@ export const  menuItems = [
         childlink: "roles",
       },
       {
-        childtitle: "Customers",
-        childlink: "Customer",
+        childtitle: "Users",
+        childlink: "user",
       },
-      {
-        childtitle: "Vendors",
-        childlink: "vendor"
-      }
+      // {
+      //   childtitle: "Vendors",
+      //   childlink: "vendor"
+      // }
       // {
       //   childtitle: "Pricing",
       //   childlink: "pricing",
@@ -253,57 +252,57 @@ export const  menuItems = [
       //   childlink: "/under-construction",
       // },
     ],
-    
   },
   {
-    title: "Vendor-Category",
-    icon: "heroicons-outline:user-circle",
+    title: "Locations",
+    icon: "heroicons-outline:building-office-2",
     link: "#",
     child: [
       {
-        childtitle: "Category",
+        childtitle: "Location List",
+        childlink: "location",
+      },
+      {
+        childtitle: "Location Type",
         childlink: "Vendor-category",
       },
-     
     ],
   },
   {
-    title: "Product-Category",
-    icon: "heroicons-outline:inbox-stack",
+    title: "Guards",
+    icon: "heroicons-outline:briefcase",
     link: "#",
     child: [
       {
-        childtitle: "category",
-        childlink: "product-catagroy",
+        childtitle: "Guards List",
+        childlink: "employees",
       },
-     
     ],
   },
- 
+
   {
-    title: "Products",
-    icon: "heroicons-outline:shopping-bag",
+    title: "Scheduling",
+    icon: "heroicons-outline:calendar-days",
     link: "#",
     child: [
       {
-        childtitle: "Products",
+        childtitle: "Schedule",
         childlink: "products",
       },
-    
     ],
   },
   {
-    title: "Orders",
-    icon: "heroicons-outline:shopping-cart",
+    title: "Verified Records",
+    icon: "heroicons-outline:check-badge",
     link: "#",
     child: [
       {
-        childtitle: "Orders",
+        childtitle: "Records",
         childlink: "orders",
       },
     ],
   },
-  
+
   // {
   //   title: "Brands",
   //   icon: "heroicons-outline:gift-top",
@@ -313,7 +312,7 @@ export const  menuItems = [
   //       childtitle: "Brands",
   //       childlink: "brands",
   //     },
-     
+
   //   ],
   // },
   // {
@@ -325,33 +324,43 @@ export const  menuItems = [
   //       childtitle: "Discount",
   //       childlink: "discout-table",
   //     },
-     
+
   //   ],
   // },
   {
-    title: "Rider",
-    icon: "heroicons-outline:truck",
+    title: "Monitoring",
+    icon: "heroicons-outline:computer-desktop",
     link: "#",
     child: [
       {
-        childtitle: "Rider",
+        childtitle: "Monitor",
         childlink: "Rider",
       },
     ],
   },
   {
-    title: "Configure-Form",
-    icon: "heroicons-outline:adjustments-vertical",
+    title: "Confirmation Call",
+    icon: "heroicons-outline:check-badge",
     link: "#",
     child: [
       {
-        childtitle: "Configure-form",
+        childtitle: "Confirmed Calls",
         childlink: "add-config",
       },
     ],
   },
-  
-  
+  {
+    title: "Privilege",
+    icon: "heroicons-outline:check-badge",
+    link: "#",
+    child: [
+      {
+        childtitle: "Privilege",
+        childlink: "add-config",
+      },
+    ],
+  },
+
   // {
   //   title: "Widgets",
   //   icon: "heroicons-outline:view-grid-add",

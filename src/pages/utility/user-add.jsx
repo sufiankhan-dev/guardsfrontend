@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
+// New file created by me
+
+import React, { useState, useRef } from "react";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Textinput from "@/components/ui/Textinput";
@@ -7,195 +9,381 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import CryptoJS from "crypto-js";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import Select from "react-select";
 
 const UserAddPage = () => {
   const navigate = useNavigate();
+  const user = useSelector((state) => state.auth.user);
 
-  const [picker, setPicker] = useState(new Date());
-  const [roles, setRoles] = useState([]);
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    middleName: "",
+    lastName: "",
     email: "",
     password: "",
-    phone: "",
+    phoneNumber1: "", // Change from phone to phoneNumber1
+    phoneNumber2: "", // Change from secondaryPhone to phoneNumber2
+    secondaryEmail: "",
+    address: "",
+    city: "",
+    state: "",
+    country: "",
+    gender: "",
+    dateOfBirth: "",
+    roleId: "",
   });
+
+  const [roles, setRoles] = useState([]);
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
-  const user = useSelector((state) => state.auth.user);
   const [uploadingData, setUploadingData] = useState(false);
-  const isSubmitting = useRef(false)
-
-
-  // useEffect(() => {
-  //   const fetchRoles = async () => {
-  //     try {
-  //       const response = await axios.get(
-  //         `${process.env.REACT_APP_BASE_URL}/${user.type}/role/get-roles`,
-  //         {
-  //           headers: {
-  //             Authorization: `Bearer ${localStorage.getItem("token")}`,
-  //           },
-  //         }
-  //       );
-  //       setRoles(response.data);
-  //       console.log(response);
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   };
-  //   fetchRoles();
-  // }, [user.type]);
+  const isSubmitting = useRef(false);
 
   const validate = () => {
-    
-    const errors = {};
+    const validationErrors = {};
 
-    if (!formData.name) {
-      errors.name = "Name is required";
-    }
-
+    if (!formData.firstName)
+      validationErrors.firstName = "First name is required";
+    if (!formData.lastName) validationErrors.lastName = "Last name is required";
     if (!formData.email) {
-      errors.email = "Email is required";
+      validationErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      errors.email = "Email address is invalid";
+      validationErrors.email = "Invalid email format";
     }
 
     if (!formData.password) {
-      errors.password = "Password is required";
+      validationErrors.password = "Password is required";
     } else if (!/[!@#$%^&*]/.test(formData.password)) {
-      errors.password = "Password must contain at least one special character";
+      validationErrors.password =
+        "Password must contain at least one special character";
     }
 
-    if (!formData.phone) {
-      errors.phone = "Phone number is required";
-    } else if (!/^\d{11}$/.test(formData.phone)) {
-      errors.phone = "Phone number is invalid";
-    }
+    if (!formData.phoneNumber1)
+      validationErrors.phoneNumber1 = "Phone number is required";
+    if (!/^\d{11}$/.test(formData.phoneNumber1))
+      validationErrors.phone = "Phone number is invalid";
 
-    return errors;
+    return validationErrors;
   };
 
   const handleSubmit = async () => {
-    if (isSubmitting.current) return
-    isSubmitting.current = true
+    // console.log("Submit clicked");
+    if (isSubmitting.current) return;
+    isSubmitting.current = true;
 
+    console.log("Form data before validation:", formData);
     const validationErrors = validate();
+    console.log("Validation errors:", validationErrors);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
+      isSubmitting.current = false;
       return;
     }
 
-    // Encrypt the password before sending it to the server
-    // const encryptedPassword = CryptoJS.AES.encrypt(
-    //   formData.password,
-    //   'your-secret-key'
-    // ).toString();
+    const formattedDate = formData.dateOfBirth
+      ? formData.dateOfBirth.toISOString().split("T")[0]
+      : null;
 
     try {
       setUploadingData(true);
-      
-
+      console.log("Submitting user data:", formData);
       const response = await axios.post(
         `${process.env.REACT_APP_BASE_URL}/${user.type}/user/create-user`,
-        { ...formData, email: formData.email.toLowerCase() },
-        // Convert email to lowercase before submission
         {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
+          ...formData,
+          dateOfBirth: formattedDate,
+          email: formData.email.toLowerCase(),
+        },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
       );
       if (response.status === 201) {
         toast.success("User created successfully");
-        navigate("/Customer");
+        navigate("/user");
       }
     } catch (error) {
-      console.log(error);
-      toast.error(error.response.data.message)
-    }
-    finally {
+      console.log(error); // Logs the full error
+      toast.error(error.response?.data?.message || "Error creating user");
+    } finally {
       setUploadingData(false);
-      console.log(isSubmitting.current,"...");
-      isSubmitting.current = false
+      isSubmitting.current = false;
     }
-    
   };
 
   const handleCancel = () => {
-    navigate("/Customer");
+    navigate("/user");
   };
 
+  const roleOptions = [
+    { value: "super-admin", label: "Super Admin" },
+    { value: "admin", label: "Admin" },
+    { value: "66e08dbec146f84aec8a8e36", label: "User" },
+    { value: "dispatch", label: "Dispatch" },
+    { value: "monitoring", label: "Monitoring" },
+    { value: "time-sheet", label: "Time sheet" },
+  ];
+
+  const countryOptions = [
+    { value: "us", label: "United States" },
+    { value: "uk", label: "United Kingdom" },
+    { value: "ca", label: "Canada" },
+    // Add more countries here
+  ];
+
+  const stateOptions = [
+    { value: "ny", label: "New York" },
+    { value: "ca", label: "California" },
+    { value: "tx", label: "Texas" },
+    // Add more states here
+  ];
+
+  const cityOptions = [
+    { value: "nyc", label: "New York City" },
+    { value: "la", label: "Los Angeles" },
+    { value: "hou", label: "Houston" },
+    // Add more cities here
+  ];
+
+  const genderOptions = [
+    { value: "male", label: "Male" },
+    { value: "female", label: "Female" },
+    { value: "other", label: "Other" },
+  ];
+
+  const handleRoleChange = (event) => {
+    console.log("Selected role:", event.target.value);
+  };
+
+  // console.log(formData);
   return (
-    <div>
-      <Card title="Create new Customer">
-        <div className="grid lg:grid-cols-1 grid-cols-1 gap-5">
-          <div className="grid lg:grid-cols-2 grid-cols-1 gap-5">
-            <div>
-              <Textinput
-                label="Name"
-                type="text"
-                placeholder="Add Customer Name"
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
+    <div className="max-w-6xl mx-auto mt-8">
+      <Card title="Create New User">
+        <div className="grid lg:grid-cols-2 grid-cols-1 gap-8">
+          {/* Personal Information */}
+          <div>
+            {/* <h3 className="text-lg font-semibold mb-4">Personal Information</h3> */}
+            <div className="space-y-4">
+              <label htmlFor="role" className="form-label">
+                User Role
+              </label>
+              <Select
+                label="Role"
+                name="role"
+                options={roleOptions}
+                placeholder="Select Role"
+                value={
+                  roleOptions.find(
+                    (option) => option.value === formData.roleId
+                  ) || null
+                }
+                onChange={(selectedOption) =>
+                  setFormData({ ...formData, roleId: selectedOption.value })
                 }
               />
-              {errors.name && <p className="text-red-500">{errors.name}</p>}
-              <br />
+              <label htmlFor="state" className="form-label">
+                User State
+              </label>
+              <Select
+                label="State"
+                name="state"
+                options={stateOptions}
+                placeholder="Select State"
+                value={
+                  stateOptions.find(
+                    (option) => option.value === formData.state
+                  ) || null
+                }
+                onChange={(selectedOption) =>
+                  setFormData({ ...formData, state: selectedOption.value })
+                }
+              />
+              <Textinput
+                label="First Name"
+                type="text"
+                placeholder="First Name"
+                value={formData.firstName}
+                onChange={(e) =>
+                  setFormData({ ...formData, firstName: e.target.value })
+                }
+              />
+              <Textinput
+                label="Middle Name"
+                type="text"
+                placeholder="Middle Name"
+                value={formData.middleName}
+                onChange={(e) =>
+                  setFormData({ ...formData, middleName: e.target.value })
+                }
+              />
+              <Textinput
+                label="Email"
+                type="email"
+                placeholder="Email Address"
+                value={formData.email}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    email: e.target.value.toLowerCase(),
+                  })
+                }
+              />
+              <Textinput
+                label="Phone"
+                type="number"
+                placeholder="Phone Number"
+                value={formData.phoneNumber1}
+                onChange={(e) =>
+                  setFormData({ ...formData, phoneNumber1: e.target.value })
+                }
+              />
+              <label className="block text-sm font-medium">Gender</label>
+              <Select
+                name="gender"
+                options={genderOptions}
+                placeholder="Select Gender"
+                value={
+                  genderOptions.find(
+                    (option) => option.value === formData.gender
+                  ) || null
+                }
+                onChange={(selectedOption) =>
+                  setFormData({ ...formData, gender: selectedOption.value })
+                }
+              />
               <div className="relative">
                 <Textinput
                   label="Password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Add Customer Password"
+                  placeholder="Password"
+                  value={formData.password}
                   onChange={(e) =>
                     setFormData({ ...formData, password: e.target.value })
                   }
                 />
                 <FontAwesomeIcon
-                  icon={showPassword ?  faEye : faEyeSlash}
+                  icon={showPassword ? faEye : faEyeSlash}
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-[70%] transform -translate-y-1/2 cursor-pointer"
                 />
               </div>
-              {errors.password && <p className="text-red-500">{errors.password}</p>}
-              <br />
             </div>
-            <div>
-              <Textinput
-                label="Email"
-                type="email"
-                className=""
-                placeholder="Add Customer email"
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value.toLowerCase() }) // Convert email to lowercase on change
+          </div>
+
+          {/* Contact Information */}
+          <div>
+            {/* <h3 className="text-lg font-semibold mb-4">Contact Information</h3> */}
+            <div className="space-y-4">
+              <label htmlFor="country" className="form-label">
+                User Country
+              </label>
+              <Select
+                label="Country"
+                name="country"
+                options={countryOptions}
+                placeholder="Select Country"
+                value={
+                  countryOptions.find(
+                    (option) => option.value === formData.country
+                  ) || null
+                }
+                onChange={(selectedOption) =>
+                  setFormData({ ...formData, country: selectedOption.value })
                 }
               />
-              {errors.email && <p className="text-red-500">{errors.email}</p>}
-              <br />
-              <Textinput
-                label="Phone"
-                type="number"
-                placeholder="Add Customer phone"
-                onChange={(e) =>
-                  setFormData({ ...formData, phone: e.target.value })
+              <label htmlFor="city" className="form-label">
+                User City
+              </label>
+              <Select
+                label="City"
+                name="city"
+                options={cityOptions}
+                placeholder="Select City"
+                value={
+                  cityOptions.find(
+                    (option) => option.value === formData.city
+                  ) || null
+                }
+                onChange={(selectedOption) =>
+                  setFormData({ ...formData, city: selectedOption.value })
                 }
               />
-              {errors.phone && <p className="text-red-500">{errors.phone}</p>}
+              <Textinput
+                label="Last Name"
+                type="text"
+                placeholder="Last Name"
+                value={formData.lastName}
+                onChange={(e) =>
+                  setFormData({ ...formData, lastName: e.target.value })
+                }
+              />
+              <Textinput
+                label="Address"
+                type="text"
+                placeholder="Address"
+                value={formData.address}
+                onChange={(e) =>
+                  setFormData({ ...formData, address: e.target.value })
+                }
+              />
+              <Textinput
+                label="Secondary Email"
+                type="secondaryEmail"
+                placeholder="Secondary Email Address"
+                value={formData.secondaryEmail}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    secondaryEmail: e.target.value.toLowerCase(),
+                  })
+                }
+              />
+              <Textinput
+                label="Secondary Phone"
+                type="secondaryNumber"
+                placeholder="Secondary Phone Number"
+                value={formData.phoneNumber2}
+                onChange={(e) =>
+                  setFormData({ ...formData, phoneNumber2: e.target.value })
+                }
+              />
+              <span className="py-4">
+                <label className="block text-sm font-medium my-3">
+                  Date of Birth
+                </label>
+                <Flatpickr
+                  value={formData.dateOfBirth}
+                  options={{ dateFormat: "Y-m-d" }}
+                  onChange={(date) =>
+                    setFormData({ ...formData, dateOfBirth: date[0] })
+                  }
+                  placeholder="Select Date"
+                  className="block w-full rounded-md border border-gray-300 p-2"
+                />
+              </span>
             </div>
           </div>
         </div>
 
-        <div className="ltr:text-right rtl:text-left space-x-3 rtl:space-x-reverse">
+        {/* Buttons */}
+        <div className="text-right mt-8 space-x-4">
           <button
-            className="btn btn-light text-center"
+            className="btn btn-light"
             onClick={handleCancel}
             type="button"
           >
             Cancel
           </button>
-          <Button text="Save" className="btn-dark" onClick={handleSubmit} isLoading={uploadingData} disabled={uploadingData}/>
+          <Button
+            text="Save"
+            type="submit"
+            className="btn-dark"
+            onClick={handleSubmit}
+            isLoading={uploadingData}
+            disabled={uploadingData}
+          />
         </div>
       </Card>
     </div>
