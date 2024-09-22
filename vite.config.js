@@ -23,7 +23,7 @@ export default defineConfig({
         __DEV__: JSON.stringify(true),
         "process.env.NODE_ENV": JSON.stringify("development"),
         "process.env.REACT_APP_BASE_URL": JSON.stringify(
-          "http://localhost:3000/api"
+          "https://dashcart-backend-production.up.railway.app/api"
         ),
       },
     }),

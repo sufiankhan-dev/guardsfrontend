@@ -421,6 +421,7 @@ const EmployeeAddPage = () => {
     payRate: "",
     hiringManager: "",
     notes: "",
+    status: "",
   });
 
   const [uploadingData, setUploadingData] = useState(false);
@@ -498,6 +499,7 @@ const EmployeeAddPage = () => {
                 setFormData({ ...formData, contactNumber: e.target.value })
               }
             />
+            <label className="block text-sm font-medium">Category</label>
             <Select
               label="Category"
               name="category"
@@ -512,9 +514,10 @@ const EmployeeAddPage = () => {
               }
             />
             <div>
-              <label className="block text-sm font-medium">
-                Guard Card Details
+              <label className="block text-xl font-semibold mt-5">
+                Employee Card Details
               </label>
+              <div className="mt-3" />
               <Textinput
                 label="Card Number"
                 type="text"
@@ -530,9 +533,9 @@ const EmployeeAddPage = () => {
                   })
                 }
               />
-              <div className="flex space-x-4">
+              <div className="flex space-x-4 mt-3">
                 <span className="w-full">
-                  <label className="block text-sm font-medium">
+                  <label className="block text-sm mb-1 font-medium">
                     Issue Date
                   </label>
                   <Flatpickr
@@ -552,7 +555,7 @@ const EmployeeAddPage = () => {
                   />
                 </span>
                 <span className="w-full">
-                  <label className="block text-sm font-medium">
+                  <label className="block text-sm font-medium mb-1">
                     Expiry Date
                   </label>
                   <Flatpickr
@@ -575,7 +578,7 @@ const EmployeeAddPage = () => {
             </div>
             <Textinput
               label="Pay Rate"
-              type="text"
+              type="number"
               placeholder="Pay Rate"
               value={formData.payRate}
               onChange={(e) =>
@@ -600,8 +603,21 @@ const EmployeeAddPage = () => {
                 setFormData({ ...formData, notes: e.target.value })
               }
             />
+            <label className="block text-sm font-medium">Status</label>
+            <Select
+              label="Status"
+              name="status"
+              options={[
+                { value: "approved", label: "Approved" },
+                { value: "not-approved", label: "Not Approved" },
+                // Add more categories as needed
+              ]}
+              placeholder="Select Status"
+              onChange={(selectedOption) =>
+                setFormData({ ...formData, status: selectedOption.value })
+              }
+            />
           </div>
-          <div></div>
         </div>
 
         {/* Buttons */}

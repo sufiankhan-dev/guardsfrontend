@@ -1,6 +1,6 @@
 // New file created by me
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Textinput from "@/components/ui/Textinput";
@@ -41,6 +41,26 @@ const UserAddPage = () => {
   const [uploadingData, setUploadingData] = useState(false);
   const isSubmitting = useRef(false);
 
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.REACT_APP_BASE_URL}/admin/role/get-roles`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        setRoles(response.data); // Set roles data from backend
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchRoles();
+  }, []);
+
   const validate = () => {
     const validationErrors = {};
 
@@ -51,6 +71,11 @@ const UserAddPage = () => {
       validationErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       validationErrors.email = "Invalid email format";
+    }
+    if (!formData.secondaryEmail) {
+      validationErrors.secondaryEmail = "Secondary Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(formData.secondaryEmail)) {
+      validationErrors.secondaryEmail = "Invalid email format";
     }
 
     if (!formData.password) {
@@ -63,7 +88,16 @@ const UserAddPage = () => {
     if (!formData.phoneNumber1)
       validationErrors.phoneNumber1 = "Phone number is required";
     if (!/^\d{11}$/.test(formData.phoneNumber1))
-      validationErrors.phone = "Phone number is invalid";
+      validationErrors.phoneNumber1 = "Phone number is invalid";
+
+    if (!formData.address) validationErrors.address = "Address is required";
+    if (!formData.city) validationErrors.city = "City is required";
+    if (!formData.state) validationErrors.state = "State is required";
+    if (!formData.country) validationErrors.country = "Country is required";
+    if (!formData.gender) validationErrors.gender = "Gender is required";
+    if (!formData.dateOfBirth)
+      validationErrors.dateOfBirth = "Date of Birth is required";
+    if (!formData.roleId) validationErrors.roleId = "Role is required";
 
     return validationErrors;
   };
@@ -95,6 +129,7 @@ const UserAddPage = () => {
           ...formData,
           dateOfBirth: formattedDate,
           email: formData.email.toLowerCase(),
+          // roleId: formData.roleId,
         },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -117,14 +152,10 @@ const UserAddPage = () => {
     navigate("/user");
   };
 
-  const roleOptions = [
-    { value: "super-admin", label: "Super Admin" },
-    { value: "admin", label: "Admin" },
-    { value: "66e08dbec146f84aec8a8e36", label: "User" },
-    { value: "dispatch", label: "Dispatch" },
-    { value: "monitoring", label: "Monitoring" },
-    { value: "time-sheet", label: "Time sheet" },
-  ];
+  const roleOptions = roles.map((role) => ({
+    value: role._id, // MongoDB ObjectId
+    label: role.name, // Role name
+  }));
 
   const countryOptions = [
     { value: "us", label: "United States" },
@@ -148,9 +179,9 @@ const UserAddPage = () => {
   ];
 
   const genderOptions = [
-    { value: "male", label: "Male" },
-    { value: "female", label: "Female" },
-    { value: "other", label: "Other" },
+    { value: "Male", label: "Male" },
+    { value: "Female", label: "Female" },
+    { value: "Other", label: "Other" },
   ];
 
   const handleRoleChange = (event) => {
@@ -183,6 +214,7 @@ const UserAddPage = () => {
                   setFormData({ ...formData, roleId: selectedOption.value })
                 }
               />
+              {errors.roleId && <p className="text-red-500">{errors.roleId}</p>}
               <label htmlFor="state" className="form-label">
                 User State
               </label>
@@ -200,6 +232,7 @@ const UserAddPage = () => {
                   setFormData({ ...formData, state: selectedOption.value })
                 }
               />
+              {errors.state && <p className="text-red-500">{errors.state}</p>}
               <Textinput
                 label="First Name"
                 type="text"
@@ -209,6 +242,9 @@ const UserAddPage = () => {
                   setFormData({ ...formData, firstName: e.target.value })
                 }
               />
+              {errors.firstName && (
+                <p className="text-red-500">{errors.firstName}</p>
+              )}
               <Textinput
                 label="Middle Name"
                 type="text"
@@ -230,6 +266,7 @@ const UserAddPage = () => {
                   })
                 }
               />
+              {errors.email && <p className="text-red-500">{errors.email}</p>}
               <Textinput
                 label="Phone"
                 type="number"
@@ -239,6 +276,10 @@ const UserAddPage = () => {
                   setFormData({ ...formData, phoneNumber1: e.target.value })
                 }
               />
+              {errors.phoneNumber1 && (
+                <p className="text-red-500">{errors.phoneNumber1}</p>
+              )}
+
               <label className="block text-sm font-medium">Gender</label>
               <Select
                 name="gender"
@@ -253,6 +294,7 @@ const UserAddPage = () => {
                   setFormData({ ...formData, gender: selectedOption.value })
                 }
               />
+              {errors.gender && <p className="text-red-500">{errors.gender}</p>}
               <div className="relative">
                 <Textinput
                   label="Password"
@@ -269,6 +311,9 @@ const UserAddPage = () => {
                   className="absolute right-3 top-[70%] transform -translate-y-1/2 cursor-pointer"
                 />
               </div>
+              {errors.password && (
+                <p className="text-red-500">{errors.password}</p>
+              )}
             </div>
           </div>
 
@@ -293,6 +338,9 @@ const UserAddPage = () => {
                   setFormData({ ...formData, country: selectedOption.value })
                 }
               />
+              {errors.country && (
+                <p className="text-red-500">{errors.country}</p>
+              )}
               <label htmlFor="city" className="form-label">
                 User City
               </label>
@@ -310,6 +358,7 @@ const UserAddPage = () => {
                   setFormData({ ...formData, city: selectedOption.value })
                 }
               />
+              {errors.city && <p className="text-red-500">{errors.city}</p>}
               <Textinput
                 label="Last Name"
                 type="text"
@@ -319,6 +368,9 @@ const UserAddPage = () => {
                   setFormData({ ...formData, lastName: e.target.value })
                 }
               />
+              {errors.lastName && (
+                <p className="text-red-500">{errors.lastName}</p>
+              )}
               <Textinput
                 label="Address"
                 type="text"
@@ -328,6 +380,9 @@ const UserAddPage = () => {
                   setFormData({ ...formData, address: e.target.value })
                 }
               />
+              {errors.address && (
+                <p className="text-red-500">{errors.address}</p>
+              )}
               <Textinput
                 label="Secondary Email"
                 type="secondaryEmail"
@@ -340,6 +395,9 @@ const UserAddPage = () => {
                   })
                 }
               />
+              {errors.secondaryEmail && (
+                <p className="text-red-500">{errors.secondaryEmail}</p>
+              )}
               <Textinput
                 label="Secondary Phone"
                 type="secondaryNumber"
@@ -349,6 +407,9 @@ const UserAddPage = () => {
                   setFormData({ ...formData, phoneNumber2: e.target.value })
                 }
               />
+              {errors.phoneNumber2 && (
+                <p className="text-red-500">{errors.phoneNumber2}</p>
+              )}
               <span className="py-4">
                 <label className="block text-sm font-medium my-3">
                   Date of Birth
@@ -363,6 +424,9 @@ const UserAddPage = () => {
                   className="block w-full rounded-md border border-gray-300 p-2"
                 />
               </span>
+              {errors.dateOfBirth && (
+                <p className="text-red-500">{errors.dateOfBirth}</p>
+              )}
             </div>
           </div>
         </div>
