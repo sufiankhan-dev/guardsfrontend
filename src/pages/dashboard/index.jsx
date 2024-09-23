@@ -14,6 +14,7 @@ import axios from "axios";
 import GroupChart4 from "@/components/partials/widget/chart/group-chart-4";
 import { count } from "d3-array";
 import { useSelector } from "react-redux";
+import dashboardImg from "../../assets/images/all-img/dashboardImg.jpeg";
 
 const Dashboard = () => {
   const [dash, setdashboard] = useState();
@@ -251,57 +252,57 @@ const Dashboard = () => {
       name: shapeLine3,
       title: "Total No Of",
       count: {
-        Vendors: (
+        Guards: (
           <>
             <br />
             <strong>{dash?.vendor || 0}</strong>{" "}
           </>
         ),
       },
-      bg: "bg-[#EAE5FF] dark:bg-slate-900	",
-      icon: "heroicons-outline:truck",
+      bg: "bg-gradient-to-r from-[#4E65FF] to-[#92EFFD] dark:bg-slate-800",
+      icon: "heroicons-outline:user-circle",
     },
     {
       name: shapeLine2,
       title: "Total no of ",
       count: {
-        Customer: (
+        Users: (
           <>
             <br />
             <strong>{dash?.users || 0}</strong>{" "}
           </>
         ),
       },
-      bg: "bg-[#FFEDE5] dark:bg-slate-900	",
+      bg: "bg-gradient-to-r from-[#FFECD2] to-[#FCB69F] dark:bg-slate-800",
       icon: "heroicons-outline:user-group",
     },
     {
       name: shapeLine1,
       title: "Total no of",
       count: {
-        Products: (
+        Locations: (
           <>
             <br />
             <strong>{dash?.products || 0}</strong>{" "}
           </>
         ),
       },
-      bg: "bg-[#E5F9FF] dark:bg-slate-900	",
-      icon: "heroicons:shopping-bag",
+      bg: "bg-gradient-to-r from-[#11998E] to-[#38EF7D] dark:bg-slate-800",
+      icon: "heroicons:map-pin",
     },
     {
       name: shapeLine3,
       title: "Total no of ",
       count: {
-        Order: (
+        Revenue: (
           <>
             <br />
-            <strong>{dash?.order || 0}</strong>{" "}
+            <strong>{"$50,000"}</strong>{" "}
           </>
         ),
       },
-      bg: "bg-[#EAE5FF] dark:bg-slate-900	",
-      icon: "heroicons-outline:shopping-cart",
+      bg: "bg-gradient-to-r from-[#93A5CF] to-[#E4EfE9] dark:bg-slate-800",
+      icon: "heroicons-outline:currency-dollar",
     },
   ];
 
@@ -388,8 +389,8 @@ const Dashboard = () => {
           </Card>
         </div>
         <div className="lg:col-span-4 col-span-12">
-          <Card title="Overview" headerslot={<SelectMonth />}>
-            <RadialsChart />
+          <Card title="Our Guards">
+            <img src={dashboardImg} alt="" />
           </Card>
         </div>
         <div className="lg:col-span-8 col-span-12">

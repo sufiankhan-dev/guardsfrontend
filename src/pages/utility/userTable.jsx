@@ -170,13 +170,38 @@ const UserPage = () => {
       },
     },
     {
-      Header: "Name",
-      accessor: "name",
+      Header: "Role",
+      accessor: "role", // Make sure roleId is part of the response from the backend
+      Cell: (row) => <span>{row?.cell?.value}</span>,
+    },
+    {
+      Header: "City",
+      accessor: "city", // Make sure roleId is part of the response from the backend
+      Cell: (row) => <span>{row?.cell?.value}</span>,
+    },
+    {
+      Header: "First Name",
+      accessor: "firstName",
+      Cell: (row) => <span>{row?.cell?.value}</span>,
+    },
+    {
+      Header: "Last Name",
+      accessor: "lastName",
       Cell: (row) => <span>{row?.cell?.value}</span>,
     },
     {
       Header: "Email",
       accessor: "email",
+      Cell: (row) => <span className="lowercase">{row?.cell?.value}</span>,
+    },
+    {
+      Header: "Address",
+      accessor: "address",
+      Cell: (row) => <span className="">{row?.cell?.value}</span>,
+    },
+    {
+      Header: "Phone",
+      accessor: "phoneNumber1",
       Cell: (row) => <span className="lowercase">{row?.cell?.value}</span>,
     },
     {
@@ -198,14 +223,21 @@ const UserPage = () => {
         </span>
       ),
     },
-    ,
     {
-      Header: "Created-At",
-      accessor: "date",
-      Cell: (row) => (
-        <span>{new Date(row?.cell?.value).toLocaleDateString()}</span>
-      ),
+      Header: "DOB",
+      accessor: "dateOfBirth",
+      Cell: (row) => {
+        const date = new Date(row?.cell?.value);
+        return <span>{date.toLocaleDateString()}</span>; // Format the date
+      },
     },
+    // {
+    //   Header: "Created-At",
+    //   accessor: "date",
+    //   Cell: (row) => (
+    //     <span>{new Date(row?.cell?.value).toLocaleDateString()}</span>
+    //   ),
+    // },
     {
       Header: "Action",
       accessor: "action",
