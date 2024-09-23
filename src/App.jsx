@@ -81,7 +81,13 @@ const UserEditPage = lazy(() => import("./pages/utility/user-edit"));
 const LocationListPage = lazy(() =>
   import("./pages/utility/locationlist-table")
 );
+const LocationTypePage = lazy(() =>
+  import("./pages/utility/locationtype-table")
+);
 const LocationAddPage = lazy(() => import("./pages/utility/location-add"));
+const LocationTypeAddPage = lazy(() =>
+  import("./pages/utility/locationtype-add")
+);
 const EmployeesPage = lazy(() => import("./pages/utility/employee-table"));
 const EmployeesAddPage = lazy(() => import("./pages/utility/employee-add"));
 const VendorAddPage = lazy(() => import("./pages/utility/vendor-add"));
@@ -257,9 +263,11 @@ function App() {
           <Route path="react-table" element={<TanstackTable />} />
           <Route path="user" element={<UserPage />} />
           <Route path="location" element={<LocationListPage />} />
+          <Route path="locationtype" element={<LocationTypePage />} />
           <Route path="vendor" element={<VendorPage />} />
           <Route path="user-add" element={<UserAddPage />} />
           <Route path="location-add" element={<LocationAddPage />} />
+          <Route path="locationtype-add" element={<LocationTypeAddPage />} />
           <Route path="Customer-edit" element={<UserEditPage />} />
           <Route path="vendor-add" element={<VendorAddPage />} />
           <Route path="vendor-edit" element={<VendorEditPage />} />

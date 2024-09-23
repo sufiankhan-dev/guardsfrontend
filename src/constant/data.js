@@ -264,7 +264,7 @@ export const menuItems = [
       },
       {
         childtitle: "Location Type",
-        childlink: "Vendor-category",
+        childlink: "locationtype",
       },
     ],
   },

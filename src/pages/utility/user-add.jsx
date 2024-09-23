@@ -158,9 +158,9 @@ const UserAddPage = () => {
   }));
 
   const countryOptions = [
-    { value: "us", label: "United States" },
-    { value: "uk", label: "United Kingdom" },
-    { value: "ca", label: "Canada" },
+    { value: "United States", label: "United States" },
+    { value: "United Kingdom", label: "United Kingdom" },
+    { value: "Canada", label: "Canada" },
     // Add more countries here
   ];
 
@@ -172,9 +172,9 @@ const UserAddPage = () => {
   ];
 
   const cityOptions = [
-    { value: "nyc", label: "New York City" },
-    { value: "la", label: "Los Angeles" },
-    { value: "hou", label: "Houston" },
+    { value: "New York City", label: "New York City" },
+    { value: "Los Angeles", label: "Los Angeles" },
+    { value: "Houston", label: "Houston" },
     // Add more cities here
   ];
 

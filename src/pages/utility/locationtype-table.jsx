@@ -40,7 +40,7 @@ const IndeterminateCheckbox = React.forwardRef(
   }
 );
 
-const UserPage = () => {
+const LocationTypePage = () => {
   const navigate = useNavigate();
   const [userData, setUserData] = useState([]);
   const [pageIndex, setPageIndex] = useState(0);
@@ -54,7 +54,7 @@ const UserPage = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}/${user.type}/user/get-users`,
+        `${process.env.REACT_APP_BASE_URL}/${user.type}/locationtype/get-location-types`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -66,7 +66,7 @@ const UserPage = () => {
           },
         }
       );
-      setUserData(response.data.users);
+      setUserData(response.data.locationTypes);
       setTotal(response.data.pagination.total);
       setHasNextPage(response.data.pagination.hasNextPage);
     } catch (error) {
@@ -170,74 +170,41 @@ const UserPage = () => {
       },
     },
     {
-      Header: "Role",
-      accessor: "_id", // Make sure roleId is part of the response from the backend
+      Header: "Category",
+      accessor: "maincategory",
       Cell: (row) => <span>{row?.cell?.value}</span>,
     },
     {
-      Header: "City",
-      accessor: "city", // Make sure roleId is part of the response from the backend
+      Header: "Name",
+      accessor: "name",
       Cell: (row) => <span>{row?.cell?.value}</span>,
-    },
-    {
-      Header: "First Name",
-      accessor: "firstName",
-      Cell: (row) => <span>{row?.cell?.value}</span>,
-    },
-    {
-      Header: "Last Name",
-      accessor: "lastName",
-      Cell: (row) => <span>{row?.cell?.value}</span>,
-    },
-    {
-      Header: "Email",
-      accessor: "email",
-      Cell: (row) => <span className="lowercase">{row?.cell?.value}</span>,
-    },
-    {
-      Header: "Address",
-      accessor: "address",
-      Cell: (row) => <span className="lowercase">{row?.cell?.value}</span>,
-    },
-    {
-      Header: "Phone",
-      accessor: "phoneNumber1",
-      Cell: (row) => <span className="lowercase">{row?.cell?.value}</span>,
-    },
-    {
-      Header: "Status",
-      accessor: "status",
-      Cell: (row) => (
-        <span className="block w-full">
-          <span
-            className={`inline-block px-3 min-w-[90px] text-center mx-auto py-1 rounded-[999px] bg-opacity-25 ${
-              row?.cell?.value === "active"
-                ? "text-success-500 bg-success-500"
-                : row?.cell?.value === "inactive"
-                ? "text-warning-500 bg-warning-500"
-                : ""
-            }`}
-          >
-            {row?.cell?.value}
-          </span>
-        </span>
-      ),
-    },
-    {
-      Header: "DOB",
-      accessor: "dateOfBirth",
-      Cell: (row) => {
-        const date = new Date(row?.cell?.value);
-        return <span>{date.toLocaleDateString()}</span>; // Format the date
-      },
     },
     // {
-    //   Header: "Created-At",
-    //   accessor: "date",
+    //   Header: "Status",
+    //   accessor: "status",
     //   Cell: (row) => (
-    //     <span>{new Date(row?.cell?.value).toLocaleDateString()}</span>
+    //     <span className="block w-full">
+    //       <span
+    //         className={`inline-block px-3 min-w-[90px] text-center mx-auto py-1 rounded-[999px] bg-opacity-25 ${
+    //           row?.cell?.value === "active"
+    //             ? "text-success-500 bg-success-500"
+    //             : row?.cell?.value === "inactive"
+    //             ? "text-warning-500 bg-warning-500"
+    //             : ""
+    //         }`}
+    //       >
+    //         {row?.cell?.value}
+    //       </span>
+    //     </span>
     //   ),
     // },
+    {
+      Header: "Created-At",
+      accessor: "date",
+      Cell: (row) => (
+        <span>{new Date(row?.cell?.value).toLocaleDateString()}</span>
+      ),
+    },
     {
       Header: "Action",
       accessor: "action",
@@ -358,14 +325,14 @@ const UserPage = () => {
     setPageIndex(0); // Reset to first page whenever page size changes
   };
   if (loading) {
-    return <div>Loading Users...</div>; // Show loading indicator
+    return <div>Loading Location Types...</div>; // Show loading indicator
   }
 
   return (
     <>
       <Card noborder>
         <div className="md:flex pb-6 items-center">
-          <h6 className="flex-1 md:mb-0 mb-3">Users</h6>
+          <h6 className="flex-1 md:mb-0 mb-3">Location Types</h6>
           <div className="md:flex md:space-x-3 items-center flex-none rtl:space-x-reverse">
             <GlobalFilter filter={globalFilter} setFilter={setGlobalFilter} />
             <Button
@@ -382,11 +349,11 @@ const UserPage = () => {
             />
             <Button
               icon="heroicons:plus"
-              text="Add User"
+              text="Add Location Type"
               className="btn-dark font-normal btn-sm"
               iconClass="text-lg"
               onClick={() => {
-                navigate("/user-add");
+                navigate("/locationtype-add");
               }}
             />
           </div>
@@ -558,4 +525,4 @@ const UserPage = () => {
   );
 };
 
-export default UserPage;
+export default LocationTypePage;

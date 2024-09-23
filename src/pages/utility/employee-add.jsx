@@ -408,20 +408,33 @@ const EmployeeAddPage = () => {
   const user = useSelector((state) => state.auth.user);
 
   const [formData, setFormData] = useState({
+    // employeeName: "",
+    // employeeId: "",
+    // address: "",
+    // contactNumber: "",
+    // category: "",
+    // guardCardDetails: {
+    //   number: "",
+    //   issueDate: null,
+    //   expiryDate: null,
+    // },
+    // payRate: "",
+    // hiringManager: "",
+    // notes: "",
+    // status: "",
+
     employeeName: "",
-    employeeId: "",
-    address: "",
-    contactNumber: "",
-    category: "",
-    guardCardDetails: {
-      number: "",
-      issueDate: null,
-      expiryDate: null,
-    },
-    payRate: "",
-    hiringManager: "",
-    notes: "",
-    status: "",
+    employeeAddress: "",
+    employeeIDNumber: "",
+    contactNumber1: "",
+    employeeCategory: "",
+    guardCardNumber: "",
+    issueDate: "",
+    expiryDate: "",
+    payRate: 0,
+    managerName: "",
+    approved: false,
+    status: "active",
   });
 
   const [uploadingData, setUploadingData] = useState(false);
@@ -434,7 +447,7 @@ const EmployeeAddPage = () => {
     try {
       setUploadingData(true);
       const response = await axios.post(
-        `${process.env.REACT_APP_BASE_URL}/${user.type}/employee/create-employee`,
+        `${process.env.REACT_APP_BASE_URL}/${user.type}/employe/create-employee`,
         formData,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -476,27 +489,27 @@ const EmployeeAddPage = () => {
               label="Employee ID*"
               type="text"
               placeholder="Employee ID"
-              value={formData.employeeId}
+              value={formData.employeeIDNumber}
               onChange={(e) =>
-                setFormData({ ...formData, employeeId: e.target.value })
+                setFormData({ ...formData, employeeIDNumber: e.target.value })
               }
             />
             <Textinput
               label="Address"
               type="text"
               placeholder="Address"
-              value={formData.address}
+              value={formData.employeeAddress}
               onChange={(e) =>
-                setFormData({ ...formData, address: e.target.value })
+                setFormData({ ...formData, employeeAddress: e.target.value })
               }
             />
             <Textinput
               label="Contact Number"
               type="tel"
               placeholder="Contact Number"
-              value={formData.contactNumber}
+              value={formData.contactNumber1}
               onChange={(e) =>
-                setFormData({ ...formData, contactNumber: e.target.value })
+                setFormData({ ...formData, contactNumber1: e.target.value })
               }
             />
             <label className="block text-sm font-medium">Category</label>
@@ -504,13 +517,15 @@ const EmployeeAddPage = () => {
               label="Category"
               name="category"
               options={[
-                { value: "regular", label: "Regular" },
-                { value: "shack", label: "Shack" },
-                // Add more categories as needed
+                { value: "Regular", label: "Regular" },
+                { value: "Shack", label: "Shack" },
               ]}
               placeholder="Select Category"
               onChange={(selectedOption) =>
-                setFormData({ ...formData, category: selectedOption.value })
+                setFormData({
+                  ...formData,
+                  employeeCategory: selectedOption.value,
+                })
               }
             />
             <div>
@@ -522,14 +537,11 @@ const EmployeeAddPage = () => {
                 label="Card Number"
                 type="text"
                 placeholder="Guard Card Number"
-                value={formData.guardCardDetails.number}
+                value={formData.guardCardNumber}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    guardCardDetails: {
-                      ...formData.guardCardDetails,
-                      number: e.target.value,
-                    },
+                    guardCardNumber: e.target.value,
                   })
                 }
               />
@@ -539,15 +551,12 @@ const EmployeeAddPage = () => {
                     Issue Date
                   </label>
                   <Flatpickr
-                    value={formData.guardCardDetails.issueDate}
+                    value={formData.issueDate}
                     options={{ dateFormat: "Y-m-d" }}
                     onChange={(date) =>
                       setFormData({
                         ...formData,
-                        guardCardDetails: {
-                          ...formData.guardCardDetails,
-                          issueDate: date[0],
-                        },
+                        issueDate: date[0],
                       })
                     }
                     placeholder="Select Issue Date"
@@ -559,15 +568,12 @@ const EmployeeAddPage = () => {
                     Expiry Date
                   </label>
                   <Flatpickr
-                    value={formData.guardCardDetails.expiryDate}
+                    value={formData.expiryDate}
                     options={{ dateFormat: "Y-m-d" }}
                     onChange={(date) =>
                       setFormData({
                         ...formData,
-                        guardCardDetails: {
-                          ...formData.guardCardDetails,
-                          expiryDate: date[0],
-                        },
+                        expiryDate: date[0],
                       })
                     }
                     placeholder="Select Expiry Date"
@@ -589,32 +595,31 @@ const EmployeeAddPage = () => {
               label="Hiring Manager"
               type="text"
               placeholder="Hiring Manager"
-              value={formData.hiringManager}
+              value={formData.managerName}
               onChange={(e) =>
-                setFormData({ ...formData, hiringManager: e.target.value })
+                setFormData({ ...formData, managerName: e.target.value })
               }
             />
             <Textinput
               label="Notes"
               type="text"
               placeholder="Additional Notes"
-              value={formData.notes}
-              onChange={(e) =>
-                setFormData({ ...formData, notes: e.target.value })
-              }
+              // value={formData.notes}
+              // onChange={(e) =>
+              //   setFormData({ ...formData, notes: e.target.value })
+              // }
             />
             <label className="block text-sm font-medium">Status</label>
             <Select
               label="Status"
               name="status"
               options={[
-                { value: "approved", label: "Approved" },
-                { value: "not-approved", label: "Not Approved" },
-                // Add more categories as needed
+                { value: true, label: "Approved" },
+                { value: false, label: "Not Approved" },
               ]}
               placeholder="Select Status"
               onChange={(selectedOption) =>
-                setFormData({ ...formData, status: selectedOption.value })
+                setFormData({ ...formData, approved: selectedOption.value })
               }
             />
           </div>

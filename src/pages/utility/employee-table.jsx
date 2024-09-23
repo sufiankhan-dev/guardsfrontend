@@ -54,7 +54,7 @@ const EmployeePage = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}/${user.type}/user/get-users`,
+        `${process.env.REACT_APP_BASE_URL}/${user.type}/employe/get-employees`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -66,7 +66,7 @@ const EmployeePage = () => {
           },
         }
       );
-      setUserData(response.data.users);
+      setUserData(response.data.employees);
       setTotal(response.data.pagination.total);
       setHasNextPage(response.data.pagination.hasNextPage);
     } catch (error) {
@@ -170,14 +170,72 @@ const EmployeePage = () => {
       },
     },
     {
+      Header: "Verified",
+      accessor: "approved",
+      Cell: (row) => (
+        <span>
+          {row?.cell?.value === true ? (
+            <Icons
+              icon="heroicons:check-circle"
+              className="text-success-500 text-3xl"
+            />
+          ) : (
+            <Icons
+              icon="heroicons:x-circle"
+              className="text-warning-500 text-3xl"
+            />
+          )}
+        </span>
+      ),
+    },
+    {
       Header: "Name",
-      accessor: "name",
+      accessor: "employeeName",
       Cell: (row) => <span>{row?.cell?.value}</span>,
     },
     {
-      Header: "Email",
-      accessor: "email",
-      Cell: (row) => <span className="lowercase">{row?.cell?.value}</span>,
+      Header: "Id Number",
+      accessor: "employeeIDNumber",
+      Cell: (row) => <span>{row?.cell?.value}</span>,
+    },
+    {
+      Header: "Address",
+      accessor: "employeeAddress",
+      Cell: (row) => <span>{row?.cell?.value}</span>,
+    },
+    {
+      Header: "Phone Number",
+      accessor: "contactNumber1",
+      Cell: (row) => <span>{row?.cell?.value}</span>,
+    },
+    {
+      Header: "Category",
+      accessor: "employeeCategory",
+      Cell: (row) => <span>{row?.cell?.value}</span>,
+    },
+    {
+      Header: "Card Number",
+      accessor: "guardCardNumber",
+      Cell: (row) => <span>{row?.cell?.value}</span>,
+    },
+    {
+      Header: "Issuance Date",
+      accessor: "issueDate",
+      Cell: (row) => (
+        <span>{new Date(row?.cell?.value).toLocaleDateString()}</span>
+      ),
+    },
+    {
+      Header: "Expiry Date",
+      accessor: "expiryDate",
+      Cell: (row) => (
+        <span>{new Date(row?.cell?.value).toLocaleDateString()}</span>
+      ),
+    },
+    {
+      Header: "Pay Rate",
+      accessor: "payRate",
+      Cell: (row) => <span>PKR {row?.cell?.value}</span>,
     },
     {
       Header: "Status",
@@ -198,14 +256,13 @@ const EmployeePage = () => {
         </span>
       ),
     },
-    ,
-    {
-      Header: "Created-At",
-      accessor: "date",
-      Cell: (row) => (
-        <span>{new Date(row?.cell?.value).toLocaleDateString()}</span>
-      ),
-    },
+    // {
+    //   Header: "Created-At",
+    //   accessor: "createdAt",
+    //   Cell: (row) => (
+    //     <span>{new Date(row?.cell?.value).toLocaleDateString()}</span>
+    //   ),
+    // },
     {
       Header: "Action",
       accessor: "action",
