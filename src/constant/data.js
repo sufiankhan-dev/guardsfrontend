@@ -255,7 +255,7 @@ export const menuItems = [
   },
   {
     title: "Locations",
-    icon: "heroicons-outline:building-office-2",
+    icon: "heroicons-outline:map-pin",
     link: "#",
     child: [
       {
@@ -271,25 +271,20 @@ export const menuItems = [
   {
     title: "Guards",
     icon: "heroicons-outline:briefcase",
-    link: "#",
-    child: [
-      {
-        childtitle: "Guards List",
-        childlink: "employees",
-      },
-    ],
+    link: "employees",
+    isHide: true,
   },
-
   {
     title: "Scheduling",
     icon: "heroicons-outline:calendar-days",
-    link: "#",
-    child: [
-      {
-        childtitle: "Schedule",
-        childlink: "products",
-      },
-    ],
+    link: "sheduling",
+    isHide: true,
+    // child: [
+    //   {
+    //     childtitle: "Schedule",
+    //     childlink: "products",
+    //   },
+    // ],
   },
   {
     title: "Verified Records",

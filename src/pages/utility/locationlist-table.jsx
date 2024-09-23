@@ -54,7 +54,7 @@ const LocationPage = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}/${user.type}/user/get-users`,
+        `${process.env.REACT_APP_BASE_URL}/${user.type}/location/get-locations`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -66,7 +66,7 @@ const LocationPage = () => {
           },
         }
       );
-      setUserData(response.data.users);
+      setUserData(response.data);
       setTotal(response.data.pagination.total);
       setHasNextPage(response.data.pagination.hasNextPage);
     } catch (error) {
@@ -170,38 +170,73 @@ const LocationPage = () => {
       },
     },
     {
-      Header: "Name",
-      accessor: "name",
+      Header: "Location Name",
+      accessor: "locationName",
       Cell: (row) => <span>{row?.cell?.value}</span>,
     },
     {
-      Header: "Email",
-      accessor: "email",
-      Cell: (row) => <span className="lowercase">{row?.cell?.value}</span>,
+      Header: "Address",
+      accessor: "address",
+      Cell: (row) => <span>{row?.cell?.value}</span>,
     },
     {
-      Header: "Status",
-      accessor: "status",
+      Header: "Time Zone",
+      accessor: "timeZone",
+      Cell: (row) => <span>{row?.cell?.value}</span>,
+    },
+    {
+      Header: "Location Type",
+      accessor: "locationType.name",
+      Cell: (row) => <span>{row?.cell?.value}</span>,
+    },
+    {
+      Header: "Client Details",
+      accessor: "clientDetails",
       Cell: (row) => (
-        <span className="block w-full">
-          <span
-            className={`inline-block px-3 min-w-[90px] text-center mx-auto py-1 rounded-[999px] bg-opacity-25 ${
-              row?.cell?.value === "active"
-                ? "text-success-500 bg-success-500"
-                : row?.cell?.value === "inactive"
-                ? "text-warning-500 bg-warning-500"
-                : ""
-            }`}
-          >
-            {row?.cell?.value}
-          </span>
-        </span>
+        <ul>
+          {row?.cell?.value.map((client) => (
+            <li key={client._id}>
+              {client.name} ({client.designation}) - {client.email}
+            </li>
+          ))}
+        </ul>
       ),
     },
-    ,
+    {
+      Header: "Schedule",
+      accessor: "schedule",
+      Cell: (row) => (
+        <ul>
+          {row?.cell?.value.map((schedule) => (
+            <li key={schedule._id}>
+              {schedule.day}: {schedule.startTime} - {schedule.endTime}
+            </li>
+          ))}
+        </ul>
+      ),
+    },
+    // {
+    //   Header: "Status",
+    //   accessor: "status",
+    //   Cell: (row) => (
+    //     <span className="block w-full">
+    //       <span
+    //         className={`inline-block px-3 min-w-[90px] text-center mx-auto py-1 rounded-[999px] bg-opacity-25 ${
+    //           row?.cell?.value === "active"
+    //             ? "text-success-500 bg-success-500"
+    //             : row?.cell?.value === "inactive"
+    //             ? "text-warning-500 bg-warning-500"
+    //             : ""
+    //         }`}
+    //       >
+    //         {row?.cell?.value}
+    //       </span>
+    //     </span>
+    //   ),
+    // },
     {
       Header: "Created-At",
-      accessor: "date",
+      accessor: "createdAt",
       Cell: (row) => (
         <span>{new Date(row?.cell?.value).toLocaleDateString()}</span>
       ),
