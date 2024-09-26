@@ -40,7 +40,7 @@ const IndeterminateCheckbox = React.forwardRef(
   }
 );
 
-const EmployeePage = () => {
+const AttendancePage = () => {
   const navigate = useNavigate();
   const [userData, setUserData] = useState([]);
   const [pageIndex, setPageIndex] = useState(0);
@@ -54,7 +54,7 @@ const EmployeePage = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}/${user.type}/employe/get-employees`,
+        `${process.env.REACT_APP_BASE_URL}/${user.type}/attendence/get-attendances`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -66,7 +66,7 @@ const EmployeePage = () => {
           },
         }
       );
-      setUserData(response.data.employees);
+      setUserData(response.data.attendances);
       setTotal(response.data.pagination.total);
       setHasNextPage(response.data.pagination.hasNextPage);
     } catch (error) {
@@ -170,92 +170,77 @@ const EmployeePage = () => {
       },
     },
     {
-      Header: "Name",
-      accessor: "employeeName",
+      Header: "Employees",
+      accessor: "employee.employeeName", // Make sure roleId is part of the response from the backend
       Cell: (row) => <span>{row?.cell?.value}</span>,
     },
     {
-      Header: "Id Number",
-      accessor: "employeeIDNumber",
+      Header: "Location",
+      accessor: "location.locationName", // Make sure roleId is part of the response from the backend
+      Cell: (row) => <span>{row?.cell?.value}</span>,
+    },
+    // {
+    //   Header: "First Name",
+    //   accessor: "firstName",
+    //   Cell: (row) => <span>{row?.cell?.value}</span>,
+    // },
+    // {
+    //   Header: "Last Name",
+    //   accessor: "lastName",
+    //   Cell: (row) => <span>{row?.cell?.value}</span>,
+    // },
+    {
+      Header: "Check-in",
+      accessor: "checkInTime",
       Cell: (row) => <span>{row?.cell?.value}</span>,
     },
     {
-      Header: "Address",
-      accessor: "employeeAddress",
+      Header: "Check-out",
+      accessor: "checkOut",
       Cell: (row) => <span>{row?.cell?.value}</span>,
     },
-    {
-      Header: "Phone Number",
-      accessor: "contactNumber1",
-      Cell: (row) => <span>{row?.cell?.value}</span>,
-    },
-    {
-      Header: "Category",
-      accessor: "employeeCategory",
-      Cell: (row) => <span>{row?.cell?.value}</span>,
-    },
-    {
-      Header: "Card Number",
-      accessor: "guardCardNumber",
-      Cell: (row) => <span>{row?.cell?.value}</span>,
-    },
-    {
-      Header: "Issuance Date",
-      accessor: "issueDate",
-      Cell: (row) => (
-        <span>{new Date(row?.cell?.value).toLocaleDateString()}</span>
-      ),
-    },
-    {
-      Header: "Expiry Date",
-      accessor: "expiryDate",
-      Cell: (row) => (
-        <span>{new Date(row?.cell?.value).toLocaleDateString()}</span>
-      ),
-    },
-    {
-      Header: "Pay Rate",
-      accessor: "payRate",
-      Cell: (row) => <span>PKR {row?.cell?.value}</span>,
-    },
-    {
-      Header: "Status",
-      accessor: "status",
-      Cell: (row) => (
-        <span className="block w-full">
-          <span
-            className={`inline-block px-3 min-w-[90px] text-center mx-auto py-1 rounded-[999px] bg-opacity-25 ${
-              row?.cell?.value === "active"
-                ? "text-success-500 bg-success-500"
-                : row?.cell?.value === "inactive"
-                ? "text-warning-500 bg-warning-500"
-                : ""
-            }`}
-          >
-            {row?.cell?.value}
-          </span>
-        </span>
-      ),
-    },
-    {
-      Header: "Salary Status",
-      accessor: "approved",
-      Cell: (row) => (
-        <span>
-          {row?.cell?.value === true ? (
-            <Icons
-              icon="heroicons:check-circle"
-              className="text-success-500 text-3xl"
-            />
-          ) : (
-            <Icons
-              icon="heroicons:x-circle"
-              className="text-warning-500 text-3xl"
-            />
-          )}
-        </span>
-      ),
-    },
+    // {
+    //   Header: "Email",
+    //   accessor: "email",
+    //   Cell: (row) => <span className="lowercase">{row?.cell?.value}</span>,
+    // },
+    // {
+    //   Header: "Address",
+    //   accessor: "address",
+    //   Cell: (row) => <span className="lowercase">{row?.cell?.value}</span>,
+    // },
+    // {
+    //   Header: "Phone",
+    //   accessor: "phoneNumber1",
+    //   Cell: (row) => <span className="lowercase">{row?.cell?.value}</span>,
+    // },
+    // {
+    //   Header: "Status",
+    //   accessor: "status",
+    //   Cell: (row) => (
+    //     <span className="block w-full">
+    //       <span
+    //         className={`inline-block px-3 min-w-[90px] text-center mx-auto py-1 rounded-[999px] bg-opacity-25 ${
+    //           row?.cell?.value === "active"
+    //             ? "text-success-500 bg-success-500"
+    //             : row?.cell?.value === "inactive"
+    //             ? "text-warning-500 bg-warning-500"
+    //             : ""
+    //         }`}
+    //       >
+    //         {row?.cell?.value}
+    //       </span>
+    //     </span>
+    //   ),
+    // },
+    // {
+    //   Header: "DOB",
+    //   accessor: "dateOfBirth",
+    //   Cell: (row) => {
+    //     const date = new Date(row?.cell?.value);
+    //     return <span>{date.toLocaleDateString()}</span>; // Format the date
+    //   },
+    // },
     {
       Header: "Created-At",
       accessor: "createdAt",
@@ -383,14 +368,14 @@ const EmployeePage = () => {
     setPageIndex(0); // Reset to first page whenever page size changes
   };
   if (loading) {
-    return <div>Loading Employees...</div>; // Show loading indicator
+    return <div>Loading Attendance...</div>; // Show loading indicator
   }
 
   return (
     <>
       <Card noborder>
         <div className="md:flex pb-6 items-center">
-          <h6 className="flex-1 md:mb-0 mb-3">Employees</h6>
+          <h6 className="flex-1 md:mb-0 mb-3">Attendance</h6>
           <div className="md:flex md:space-x-3 items-center flex-none rtl:space-x-reverse">
             <GlobalFilter filter={globalFilter} setFilter={setGlobalFilter} />
             <Button
@@ -407,11 +392,11 @@ const EmployeePage = () => {
             />
             <Button
               icon="heroicons:plus"
-              text="Add Employee"
+              text="Add attendance"
               className="btn-dark font-normal btn-sm"
               iconClass="text-lg"
               onClick={() => {
-                navigate("/employee-add");
+                navigate("/user-add");
               }}
             />
           </div>
@@ -583,4 +568,4 @@ const EmployeePage = () => {
   );
 };
 
-export default EmployeePage;
+export default AttendancePage;

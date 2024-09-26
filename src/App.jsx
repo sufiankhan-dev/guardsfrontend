@@ -76,6 +76,12 @@ const TanstackTable = lazy(() => import("./pages/table/react-table"));
 
 // utility pages
 const UserPage = lazy(() => import("./pages/utility/userTable"));
+const AttendancePage = lazy(() =>
+  import("./pages/utility/attendance-table.jsx")
+);
+const VerifiedRecordsPage = lazy(() =>
+  import("./pages/utility/verified-records-table")
+);
 const UserAddPage = lazy(() => import("./pages/utility/user-add"));
 const UserEditPage = lazy(() => import("./pages/utility/user-edit"));
 const LocationListPage = lazy(() =>
@@ -135,7 +141,6 @@ const ProjectDetailsPage = lazy(() =>
 
 const KanbanPage = lazy(() => import("./pages/app/kanban"));
 const CalenderPage = lazy(() => import("./pages/app/calendar"));
-
 //Ecommerce-Pages
 
 const EcommercePage = lazy(() => import("./pages/ecommerce"));
@@ -263,7 +268,7 @@ function App() {
           <Route path="table-basic" element={<BasicTablePage />} />
           <Route path="react-table" element={<TanstackTable />} />
           <Route path="user" element={<UserPage />} />
-          <Route path="location" element={<LocationListPage />} />
+          <Route path="attendance" element={<AttendancePage />} />
           <Route path="locationtype" element={<LocationTypePage />} />
           <Route path="vendor" element={<VendorPage />} />
           <Route path="user-add" element={<UserAddPage />} />
@@ -316,6 +321,7 @@ function App() {
           {/* <Route path="Location-list" element={<Vendorcatagory />} /> */}
           <Route path="vender-add" element={<Vendoradd />} />
           <Route path="vender-cata-edit" element={<Vendorcatagoryedit />} />
+          <Route path="verified-records" element={<VerifiedRecordsPage />} />
           <Route path="discout-table" element={<Discounttable />} />
           <Route path="discout-add" element={<Discountadd />} />
           <Route path="discount-edit" element={<Discountedit />} />

@@ -10,7 +10,7 @@ import useSkin from "@/hooks/useSkin";
 import sufilogo from "@/assets/images/logo/sufi-logo2.png";
 import sufilogo2 from "@/assets/images/logo/sufi-logo.png";
 import MobileLogoWhite from "@/assets/images/logo/logo-c-white.svg";
-
+import logo from "@/assets/images/all-img/logoguards.jpeg";
 const SidebarLogo = ({ menuHover }) => {
   const [isDark] = useDarkMode();
   const [collapsed, setMenuCollapsed] = useSidebar();
@@ -39,7 +39,7 @@ const SidebarLogo = ({ menuHover }) => {
               <img src={sufilogo2} alt="" />
             )} */}
             <span className="text-2xl text-gray-900 md:text-4xl font-extrabold italic flex items-center">
-              DashCart
+              <img src={logo} />
             </span>
           </div>
 

@@ -287,15 +287,28 @@ export const menuItems = [
     // ],
   },
   {
+    title: "Attendance",
+    icon: "heroicons-outline:clock",
+    link: "attendance",
+    isHide: true,
+    // child: [
+    //   {
+    //     childtitle: "Schedule",
+    //     childlink: "products",
+    //   },
+    // ],
+  },
+  {
     title: "Verified Records",
     icon: "heroicons-outline:check-badge",
-    link: "#",
-    child: [
-      {
-        childtitle: "Records",
-        childlink: "orders",
-      },
-    ],
+    link: "verified-records",
+    isHide: true,
+    // child: [
+    //   {
+    //     childtitle: "Records",
+    //     childlink: "roles",
+    //   },
+    // ],
   },
 
   // {
@@ -322,39 +335,40 @@ export const menuItems = [
 
   //   ],
   // },
-  {
-    title: "Monitoring",
-    icon: "heroicons-outline:computer-desktop",
-    link: "#",
-    child: [
-      {
-        childtitle: "Monitor",
-        childlink: "Rider",
-      },
-    ],
-  },
+  // {
+  //   title: "Monitoring",
+  //   icon: "heroicons-outline:computer-desktop",
+  //   link: "#",
+  //   child: [
+  //     {
+  //       childtitle: "Monitor",
+  //       childlink: "Rider",
+  //     },
+  //   ],
+  // },
   {
     title: "Confirmation Call",
     icon: "heroicons-outline:check-badge",
-    link: "#",
-    child: [
-      {
-        childtitle: "Confirmed Calls",
-        childlink: "add-config",
-      },
-    ],
+    link: "employees",
+    isHide: true,
+    // child: [
+    //   {
+    //     childtitle: "Confirmed Calls",
+    //     childlink: "employees",
+    //   },
+    // ],
   },
-  {
-    title: "Privilege",
-    icon: "heroicons-outline:check-badge",
-    link: "#",
-    child: [
-      {
-        childtitle: "Privilege",
-        childlink: "add-config",
-      },
-    ],
-  },
+  // {
+  //   title: "Privilege",
+  //   icon: "heroicons-outline:check-badge",
+  //   link: "#",
+  //   child: [
+  //     {
+  //       childtitle: "Privilege",
+  //       childlink: "add-config",
+  //     },
+  //   ],
+  // },
 
   // {
   //   title: "Widgets",

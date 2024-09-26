@@ -383,14 +383,14 @@ const EmployeePage = () => {
     setPageIndex(0); // Reset to first page whenever page size changes
   };
   if (loading) {
-    return <div>Loading Employees...</div>; // Show loading indicator
+    return <div>Loading Verified Records...</div>; // Show loading indicator
   }
 
   return (
     <>
       <Card noborder>
         <div className="md:flex pb-6 items-center">
-          <h6 className="flex-1 md:mb-0 mb-3">Employees</h6>
+          <h6 className="flex-1 md:mb-0 mb-3">Records</h6>
           <div className="md:flex md:space-x-3 items-center flex-none rtl:space-x-reverse">
             <GlobalFilter filter={globalFilter} setFilter={setGlobalFilter} />
             <Button
