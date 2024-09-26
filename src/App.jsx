@@ -94,6 +94,9 @@ const LocationAddPage = lazy(() => import("./pages/utility/location-add"));
 const LocationTypeAddPage = lazy(() =>
   import("./pages/utility/locationtype-add")
 );
+const ConfirmationCallPage = lazy(() =>
+  import("./pages/utility/confirmationcall-table")
+);
 const EmployeesPage = lazy(() => import("./pages/utility/employee-table"));
 const EmployeesAddPage = lazy(() => import("./pages/utility/employee-add"));
 const VendorAddPage = lazy(() => import("./pages/utility/vendor-add"));
@@ -322,6 +325,7 @@ function App() {
           <Route path="vender-add" element={<Vendoradd />} />
           <Route path="vender-cata-edit" element={<Vendorcatagoryedit />} />
           <Route path="verified-records" element={<VerifiedRecordsPage />} />
+          <Route path="confirmation-call" element={<ConfirmationCallPage />} />
           <Route path="discout-table" element={<Discounttable />} />
           <Route path="discout-add" element={<Discountadd />} />
           <Route path="discount-edit" element={<Discountedit />} />

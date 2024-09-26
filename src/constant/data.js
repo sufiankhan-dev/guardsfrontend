@@ -349,7 +349,7 @@ export const menuItems = [
   {
     title: "Confirmation Call",
     icon: "heroicons-outline:check-badge",
-    link: "employees",
+    link: "confirmation-call",
     isHide: true,
     // child: [
     //   {
