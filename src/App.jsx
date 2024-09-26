@@ -273,6 +273,7 @@ function App() {
           <Route path="user" element={<UserPage />} />
           <Route path="attendance" element={<AttendancePage />} />
           <Route path="locationtype" element={<LocationTypePage />} />
+          <Route path="location" element={<LocationListPage />} />
           <Route path="vendor" element={<VendorPage />} />
           <Route path="user-add" element={<UserAddPage />} />
           <Route path="location-add" element={<LocationAddPage />} />
@@ -322,6 +323,7 @@ function App() {
           <Route path="brands-edit" element={<Brandsedit />} />
           <Route path="Vendor-category" element={<Vendorcatagory />} />
           {/* <Route path="Location-list" element={<Vendorcatagory />} /> */}
+
           <Route path="vender-add" element={<Vendoradd />} />
           <Route path="vender-cata-edit" element={<Vendorcatagoryedit />} />
           <Route path="verified-records" element={<VerifiedRecordsPage />} />
