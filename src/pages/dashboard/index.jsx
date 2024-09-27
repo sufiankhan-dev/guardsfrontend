@@ -255,7 +255,7 @@ const Dashboard = () => {
         Guards: (
           <>
             <br />
-            <strong>{dash?.vendor || 0}</strong>{" "}
+            <strong>{dash?.employee || 0}</strong>{" "}
           </>
         ),
       },
@@ -283,7 +283,7 @@ const Dashboard = () => {
         Locations: (
           <>
             <br />
-            <strong>{dash?.products || 0}</strong>{" "}
+            <strong>{dash?.location || 0}</strong>{" "}
           </>
         ),
       },

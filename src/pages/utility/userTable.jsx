@@ -102,7 +102,7 @@ const UserPage = () => {
   const handleChangeStatus = async (id, newStatus) => {
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_BASE_URL}/admin/user/change-status/${id}`,
+        `${process.env.REACT_APP_BASE_URL}/admin/user/user/update-user-status/${id}`,
         {
           method: "PUT",
           headers: {
@@ -171,7 +171,7 @@ const UserPage = () => {
     },
     {
       Header: "Role",
-      accessor: "_id", // Make sure roleId is part of the response from the backend
+      accessor: "role.name", // Make sure roleId is part of the response from the backend
       Cell: (row) => <span>{row?.cell?.value}</span>,
     },
     {

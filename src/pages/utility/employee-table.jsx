@@ -83,7 +83,7 @@ const EmployeePage = () => {
   const handleDelete = async (id) => {
     try {
       await axios.delete(
-        `${process.env.REACT_APP_BASE_URL}/${user.type}/user/delete-user/${id}`,
+        `${process.env.REACT_APP_BASE_URL}/${user.type}/employe/delete-employe/${id}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -102,7 +102,7 @@ const EmployeePage = () => {
   const handleChangeStatus = async (id, newStatus) => {
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_BASE_URL}/admin/user/change-status/${id}`,
+        `${process.env.REACT_APP_BASE_URL}/admin/employe/change-status/${id}`,
         {
           method: "PUT",
           headers: {
@@ -128,6 +128,37 @@ const EmployeePage = () => {
       toast.error("Error updating user status");
     }
   };
+  const handleChangeSalaryStatus = async (id, currentStatus) => {
+    try {
+      const newStatus = currentStatus === "paid" ? "unpaid" : "paid";
+      const response = await axios.put(
+        `${process.env.REACT_APP_BASE_URL}/admin/employe/change-salarystatus/${id}`,
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+  
+      if (response.status === 200) {
+        // Update the state after the API call succeeds
+        setUserData((prevUsers) =>
+          prevUsers.map((user) =>
+            user._id === id ? { ...user, salarystatus: newStatus } : user
+          )
+        );
+        toast.success("Salary status updated successfully");
+      } else {
+        toast.error("Failed to update salary status");
+      }
+    } catch (error) {
+      console.error("Error updating salary status:", error);
+      toast.error("Error updating salary status");
+    }
+  };
+  
 
   const actions = [
     {
@@ -159,6 +190,14 @@ const EmployeePage = () => {
         handleChangeStatus(id, newStatus);
       },
     },
+    {
+      name: "change feestatus",
+      icon: "heroicons-outline:refresh",
+      doit: (id, currentFeeStatus) => {
+          const newFeeStatus = currentFeeStatus === 'paid' ? 'unpaid' : 'paid';
+          handleChangeSalaryStatus(id, newFeeStatus);
+      },
+  },
   ];
 
   const COLUMNS = [
@@ -189,30 +228,30 @@ const EmployeePage = () => {
       accessor: "contactNumber1",
       Cell: (row) => <span>{row?.cell?.value}</span>,
     },
-    {
-      Header: "Category",
-      accessor: "employeeCategory",
-      Cell: (row) => <span>{row?.cell?.value}</span>,
-    },
-    {
-      Header: "Card Number",
-      accessor: "guardCardNumber",
-      Cell: (row) => <span>{row?.cell?.value}</span>,
-    },
-    {
-      Header: "Issuance Date",
-      accessor: "issueDate",
-      Cell: (row) => (
-        <span>{new Date(row?.cell?.value).toLocaleDateString()}</span>
-      ),
-    },
-    {
-      Header: "Expiry Date",
-      accessor: "expiryDate",
-      Cell: (row) => (
-        <span>{new Date(row?.cell?.value).toLocaleDateString()}</span>
-      ),
-    },
+    // {
+    //   Header: "Category",
+    //   accessor: "employeeCategory",
+    //   Cell: (row) => <span>{row?.cell?.value}</span>,
+    // },
+    // {
+    //   Header: "Card Number",
+    //   accessor: "guardCardNumber",
+    //   Cell: (row) => <span>{row?.cell?.value}</span>,
+    // },
+    // {
+    //   Header: "Issuance Date",
+    //   accessor: "issueDate",
+    //   Cell: (row) => (
+    //     <span>{new Date(row?.cell?.value).toLocaleDateString()}</span>
+    //   ),
+    // },
+    // {
+    //   Header: "Expiry Date",
+    //   accessor: "expiryDate",
+    //   Cell: (row) => (
+    //     <span>{new Date(row?.cell?.value).toLocaleDateString()}</span>
+    //   ),
+    // },
     {
       Header: "Pay Rate",
       accessor: "payRate",
@@ -239,23 +278,25 @@ const EmployeePage = () => {
     },
     {
       Header: "Salary Status",
-      accessor: "approved",
+      accessor: "salarystatus",
       Cell: (row) => (
-        <span>
-          {row?.cell?.value === true ? (
-            <Icons
-              icon="heroicons:check-circle"
-              className="text-success-500 text-3xl"
-            />
-          ) : (
-            <Icons
-              icon="heroicons:x-circle"
-              className="text-warning-500 text-3xl"
-            />
-          )}
+        <span className="block w-full">
+          <span
+            className={`inline-block px-3 min-w-[90px] text-center mx-auto py-1 rounded-[999px] bg-opacity-25 ${
+              row?.cell?.value === "paid"
+                ? "text-success-500 bg-success-500"
+                : row?.cell?.value === "unpaid"
+                ? "text-warning-500 bg-warning-500"
+                : ""
+            }`}
+          >
+            {row?.cell?.value}
+          </span>
         </span>
       ),
     },
+    
+   
     {
       Header: "Created-At",
       accessor: "createdAt",

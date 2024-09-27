@@ -226,6 +226,7 @@ import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import EventModal from "./EventModal";
 import { useSelector } from "react-redux";
+import ExternalDraggingevent from "./dragging-events";
 
 const CalendarPage = () => {
   const user = useSelector((state) => state.auth.user);
@@ -365,6 +366,7 @@ const CalendarPage = () => {
               ))}
             </select>
           </div>
+         
 
           <Button
             text="Add Event"
