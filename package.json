@@ -60,6 +60,7 @@
     "react-table": "^7.8.0",
     "react-tailwindcss-datepicker": "^1.4.2",
     "react-text-input": "^0.0.8",
+    "react-time-picker": "^7.0.0",
     "react-toastify": "^9.1.1",
     "react-transition-group": "^4.4.5",
     "recharts": "^2.3.2",
