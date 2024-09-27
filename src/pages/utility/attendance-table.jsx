@@ -5,6 +5,8 @@ import Dropdown from "@/components/ui/Dropdown";
 import Button from "@/components/ui/Button";
 import axios from "axios";
 import { toast } from "react-toastify";
+import Modal from "@/components/ui/Modal";
+import TimePicker from "react-time-picker";
 import { useNavigate } from "react-router-dom";
 import {
   useTable,
@@ -49,6 +51,10 @@ const AttendancePage = () => {
   const [hasNextPage, setHasNextPage] = useState(false);
   const user = useSelector((state) => state.auth.user);
   const [loading, setLoading] = useState(true); // Loading state
+  const [showDialog, setShowDialog] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [selectedAction, setSelectedAction] = useState("");
+  const [time, setTime] = useState("");
 
   const fetchData = async (pageIndex, pageSize) => {
     try {
@@ -129,6 +135,35 @@ const AttendancePage = () => {
     }
   };
 
+  const openDialog = (employee, action) => {
+    console.log("Dialog opened for:", employee, action); // Add this to verify
+    setSelectedEmployee(employee);
+    setSelectedAction(action);
+    setTime(""); // Reset the time picker
+    setShowDialog(true);
+  };
+
+  const saveTime = () => {
+    if (selectedAction === "checkIn") {
+      setUserData((prev) =>
+        prev.map((user) =>
+          user._id === selectedEmployee._id
+            ? { ...user, checkInTime: time }
+            : user
+        )
+      );
+    } else if (selectedAction === "checkOut") {
+      setUserData((prev) =>
+        prev.map((user) =>
+          user._id === selectedEmployee._id
+            ? { ...user, checkOutTime: time }
+            : user
+        )
+      );
+    }
+    setShowDialog(false);
+  };
+
   const actions = [
     {
       name: "edit",
@@ -170,77 +205,51 @@ const AttendancePage = () => {
       },
     },
     {
+      Header: "Location",
+      accessor: "location.locationName", // Make sure roleId is part of the response from the backend
+      Cell: (row) => <span>{row?.cell?.value}</span>,
+    },
+    {
       Header: "Employees",
       accessor: "employee.employeeName", // Make sure roleId is part of the response from the backend
       Cell: (row) => <span>{row?.cell?.value}</span>,
     },
     {
-      Header: "Location",
-      accessor: "location.locationName", // Make sure roleId is part of the response from the backend
-      Cell: (row) => <span>{row?.cell?.value}</span>,
-    },
-    // {
-    //   Header: "First Name",
-    //   accessor: "firstName",
-    //   Cell: (row) => <span>{row?.cell?.value}</span>,
-    // },
-    // {
-    //   Header: "Last Name",
-    //   accessor: "lastName",
-    //   Cell: (row) => <span>{row?.cell?.value}</span>,
-    // },
-    {
       Header: "Check-in",
       accessor: "checkInTime",
-      Cell: (row) => <span>{row?.cell?.value}</span>,
+      Cell: (row) => (
+        <span>
+          {row?.cell?.value ? (
+            row.cell.value
+          ) : (
+            <Button
+              className="btn-sm btn-outline border"
+              onClick={() => openDialog(row.row.original, "checkIn")}
+            >
+              Check-in
+            </Button>
+          )}
+        </span>
+      ),
     },
     {
       Header: "Check-out",
-      accessor: "checkOut",
-      Cell: (row) => <span>{row?.cell?.value}</span>,
+      accessor: "checkOutTime",
+      Cell: (row) => (
+        <span>
+          {row?.cell?.value ? (
+            row.cell.value
+          ) : (
+            <Button
+              className="btn-sm btn-outline border"
+              onClick={() => openDialog(row.row.original, "checkOut")}
+            >
+              Check-out
+            </Button>
+          )}
+        </span>
+      ),
     },
-    // {
-    //   Header: "Email",
-    //   accessor: "email",
-    //   Cell: (row) => <span className="lowercase">{row?.cell?.value}</span>,
-    // },
-    // {
-    //   Header: "Address",
-    //   accessor: "address",
-    //   Cell: (row) => <span className="lowercase">{row?.cell?.value}</span>,
-    // },
-    // {
-    //   Header: "Phone",
-    //   accessor: "phoneNumber1",
-    //   Cell: (row) => <span className="lowercase">{row?.cell?.value}</span>,
-    // },
-    // {
-    //   Header: "Status",
-    //   accessor: "status",
-    //   Cell: (row) => (
-    //     <span className="block w-full">
-    //       <span
-    //         className={`inline-block px-3 min-w-[90px] text-center mx-auto py-1 rounded-[999px] bg-opacity-25 ${
-    //           row?.cell?.value === "active"
-    //             ? "text-success-500 bg-success-500"
-    //             : row?.cell?.value === "inactive"
-    //             ? "text-warning-500 bg-warning-500"
-    //             : ""
-    //         }`}
-    //       >
-    //         {row?.cell?.value}
-    //       </span>
-    //     </span>
-    //   ),
-    // },
-    // {
-    //   Header: "DOB",
-    //   accessor: "dateOfBirth",
-    //   Cell: (row) => {
-    //     const date = new Date(row?.cell?.value);
-    //     return <span>{date.toLocaleDateString()}</span>; // Format the date
-    //   },
-    // },
     {
       Header: "Created-At",
       accessor: "createdAt",
