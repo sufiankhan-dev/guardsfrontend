@@ -1946,3 +1946,27 @@
   border: 1px solid gold; /* Gold border */
   color: black; /* Text color */
 }
+
+.fc-event.yellow-event {
+  background-color: yellow !important;
+  border-color: yellow !important;
+  color: black; /* Adjust text color if necessary */
+}
+
+.fc-event.blue-event {
+  background-color: blue !important;
+  border-color: blue !important;
+  color: white;
+}
+
+.fc-event.green-event {
+  background-color: green !important;
+  border-color: green !important;
+  color: white;
+}
+
+.fc-event.red-event {
+  background-color: red !important;
+  border-color: red !important;
+  color: white;
+}

@@ -11,6 +11,8 @@ import Button from "@/components/ui/Button";
 import Checkbox from "@/components/ui/Checkbox";
 import EventModal from "./EventModal";
 import LoaderCircle from "@/components/Loader-circle";
+import "./../../../assets/scss/utility/_full-calender.scss";
+import ExternalDraggingevent from "./dragging-events";
 
 const CalendarPage = () => {
   const calendarComponentRef = useRef(null);
@@ -64,15 +66,32 @@ const CalendarPage = () => {
         }
       )
       .then((response) => {
-        const events = response.data.map((schedule) => ({
-          title: schedule.events[0].assignedEmployee.employeeName,
-          start: schedule.date,
-          end: schedule.date,
-          extendedProps: {
-            startTime: schedule.events[0].startTime,
-            endTime: schedule.events[0].endTime,
-          },
-        }));
+        const colors = [
+          "primary",
+          "secondary",
+          "danger",
+          "info",
+          "warning",
+          "success",
+          "dark",
+        ];
+        const events = response.data.map((schedule, index) => {
+          const eventDate = new Date(schedule.date);
+          const timezoneOffset = eventDate.getTimezoneOffset() * 60000; // Convert offset to milliseconds
+          eventDate.setTime(eventDate.getTime() + timezoneOffset); // Set end date to the next day
+          return {
+            title: schedule.events[0].assignedEmployee.employeeName,
+            start: schedule.date,
+            end: schedule.date,
+            // classNames: [colors[index % colors.length]],
+            classNames: [colors[index % colors.length]],
+            extendedProps: {
+              startTime: schedule.events[0].startTime,
+              endTime: schedule.events[0].endTime,
+            },
+          };
+        });
+        console.log(events);
         setCalendarEvents(events);
         setIsLoading(false);
       })
@@ -88,12 +107,16 @@ const CalendarPage = () => {
     console.log("Event Start Time:", newEvent.startTime); // Check if startTime is valid
     console.log("Event End Time:", newEvent.endTime); // Check if endTime is valid
     console.log("Assigned Employee ID:", newEvent.assignedEmployeeId);
+
+    const eventDate = new Date(newEvent.date);
+    eventDate.setHours(0, 0, 0, 0); // Set time to midnight for consistency
+    const formattedDate = eventDate.toISOString(); // Convert to ISO format
     axios
       .post(
         `${process.env.REACT_APP_BASE_URL}/admin/schedule/create-schedule`,
         {
           locationId: selectedLocation,
-          date: newEvent.date,
+          date: formattedDate,
           events: [
             {
               startTime: newEvent.startTime,
@@ -142,6 +165,13 @@ const CalendarPage = () => {
     return <LoaderCircle />;
   }
 
+  const events = [
+    { id: 1, title: "Business Strategy", tag: "business" },
+    { id: 2, title: "Team Meeting", tag: "meeting" },
+    { id: 3, title: "Holiday Celebration", tag: "holiday" },
+    { id: 4, title: "Miscellaneous", tag: "etc" },
+  ];
+
   return (
     <div className="dashcode-calender">
       <div className="grid grid-cols-12 gap-4">
@@ -169,6 +199,15 @@ const CalendarPage = () => {
             className="btn-dark w-full block"
             onClick={() => setShowModal(!showModal)}
           />
+
+          <div id="external-events" className=" space-y-1.5 mt-6 ">
+            <p className=" text-sm pb-2">
+              Drag and drop your event or click in the calendar
+            </p>
+            {events.map((event) => (
+              <ExternalDraggingevent key={event.id} event={event} />
+            ))}
+          </div>
         </Card>
 
         <Card className="lg:col-span-9 col-span-12">
