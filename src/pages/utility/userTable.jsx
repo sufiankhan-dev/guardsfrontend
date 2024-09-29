@@ -102,7 +102,7 @@ const UserPage = () => {
   const handleChangeStatus = async (id, newStatus) => {
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_BASE_URL}/admin/user/user/update-user-status/${id}`,
+        `${process.env.REACT_APP_BASE_URL}/${user.type}/user/update-user-status/${id}`,
         {
           method: "PUT",
           headers: {
