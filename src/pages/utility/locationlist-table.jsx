@@ -83,7 +83,7 @@ const LocationPage = () => {
   const handleDelete = async (id) => {
     try {
       await axios.delete(
-        `${process.env.REACT_APP_BASE_URL}/${user.type}/user/delete-user/${id}`,
+        `${process.env.REACT_APP_BASE_URL}/${user.type}/location/delete-location/${id}`,
         {
           headers: {
             "Content-Type": "application/json",

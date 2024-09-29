@@ -5,29 +5,31 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import Select from "react-select"; // Make sure you have this installed for roles selection
 
 const UserEditPage = () => {
   const navigate = useNavigate();
-  const [picker, setPicker] = useState(new Date());
   const [roles, setRoles] = useState([]);
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
-    phone: "",
+    phoneNumber1: "",
+    password: "",
+    role: ""
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(true);
-  const urlParams = new URLSearchParams(window.location.search);
   const [uploadingData, setUploadingData] = useState(false);
-
-  const userId = urlParams.get("id");
-  const user = useSelector((state) => state.auth.user);
+  
+  const userId = new URLSearchParams(window.location.search).get("id");
+  const currentUser = useSelector((state) => state.auth.user);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const rolesResponse = await axios.get(
-          `${process.env.REACT_APP_BASE_URL}/${user.type}/role/get-roles`,
+          `${process.env.REACT_APP_BASE_URL}/${currentUser.type}/role/get-roles`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -37,7 +39,7 @@ const UserEditPage = () => {
         setRoles(rolesResponse.data);
 
         const userResponse = await axios.get(
-          `${process.env.REACT_APP_BASE_URL}/${user.type}/user/get-users/${userId}`,
+          `${process.env.REACT_APP_BASE_URL}/${currentUser.type}/user/get-users/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -47,58 +49,64 @@ const UserEditPage = () => {
         setFormData(userResponse.data);
         setIsLoading(false);
       } catch (error) {
-        console.log(error);
+        console.error(error);
         toast.error("Failed to fetch user or roles");
       }
-     
     };
 
     fetchData();
-  }, [userId]);
+  }, [userId, currentUser.type]);
 
   const handleSubmit = async () => {
-
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
-    } else {
-      if (await checkEmailExists(formData.email)) {
-        setErrors({ email: "Email already exists" });
-      } else {
-
-        try {
-          setUploadingData(true);
-
-          const response = await axios.put(
-            `${process.env.REACT_APP_BASE_URL}/${user.type}/user/update-user/${userId}`,
-            formData,
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-              },
-            }
-          );
-          console.log(response);
-          if (response.status === 200) {
-            toast.success("User updated successfully");
-            navigate("/Customer");
-          }
-        } catch (error) {
-          console.log(error);
-          toast.error(error.response.data.message)
+      return;
+    }
+  
+    console.log("Submitting data:", formData); // Log the data being submitted
+  
+    try {
+      setUploadingData(true);
+      const response = await axios.put(
+        `${process.env.REACT_APP_BASE_URL}/${currentUser.type}/user/update-user/${userId}`,
+        {
+          email: formData.email,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          phoneNumber1: formData.phoneNumber1,
+          password: formData.password,
+          role: formData.role
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
-        finally{
-          setUploadingData(false)
-        }
+      );
+  
+      if (response.status === 200) {
+        toast.success("User updated successfully");
+        navigate("/user");
       }
+    } catch (error) {
+      console.error("Error details:", error.response ? error.response.data : error); // Improved error logging
+      toast.error(error.response?.data?.message || "Failed to update user");
+    } finally {
+      setUploadingData(false);
     }
   };
+  
 
   const validate = () => {
     const errors = {};
 
-    if (!formData.name) {
-      errors.name = "Name is required";
+    if (!formData.firstName) {
+      errors.firstName = "First name is required";
+    }
+
+    if (!formData.lastName) {
+      errors.lastName = "Last name is required";
     }
 
     if (!formData.email) {
@@ -107,42 +115,27 @@ const UserEditPage = () => {
       errors.email = "Email address is invalid";
     }
 
-    // if (!formData.password) {
-    //   errors.password = "Password is required";
-    // } else if (!/[!@#$%^&*]/.test(formData.password)) {
-    //   errors.password = "Password must contain at least one special character";
-    // }
+    if (!formData.phoneNumber1) {
+      errors.phoneNumber1 = "Phone number is required";
+    } else if (!/^\d{11}$/.test(formData.phoneNumber1)) {
+      errors.phoneNumber1 = "Phone number must be 10 digits";
+    }
 
-    if (!formData.phone) {
-      errors.phone = "Phone number is required";
-    } else if (!/^\d{11}$/.test(formData.phone)) {
-      errors.phone = "Phone number is invalid";
+    if (!formData.role) {
+      errors.role = "Role is required";
     }
 
     return errors;
   };
 
-  const checkEmailExists = async (email) => {
-    try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_BASE_URL}/${user.type}/user/check-email`,
-        { email, userId },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      return response.data.exists;
-    } catch (error) {
-      console.log(error);
-      return false;
-    }
+  const handleCancel = () => {
+    navigate("/user");
   };
 
-  const handleCancel = () => {
-    navigate("/Customer");
-  };
+  const roleOptions = roles.map(role => ({
+    value: role._id,
+    label: role.name
+  }));
 
   return (
     <div>
@@ -150,102 +143,74 @@ const UserEditPage = () => {
         {isLoading ? (
           <p>Loading...</p>
         ) : (
-          <div className="grid lg:grid-cols-1 grid-cols-1 gap-5 mb-5">
-            <div className="grid lg:grid-cols-2 grid-cols-1 gap-5">
+          <div>
+            <div className="grid lg:grid-cols-2 grid-cols-1 gap-5 mb-5">
               <div>
-                <div>
-                  <label htmlFor="roles" className="form-label">
-                    Name
-                  </label>
-                  <input
-                    label="Name"
-                    type="text"
-                    className="border-[3px] h-10 w-[100%] mb-3 p-2"
-                    placeholder="Add Users Name"
-                    value={formData.name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, name: e.target.value })
-                    }
-                  />
-                  {errors.name && (
-                    <p className="text-red-500 text-xs mt-1">{errors.name}</p>
-                  )}
-                   <label htmlFor="roles" className="form-label">
-                  Phone
-                </label>
+                <label className="form-label">First Name</label>
                 <input
-                  label="Phone"
-                  type="number"
-                  placeholder="Add Customer phone"
-                  className="border-[3px] h-10 w-[100%] mb-3 p-2"
-                  value={formData.phone}
-                  onChange={(e) =>
-                    setFormData({ ...formData, phone: e.target.value })
-                  }
+                  type="text"
+                  className="border-[3px] h-10 w-full mb-3 p-2"
+                  value={formData.firstName}
+                  onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                 />
-                {errors.phone && (
-                  <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
-                )}
-                  {/* <label htmlFor="roles" className="form-label">
-                    Password
-                  </label>
-                  <input
-                    label="Password"
-                    type="text"
-                    className="border-[3px] h-10 w-[100%] mb-3 p-2"
-                    value={formData.password}
-                    placeholder="Add Customer Password"
-                    onChange={(e) =>
-                      setFormData({ ...formData, password: e.target.value })
-                    }
-                  />
-                  {errors.password && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.password}
-                    </p>
-                  )} */}
-                </div>
+                {errors.firstName && <p className="text-red-500 text-xs">{errors.firstName}</p>}
               </div>
               <div>
-                <label htmlFor="roles" className="form-label">
-                  Email
-                </label>
+                <label className="form-label">Last Name</label>
                 <input
-                  label="Email"
+                  type="text"
+                  className="border-[3px] h-10 w-full mb-3 p-2"
+                  value={formData.lastName}
+                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                />
+                {errors.lastName && <p className="text-red-500 text-xs">{errors.lastName}</p>}
+              </div>
+              <div>
+                <label className="form-label">Email</label>
+                <input
                   type="email"
-                  placeholder="Add Users email"
-                  className="border-[3px] h-10 w-[100%] mb-3 p-2"
+                  className="border-[3px] h-10 w-full mb-3 p-2"
                   value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 />
-                {errors.email && (
-                  <p className="text-red-500 text-xs mt-1">{errors.email}</p>
-                )}
-               
+                {errors.email && <p className="text-red-500 text-xs">{errors.email}</p>}
               </div>
+              <div>
+                <label className="form-label">Phone Number</label>
+                <input
+                  type="text"
+                  className="border-[3px] h-10 w-full mb-3 p-2"
+                  value={formData.phoneNumber1}
+                  onChange={(e) => setFormData({ ...formData, phoneNumber1: e.target.value })}
+                />
+                {errors.phoneNumber1 && <p className="text-red-500 text-xs">{errors.phoneNumber1}</p>}
+              </div>
+              <div>
+                <label className="form-label">Password</label>
+                <input
+                  type="password"
+                  className="border-[3px] h-10 w-full mb-3 p-2"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                />
+                {/* Optionally, handle password errors here */}
+              </div>
+              <div>
+                <label className="form-label">Role</label>
+                <Select
+                  options={roleOptions}
+                  value={roleOptions.find(option => option.value === formData.role)}
+                  onChange={(selectedOption) => setFormData({ ...formData, role: selectedOption.value })}
+                />
+                {errors.role && <p className="text-red-500 text-xs">{errors.role}</p>}
+              </div>
+            </div>
+            <div className="space-x-3">
+              <button className="btn btn-light" onClick={handleCancel} type="button">Cancel</button>
+              <Button text="Save" className="btn-dark" onClick={handleSubmit} isLoading={uploadingData} disabled={uploadingData} />
             </div>
           </div>
         )}
-
-        <div className="ltr:text-right rtl:text-left space-x-3 rtl:space-x-reverse">
-          <button
-            className="btn btn-light text-center"
-            onClick={handleCancel}
-            type="button"
-          >
-            Cancel
-          </button>
-
-          <Button
-            text="Save"
-            className="btn-dark"
-            onClick={handleSubmit}
-            disabled={isLoading}
-            isLoading={uploadingData}
-          />
-        </div>
       </Card>
     </div>
   );
