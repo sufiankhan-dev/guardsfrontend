@@ -48,6 +48,7 @@
     "react-calendar": "^4.0.0",
     "react-chartjs-2": "^5.2.0",
     "react-collapse": "^5.1.1",
+    "react-datepicker": "^7.4.0",
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
     "react-flatpickr": "^3.10.13",
@@ -70,6 +71,7 @@
     "sweetalert2": "^11.7.27",
     "swiper": "^8.4.5",
     "uuidv4": "^6.2.13",
+    "xlsx": "^0.18.5",
     "yarn": "^1.22.19",
     "yup": "^0.32.11"
   },
