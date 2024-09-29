@@ -9,7 +9,7 @@ import LogoWhite from "@/assets/images/logo/logo-white.svg";
 import Logo from "@/assets/images/logo/logo.svg";
 import Illustration from "@/assets/images/auth/ils1.svg";
 import Logo2 from "@/assets/images/logo/spalsh.png";
-import Logo4 from "@/assets/images/logo/spalsh2.png";
+import Logo4 from "@/assets/images/logo/HomePageImg.jpg";
 import Logo3 from "@/assets/images/logo/logooos.jpg";
 
 const login = () => {
