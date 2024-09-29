@@ -79,11 +79,23 @@ const CalendarPage = () => {
           const eventDate = new Date(schedule.date);
           const timezoneOffset = eventDate.getTimezoneOffset() * 60000; // Convert offset to milliseconds
           eventDate.setTime(eventDate.getTime() + timezoneOffset); // Set end date to the next day
+
+          // Format start and end time
+          const formatTime = (time) => {
+            const date = new Date(`1970-01-01T${time}Z`);
+            return date.toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+          };
+
+          const startTime = formatTime(schedule.events[0].startTime);
+          const endTime = formatTime(schedule.events[0].endTime);
+
           return {
-            title: schedule.events[0].assignedEmployee.employeeName,
+            title: `${schedule.events[0].assignedEmployee.employeeName}`, // Add times to title
             start: schedule.date,
             end: schedule.date,
-            // classNames: [colors[index % colors.length]],
             classNames: [colors[index % colors.length]],
             extendedProps: {
               startTime: schedule.events[0].startTime,
@@ -100,7 +112,6 @@ const CalendarPage = () => {
         setIsLoading(false);
       });
   };
-
   const handleAddEvent = (newEvent) => {
     console.log("Selected Location:", selectedLocation); // Check if locationId is present
     console.log("Event Date:", newEvent.date); // Check if date is valid
@@ -227,6 +238,25 @@ const CalendarPage = () => {
             events={calendarEvents}
             editable={true}
             selectable={true}
+            eventContent={(arg) => {
+              const { startTime, endTime } = arg.event.extendedProps;
+
+              return (
+                <div>
+                  <div>{arg.event.title}</div> {/* Employee name */}
+                  <div
+                    style={{
+                      fontSize: "0.65rem",
+                      color: "#ffffff",
+                      textAlign: "center",
+                    }}
+                  >
+                    {startTime} - {endTime}
+                  </div>{" "}
+                  {/* Start and End time on new line */}
+                </div>
+              );
+            }}
             dateClick={handleDateClick}
             eventClick={handleEventClick}
             initialView="dayGridMonth"

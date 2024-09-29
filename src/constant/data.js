@@ -298,18 +298,18 @@ export const menuItems = [
     //   },
     // ],
   },
-  {
-    title: "Verified Records",
-    icon: "heroicons-outline:check-badge",
-    link: "verified-records",
-    isHide: true,
-    // child: [
-    //   {
-    //     childtitle: "Records",
-    //     childlink: "roles",
-    //   },
-    // ],
-  },
+  // {
+  //   title: "Verified Records",
+  //   icon: "heroicons-outline:check-badge",
+  //   link: "verified-records",
+  //   isHide: true,
+  //   // child: [
+  //   //   {
+  //   //     childtitle: "Records",
+  //   //     childlink: "roles",
+  //   //   },
+  //   // ],
+  // },
 
   // {
   //   title: "Brands",

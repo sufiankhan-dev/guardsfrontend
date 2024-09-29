@@ -405,7 +405,7 @@ const AttendancePage = () => {
               className="btn-dark font-normal btn-sm"
               iconClass="text-lg"
               onClick={() => {
-                navigate("/user-add");
+                navigate("/attendence-add");
               }}
             />
           </div>

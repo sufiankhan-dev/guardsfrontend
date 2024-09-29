@@ -142,6 +142,8 @@ const ProjectDetailsPage = lazy(() =>
   import("./pages/app/projects/project-details")
 );
 
+const AttendenceAddPage = lazy(() => import("./pages/utility/attendence-add"));
+
 const KanbanPage = lazy(() => import("./pages/app/kanban"));
 const CalenderPage = lazy(() => import("./pages/app/calendar"));
 //Ecommerce-Pages
@@ -274,6 +276,7 @@ function App() {
           <Route path="attendance" element={<AttendancePage />} />
           <Route path="locationtype" element={<LocationTypePage />} />
           <Route path="location" element={<LocationListPage />} />
+          <Route path="attendence-add" element={<AttendenceAddPage />} />
           <Route path="vendor" element={<VendorPage />} />
           <Route path="user-add" element={<UserAddPage />} />
           <Route path="location-add" element={<LocationAddPage />} />
