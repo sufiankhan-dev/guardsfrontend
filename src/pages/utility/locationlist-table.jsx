@@ -180,10 +180,20 @@ const LocationPage = () => {
       Cell: (row) => <span>{row?.cell?.value}</span>,
     },
     {
-      Header: "Time Zone",
-      accessor: "timeZone",
-      Cell: (row) => <span>{row?.cell?.value}</span>,
+      Header: "Guards",
+      accessor: "employees", // Accessing the employees array
+      Cell: ({ cell: { value } }) => {
+        // Check if there are employees and map their names
+        return (
+          <span>
+            {value && value.length > 0
+              ? value.map(emp => emp.employeeName).join(", ")
+              : "No Employees"}
+          </span>
+        );
+      },
     },
+    
     {
       Header: "Location Type",
       accessor: "locationType.name",

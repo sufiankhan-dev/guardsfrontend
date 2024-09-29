@@ -733,6 +733,8 @@ const LocationAddPage = () => {
     address: "",
     timeZone: "",
     locationType: "",
+    employees: [],
+
     clientDetails: [{ name: "", designation: "", email: "", phone: "" }],
     schedule: [
       { day: "Monday", startTime: "", endTime: "", selected: false },
@@ -748,6 +750,8 @@ const LocationAddPage = () => {
   const [timeZones, setTimeZones] = useState([]);
   const [locationTypes, setLocationTypes] = useState([]);
   const [users, setUsers] = useState([]);
+  const [employes, setemployes] = useState([]);
+
   const [errors, setErrors] = useState({});
   const [uploadingData, setUploadingData] = useState(false);
   const isSubmitting = useRef(false);
@@ -800,6 +804,22 @@ const LocationAddPage = () => {
       })
       .catch((error) => {
         console.error("Error fetching roles:", error);
+      });
+      axios
+      .get(`${process.env.REACT_APP_BASE_URL}/${user.type}/employe/get-employees`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      })
+      .then((response) => {
+        setemployes(
+          response.data.employees.map((employ) => ({
+            value: employ._id,
+            label: employ.employeeName,
+          }))
+        );
+        console.log(employes,"....");
+      })
+      .catch((error) => {
+        console.error("Error fetching employe:", error);
       });
   }, []);
 
@@ -923,6 +943,16 @@ const LocationAddPage = () => {
               options={users}
               onChange={(selectedOption) =>
                 setFormData({ ...formData, userList: selectedOption.value })
+              }
+            />
+             <label htmlFor="maincategory" className="form-label">
+              Select Employe
+            </label>
+             <Select
+              label="Select employe"
+              options={employes}
+              onChange={(selectedOption) =>
+                setFormData({ ...formData, employees: selectedOption.value })
               }
             />
             <Textinput
