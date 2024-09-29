@@ -43,6 +43,7 @@ const IndeterminateCheckbox = React.forwardRef(
 const EmployeePage = () => {
   const navigate = useNavigate();
   const [userData, setUserData] = useState([]);
+  const [callData, setCallData] = useState([]);
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [total, setTotal] = useState(0);
@@ -54,21 +55,21 @@ const EmployeePage = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}/${user.type}/employe/get-employees`,
+        `${process.env.REACT_APP_BASE_URL}/${user.type}/call/get-confirmation-calls`,
         {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
           params: {
-            page: pageIndex + 1, // Backend pages are usually 1-indexed
+            page: pageIndex + 1,
             limit: pageSize,
           },
         }
       );
-      setUserData(response.data.employees);
-      setTotal(response.data.pagination.total);
-      setHasNextPage(response.data.pagination.hasNextPage);
+      setCallData(response.data.confirmationCalls);
+      // setTotal(response.data?.pagination.total);
+      // setHasNextPage(response.data?.pagination.hasNextPage);
     } catch (error) {
       console.log(error);
     } finally {
@@ -170,53 +171,29 @@ const EmployeePage = () => {
       },
     },
     {
-      Header: "Name",
-      accessor: "employeeName",
-      Cell: (row) => <span>{row?.cell?.value}</span>,
+      Header: "Employee ID",
+      accessor: "employee.employeeName", // Access the employee ID
+      Cell: (row) => <span>{row.cell.value}</span>,
     },
     {
-      Header: "Id Number",
-      accessor: "employeeIDNumber",
-      Cell: (row) => <span>{row?.cell?.value}</span>,
+      Header: "Location",
+      accessor: "location.locationName", // Access the location name
+      Cell: (row) => <span>{row.cell.value}</span>,
     },
     {
       Header: "Address",
-      accessor: "employeeAddress",
-      Cell: (row) => <span>{row?.cell?.value}</span>,
+      accessor: "location.address", // Access the location address
+      Cell: (row) => <span>{row.cell.value}</span>,
     },
     {
-      Header: "Phone Number",
-      accessor: "contactNumber1",
-      Cell: (row) => <span>{row?.cell?.value}</span>,
+      Header: "Calling Time",
+      accessor: "callingTime", // Access calling time
+      Cell: (row) => <span>{new Date(row.cell.value).toLocaleString()}</span>,
     },
     {
-      Header: "Category",
-      accessor: "employeeCategory",
-      Cell: (row) => <span>{row?.cell?.value}</span>,
-    },
-    {
-      Header: "Card Number",
-      accessor: "guardCardNumber",
-      Cell: (row) => <span>{row?.cell?.value}</span>,
-    },
-    {
-      Header: "Issuance Date",
-      accessor: "issueDate",
-      Cell: (row) => (
-        <span>{new Date(row?.cell?.value).toLocaleDateString()}</span>
-      ),
-    },
-    {
-      Header: "Expiry Date",
-      accessor: "expiryDate",
-      Cell: (row) => (
-        <span>{new Date(row?.cell?.value).toLocaleDateString()}</span>
-      ),
-    },
-    {
-      Header: "Pay Rate",
-      accessor: "payRate",
-      Cell: (row) => <span>PKR {row?.cell?.value}</span>,
+      Header: "Notes",
+      accessor: "notes", // Access notes
+      Cell: (row) => <span>{row.cell.value}</span>,
     },
     {
       Header: "Status",
@@ -234,25 +211,6 @@ const EmployeePage = () => {
           >
             {row?.cell?.value}
           </span>
-        </span>
-      ),
-    },
-    {
-      Header: "Salary Status",
-      accessor: "approved",
-      Cell: (row) => (
-        <span>
-          {row?.cell?.value === true ? (
-            <Icons
-              icon="heroicons:check-circle"
-              className="text-success-500 text-3xl"
-            />
-          ) : (
-            <Icons
-              icon="heroicons:x-circle"
-              className="text-warning-500 text-3xl"
-            />
-          )}
         </span>
       ),
     },
@@ -317,7 +275,7 @@ const EmployeePage = () => {
   ];
 
   const columns = useMemo(() => COLUMNS, []);
-  const data = useMemo(() => userData, [userData]);
+  const data = useMemo(() => callData, [callData]);
 
   const tableInstance = useTable(
     {
@@ -407,11 +365,11 @@ const EmployeePage = () => {
             />
             <Button
               icon="heroicons:plus"
-              text="Add Employee"
+              text="Add Confirmation Call"
               className="btn-dark font-normal btn-sm"
               iconClass="text-lg"
               onClick={() => {
-                navigate("/employee-add");
+                navigate("/confirmationcall-add");
               }}
             />
           </div>
