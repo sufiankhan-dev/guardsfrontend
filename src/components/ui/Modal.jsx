@@ -17,19 +17,16 @@ const Modal = ({
   uncontrol,
   label = "Basic Modal",
   labelClass,
-  ref,
 }) => {
   const [showModal, setShowModal] = useState(false);
 
   const closeModal = () => {
     setShowModal(false);
+    onClose(); // Call the onClose prop if provided
   };
 
   const openModal = () => {
-    setShowModal(!showModal);
-  };
-  const returnNull = () => {
-    return null;
+    setShowModal(true);
   };
 
   return (
@@ -47,8 +44,9 @@ const Modal = ({
             <Dialog
               as="div"
               className="relative z-[99999]"
-              onClose={!disableBackdrop ? closeModal : returnNull}
+              onClose={closeModal} // Directly use closeModal
             >
+              {/* Backdrop */}
               {!disableBackdrop && (
                 <Transition.Child
                   as={Fragment}
@@ -62,7 +60,6 @@ const Modal = ({
                   <div className="fixed inset-0 bg-slate-900/50 backdrop-filter backdrop-blur-sm" />
                 </Transition.Child>
               )}
-
               <div className="fixed inset-0 overflow-y-auto">
                 <div
                   className={`flex min-h-full justify-center text-center p-6 ${
@@ -71,7 +68,7 @@ const Modal = ({
                 >
                   <Transition.Child
                     as={Fragment}
-                    enter={noFade ? "" : "duration-300  ease-out"}
+                    enter={noFade ? "" : "duration-300 ease-out"}
                     enterFrom={noFade ? "" : "opacity-0 scale-95"}
                     enterTo={noFade ? "" : "opacity-100 scale-100"}
                     leave={noFade ? "" : "duration-200 ease-in"}
@@ -79,11 +76,10 @@ const Modal = ({
                     leaveTo={noFade ? "" : "opacity-0 scale-95"}
                   >
                     <Dialog.Panel
-                      className={`w-full transform overflow-hidden rounded-md
-                 bg-white dark:bg-slate-800 text-left align-middle shadow-xl transition-alll ${className}`}
+                      className={`w-full transform overflow-hidden rounded-md bg-white dark:bg-slate-800 text-left align-middle shadow-xl transition-all ${className}`}
                     >
                       <div
-                        className={`relative overflow-hidden py-4 px-5 text-white flex justify-between  ${themeClass}`}
+                        className={`relative overflow-hidden py-4 px-5 text-white flex justify-between ${themeClass}`}
                       >
                         <h2 className="capitalize leading-6 tracking-wider font-medium text-base text-white">
                           {title}
@@ -114,6 +110,7 @@ const Modal = ({
       ) : (
         <Transition appear show={activeModal} as={Fragment}>
           <Dialog as="div" className="relative z-[99999]" onClose={onClose}>
+            {/* Backdrop */}
             <Transition.Child
               as={Fragment}
               enter={noFade ? "" : "duration-300 ease-out"}
@@ -136,7 +133,7 @@ const Modal = ({
               >
                 <Transition.Child
                   as={Fragment}
-                  enter={noFade ? "" : "duration-300  ease-out"}
+                  enter={noFade ? "" : "duration-300 ease-out"}
                   enterFrom={noFade ? "" : "opacity-0 scale-95"}
                   enterTo={noFade ? "" : "opacity-100 scale-100"}
                   leave={noFade ? "" : "duration-200 ease-in"}
@@ -144,11 +141,10 @@ const Modal = ({
                   leaveTo={noFade ? "" : "opacity-0 scale-95"}
                 >
                   <Dialog.Panel
-                    className={`w-full transform overflow-hidden rounded-md
-                 bg-white dark:bg-slate-800 text-left align-middle shadow-xl transition-alll ${className}`}
+                    className={`w-full transform overflow-hidden rounded-md bg-white dark:bg-slate-800 text-left align-middle shadow-xl transition-all ${className}`}
                   >
                     <div
-                      className={`relative overflow-hidden py-4 px-5 text-white flex justify-between  ${themeClass}`}
+                      className={`relative overflow-hidden py-4 px-5 text-white flex justify-between ${themeClass}`}
                     >
                       <h2 className="capitalize leading-6 tracking-wider font-medium text-base text-white">
                         {title}

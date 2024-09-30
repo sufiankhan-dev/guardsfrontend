@@ -5,6 +5,7 @@ import Button from "@/components/ui/Button";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import Modal from "@/components/ui/Modal";
 import {
   useTable,
   useRowSelect,
@@ -13,11 +14,14 @@ import {
   usePagination,
 } from "react-table";
 import GlobalFilter from "../table/react-tables/GlobalFilter";
-import { Menu } from "@headlessui/react";
 import { useSelector } from "react-redux";
 import Icons from "@/components/ui/Icon";
 import * as XLSX from "xlsx";
+import { FaPlus } from "react-icons/fa";
 import Select from "@/components/ui/Select";
+import Flatpickr from "react-flatpickr";
+import "flatpickr/dist/flatpickr.css";
+import Textinput from "@/components/ui/Textinput";
 
 const IndeterminateCheckbox = React.forwardRef(
   ({ indeterminate, ...rest }, ref) => {
@@ -58,7 +62,6 @@ const AttendancePage = () => {
   const [locations, setLocations] = useState([]);
   const [isAnimated, setIsAnimated] = useState(false); // New state for animation
 
-
   const fetchLocations = async () => {
     try {
       const response = await axios.get(
@@ -71,8 +74,7 @@ const AttendancePage = () => {
         }
       );
       setLocations(response.data);
-      setIsAnimated(true); 
-
+      setIsAnimated(true);
     } catch (error) {
       console.error("Failed to fetch locations:", error);
     }
@@ -225,6 +227,25 @@ const AttendancePage = () => {
     }
   };
 
+  const handleDeleteAttendance = async (id) => {
+    try {
+      await axios.delete(
+        `${process.env.REACT_APP_BASE_URL}/admin/attendence/delete-attendance/${id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      toast.success("Attendance deleted successfully");
+      fetchData(pageIndex, pageSize, selectedLocation); // Refresh the data
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to delete attendance");
+    }
+  };
+
   const actions = [
     // {
     //   name: "edit",
@@ -237,7 +258,7 @@ const AttendancePage = () => {
       name: "delete",
       icon: "heroicons-outline:trash",
       doit: (id) => {
-        handleDelete(id);
+        handleDeleteAttendance(id); // Call the updated function
       },
     },
     // {
@@ -291,26 +312,185 @@ const AttendancePage = () => {
         );
       },
     },
+    // {
+    //   Header: "Check In",
+    //   accessor: "checkInRecords",
+    //   Cell: ({ cell }) => {
+    //     const checkInRecords = cell.value || [];
+    //     return checkInRecords.length > 0 ? (
+    //       <div>
+    //         {checkInRecords.map((record) => (
+    //           <div key={record._id}>
+    //             <div>Time: {new Date(record.checkInTime).toLocaleString()}</div>
+    //             <div>Location: {record.checkInLocationName || "N/A"}</div>
+    //             <div>Contact: {record.contactNumber || "N/A"}</div>
+    //           </div>
+    //         ))}
+    //       </div>
+    //     ) : (
+    //       <span>No check-in records</span>
+    //     );
+    //   },
+    // },
     {
       Header: "Check In",
       accessor: "checkInRecords",
       Cell: ({ cell }) => {
-        const checkInRecords = cell.value || [];
-        return checkInRecords.length > 0 ? (
+        const initialCheckInRecords = cell.value || [];
+        const [checkInRecords, setCheckInRecords] = useState(
+          initialCheckInRecords
+        );
+        const [showModal, setShowModal] = useState(false);
+        const [formData, setFormData] = useState({
+          checkInTime: new Date(),
+          checkInLocationName: "",
+          contactNumber: "",
+        });
+        const attendanceId = cell.row.original._id; // Use the existing attendance ID
+
+        // Handle adding a new check-in record and making API request
+        const handleAddCheckIn = async () => {
+          const newCheckIn = {
+            checkInTime: formData.checkInTime.toISOString(), // Format the date
+            checkInLocationName: formData.checkInLocationName || "N/A", // Default value if empty
+            contactNumber: formData.contactNumber || "N/A", // Default value if empty
+          };
+
+          try {
+            // API call to update the check-in records
+            const response = await axios.put(
+              `https://dashcart-backend-production.up.railway.app/api/admin/attendence/update-checkin/${attendanceId}`,
+              newCheckIn,
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+              }
+            );
+
+            if (response.status === 200) {
+              // Successfully updated, append the new check-in to the local state
+              setCheckInRecords([...checkInRecords, newCheckIn]);
+              setShowModal(false); // Close the modal after submission
+            } else {
+              console.error("Failed to update check-in");
+            }
+          } catch (error) {
+            console.error(
+              "Error updating check-in:",
+              error.response?.data || error
+            );
+          }
+        };
+
+        return (
           <div>
-            {checkInRecords.map((record) => (
-              <div key={record._id}>
-                <div>Time: {new Date(record.checkInTime).toLocaleString()}</div>
-                <div>Location: {record.checkInLocationName || "N/A"}</div>
-                <div>Contact: {record.contactNumber || "N/A"}</div>
-              </div>
-            ))}
+            {checkInRecords.length > 0 ? (
+              checkInRecords.map((record, index) => (
+                <div key={index} className="text-center mb-4">
+                  <div>
+                    <b>Check-In Time:</b>
+                    <p className="text-blue-500">
+                      {new Date(record.checkInTime).toLocaleString()}
+                    </p>
+                  </div>
+                  <div>
+                    <b>Location:</b>
+                    <p>{record.checkInLocationName || "N/A"}</p>
+                  </div>
+                  <div>
+                    <b>Contact:</b>
+                    <p>{record.contactNumber || "N/A"}</p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <span>No check-in records</span>
+            )}
+
+            {/* Button to add new check-in */}
+            <button
+              onClick={() => setShowModal(true)} // Show the modal when clicked
+              style={{
+                marginTop: "10px",
+                display: "flex",
+                alignItems: "center",
+                cursor: "pointer",
+                color: "#007bff",
+                background: "none",
+                border: "none",
+              }}
+            >
+              <FaPlus style={{ marginRight: "5px" }} /> Add Check-In
+            </button>
+
+            {/* Modal for adding new check-in */}
+            {showModal && (
+              <Modal
+                activeModal={showModal}
+                onClose={() => setShowModal(false)}
+                title="Add Check-In"
+              >
+                <div className="space-y-4">
+                  {/* Check-in Time */}
+                  <label htmlFor="checkInTime" className="form-label">
+                    Check-in Time
+                  </label>
+                  <Flatpickr
+                    value={formData.checkInTime}
+                    onChange={(date) =>
+                      setFormData({ ...formData, checkInTime: date[0] })
+                    }
+                    options={{ enableTime: true, dateFormat: "Y-m-d H:i" }}
+                    className="form-input"
+                  />
+
+                  {/* Check-in Location Name */}
+                  <Textinput
+                    label="Check-in Address"
+                    type="text"
+                    placeholder="Enter Check-in Address"
+                    value={formData.checkInLocationName}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        checkInLocationName: e.target.value,
+                      })
+                    }
+                  />
+
+                  {/* Contact Number */}
+                  <Textinput
+                    label="Contact Number"
+                    type="text"
+                    placeholder="Enter Contact Number"
+                    value={formData.contactNumber}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        contactNumber: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                {/* Modal Buttons */}
+                <div className="text-right mt-4 space-x-4">
+                  <Button
+                    onClick={() => setShowModal(false)}
+                    variant="secondary"
+                  >
+                    Cancel
+                  </Button>
+                  <Button onClick={handleAddCheckIn}>Submit</Button>
+                </div>
+              </Modal>
+            )}
           </div>
-        ) : (
-          <span>No check-in records</span>
         );
       },
     },
+
     {
       Header: "Check Out",
       accessor: "checkOutRecords",
@@ -540,7 +720,10 @@ const AttendancePage = () => {
                   {page.map((row) => {
                     prepareRow(row);
                     return (
-                      <tr {...row.getRowProps()} className={isAnimated ? 'fade-in' : ''}>
+                      <tr
+                        {...row.getRowProps()}
+                        className={isAnimated ? "fade-in" : ""}
+                      >
                         {row.cells.map((cell) => (
                           <td {...cell.getCellProps()} className="table-td">
                             {cell.render("Cell")}
