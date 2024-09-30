@@ -58,6 +58,8 @@ const AttendancePage = () => {
   const [time, setTime] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
   const [locations, setLocations] = useState([]);
+  const [isAnimated, setIsAnimated] = useState(false); // New state for animation
+
 
   const fetchLocations = async () => {
     try {
@@ -71,6 +73,8 @@ const AttendancePage = () => {
         }
       );
       setLocations(response.data);
+      setIsAnimated(true); 
+
     } catch (error) {
       console.error("Failed to fetch locations:", error);
     }
@@ -532,7 +536,7 @@ const AttendancePage = () => {
                   {page.map((row) => {
                     prepareRow(row);
                     return (
-                      <tr {...row.getRowProps()}>
+                      <tr {...row.getRowProps()} className={isAnimated ? 'fade-in' : ''}>
                         {row.cells.map((cell) => (
                           <td {...cell.getCellProps()} className="table-td">
                             {cell.render("Cell")}
