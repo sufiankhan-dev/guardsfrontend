@@ -1,12 +1,9 @@
 import React, { useState, useMemo, useEffect } from "react";
 import Card from "@/components/ui/Card";
 import Icon from "@/components/ui/Icon";
-import Dropdown from "@/components/ui/Dropdown";
 import Button from "@/components/ui/Button";
 import axios from "axios";
 import { toast } from "react-toastify";
-import Modal from "@/components/ui/Modal";
-import TimePicker from "react-time-picker";
 import { useNavigate } from "react-router-dom";
 import {
   useTable,
@@ -20,6 +17,7 @@ import { Menu } from "@headlessui/react";
 import { useSelector } from "react-redux";
 import Icons from "@/components/ui/Icon";
 import * as XLSX from "xlsx";
+import Select from "@/components/ui/Select";
 
 const IndeterminateCheckbox = React.forwardRef(
   ({ indeterminate, ...rest }, ref) => {
@@ -80,9 +78,16 @@ const AttendancePage = () => {
     fetchLocations();
   }, []);
 
+  const handleLocationChange = (location) => {
+    setSelectedLocation(location);
+    console.log("Selected Location:", location); // Check selected location
+    fetchData(pageIndex, pageSize, location); // Fetch data for the selected location
+  };
+
   const fetchData = async (pageIndex, pageSize, location) => {
     try {
       setLoading(true);
+      console.log("Fetching data with location:", location);
       const response = await axios.get(
         `${process.env.REACT_APP_BASE_URL}/${user.type}/attendence/get-attendances`,
         {
@@ -108,9 +113,9 @@ const AttendancePage = () => {
   };
 
   useEffect(() => {
-    fetchData(pageIndex, pageSize);
+    fetchData(pageIndex, pageSize, selectedLocation);
     fetchLocations();
-  }, [pageIndex, pageSize]);
+  }, [pageIndex, pageSize, selectedLocation]);
 
   const handleDelete = async (id) => {
     try {
@@ -162,10 +167,10 @@ const AttendancePage = () => {
   };
 
   const openDialog = (employee, action) => {
-    console.log("Dialog opened for:", employee, action); 
+    console.log("Dialog opened for:", employee, action);
     setSelectedEmployee(employee);
     setSelectedAction(action);
-    setTime(""); 
+    setTime("");
     setShowDialog(true);
   };
 
@@ -190,14 +195,13 @@ const AttendancePage = () => {
     setShowDialog(false);
   };
 
-
   const handleCheckOut = async (record) => {
     const updateData = {
       checkOutTime: new Date().toISOString(), // or set it as needed
       checkOutLocationName: "Your Location Here", // Get the location appropriately
       contactNumber: "Your Contact Number Here", // Get the contact appropriately
     };
-  
+
     try {
       await axios.put(
         `${process.env.REACT_APP_BASE_URL}/admin/attendence/update-attendance/${record._id}`,
@@ -216,7 +220,6 @@ const AttendancePage = () => {
       toast.error("Failed to check out.");
     }
   };
-  
 
   const actions = [
     // {
@@ -249,7 +252,7 @@ const AttendancePage = () => {
     //   },
     // },
   ];
-  
+
   const COLUMNS = [
     {
       Header: "Sr no",
@@ -313,7 +316,12 @@ const AttendancePage = () => {
           <div>
             {checkOutRecords.map((record) => (
               <div key={record._id}>
-                <div className="text-center"><b>Time Out:</b> <br /> <p className="text-green-500">{new Date(record.checkOutTime).toLocaleString()}</p></div>
+                <div className="text-center">
+                  <b>Time Out:</b> <br />{" "}
+                  <p className="text-green-500">
+                    {new Date(record.checkOutTime).toLocaleString()}
+                  </p>
+                </div>
                 {/* <div>Location: {record.checkOutLocationName || "N/A"}</div> */}
                 {/* <div>Contact: {record.contactNumber || "N/A"}</div> */}
               </div>
@@ -324,7 +332,7 @@ const AttendancePage = () => {
         );
       },
     },
-   
+
     {
       Header: "Created At",
       accessor: "createdAt",
@@ -337,7 +345,7 @@ const AttendancePage = () => {
       accessor: "actions",
       Cell: ({ row }) => {
         const record = row.original; // Get the original record data
-  
+
         return (
           <div className="flex space-x-2">
             <button
@@ -361,7 +369,6 @@ const AttendancePage = () => {
       },
     },
   ];
-  
 
   const columns = useMemo(() => COLUMNS, []);
   const data = useMemo(() => userData, [userData]);
@@ -427,10 +434,10 @@ const AttendancePage = () => {
 
   const handlePageSizeChange = (pageSize) => {
     setPageSize(pageSize);
-    setPageIndex(0); 
+    setPageIndex(0);
   };
   if (loading) {
-    return <div>Loading Attendance...</div>; 
+    return <div>Loading Attendance...</div>;
   }
 
   const exportToExcel = () => {
@@ -450,10 +457,7 @@ const AttendancePage = () => {
 
             <select
               value={selectedLocation}
-              onChange={(e) => {
-                setSelectedLocation(e.target.value);
-                fetchData(pageIndex, pageSize, e.target.value); 
-              }}
+              onChange={handleLocationChange}
               className="form-select py-2"
             >
               <option value="">All Locations</option>
