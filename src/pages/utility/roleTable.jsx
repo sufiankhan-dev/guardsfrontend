@@ -31,6 +31,8 @@ const RolePage = () => {
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const user = useSelector((state) => state.auth.user);
+  const [isAnimated, setIsAnimated] = useState(false); // New state for animation
+
 
   // Function to fetch role data
   const fetchRoles = async () => {
@@ -44,6 +46,8 @@ const RolePage = () => {
       });
       console.log(response.data);
       setRoleData(response.data);
+      setIsAnimated(true); // Trigger animation after fetching data
+
     } catch (error) {
       console.log(error);
       toast.error("Failed to fetch roles");
@@ -225,14 +229,14 @@ const RolePage = () => {
               className="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700"
               {...getTableProps()}
             >
-              <thead className="bg-slate-200 dark:bg-slate-700">
+                <thead className="bg-gradient-to-r from-[#304352] to-[#d7d2cc] dark:bg-slate-800">
                 {headerGroups.map((headerGroup) => (
                   <tr {...headerGroup.getHeaderGroupProps()}>
                     {headerGroup.headers.map((column) => (
                       <th
                         {...column.getHeaderProps(column.getSortByToggleProps())}
                         scope="col"
-                        className="table-th"
+                        className="table-th text-white"
                       >
                         {column.render("Header")}
                         <span>
@@ -254,7 +258,7 @@ const RolePage = () => {
                 {page.map((row) => {
                   prepareRow(row);
                   return (
-                    <tr {...row.getRowProps()}>
+                    <tr {...row.getRowProps()} className={isAnimated ? 'fade-in' : ''}>
                       {row.cells.map((cell) => (
                         <td {...cell.getCellProps()} className="table-td">
                           {cell.render("Cell")}

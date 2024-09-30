@@ -49,6 +49,8 @@ const EmployeePage = () => {
   const [hasNextPage, setHasNextPage] = useState(false);
   const user = useSelector((state) => state.auth.user);
   const [loading, setLoading] = useState(true); // Loading state
+  const [isAnimated, setIsAnimated] = useState(false);
+
 
   const fetchData = async (pageIndex, pageSize) => {
     try {
@@ -67,6 +69,8 @@ const EmployeePage = () => {
         }
       );
       setUserData(response.data.employees);
+      setIsAnimated(true); // Trigger animation after fetching data
+
       setTotal(response.data.pagination.total);
       setHasNextPage(response.data.pagination.hasNextPage);
     } catch (error) {
@@ -495,7 +499,7 @@ const EmployeePage = () => {
                   {page.map((row) => {
                     prepareRow(row);
                     return (
-                      <tr {...row.getRowProps()}>
+                      <tr {...row.getRowProps()} className={isAnimated ? 'fade-in' : ''}>
                         {row.cells.map((cell) => (
                           <td {...cell.getCellProps()} className="table-td">
                             {cell.render("Cell")}
