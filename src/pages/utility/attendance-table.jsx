@@ -162,10 +162,10 @@ const AttendancePage = () => {
   };
 
   const openDialog = (employee, action) => {
-    console.log("Dialog opened for:", employee, action); // Add this to verify
+    console.log("Dialog opened for:", employee, action); 
     setSelectedEmployee(employee);
     setSelectedAction(action);
-    setTime(""); // Reset the time picker
+    setTime(""); 
     setShowDialog(true);
   };
 
@@ -190,14 +190,42 @@ const AttendancePage = () => {
     setShowDialog(false);
   };
 
+
+  const handleCheckOut = async (record) => {
+    const updateData = {
+      checkOutTime: new Date().toISOString(), // or set it as needed
+      checkOutLocationName: "Your Location Here", // Get the location appropriately
+      contactNumber: "Your Contact Number Here", // Get the contact appropriately
+    };
+  
+    try {
+      await axios.put(
+        `${process.env.REACT_APP_BASE_URL}/admin/attendence/update-attendance/${record._id}`,
+        updateData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      toast.success("Check out successful!");
+      fetchData(pageIndex, pageSize); // Refresh the data
+    } catch (error) {
+      console.error("Check out failed:", error);
+      toast.error("Failed to check out.");
+    }
+  };
+  
+
   const actions = [
-    {
-      name: "edit",
-      icon: "heroicons:pencil-square",
-      doit: (id) => {
-        navigate(`/Customer-edit?id=${id}`);
-      },
-    },
+    // {
+    //   name: "edit",
+    //   icon: "heroicons:pencil-square",
+    //   doit: (id) => {
+    //     navigate(`/Customer-edit?id=${id}`);
+    //   },
+    // },
     {
       name: "delete",
       icon: "heroicons-outline:trash",
@@ -205,136 +233,31 @@ const AttendancePage = () => {
         handleDelete(id);
       },
     },
-    {
-      name: "view",
-      icon: "heroicons-outline:eye",
-      doit: (id) => {
-        navigate(`/customer-view?id=${id}`);
-      },
-    },
-    {
-      name: "change status",
-      icon: "heroicons-outline:refresh",
-      doit: (id, currentStatus) => {
-        const newStatus = currentStatus === "active" ? "inactive" : "active";
-        handleChangeStatus(id, newStatus);
-      },
-    },
+    // {
+    //   name: "view",
+    //   icon: "heroicons-outline:eye",
+    //   doit: (id) => {
+    //     navigate(`/customer-view?id=${id}`);
+    //   },
+    // },
+    // {
+    //   name: "change status",
+    //   icon: "heroicons-outline:refresh",
+    //   doit: (id, currentStatus) => {
+    //     const newStatus = currentStatus === "active" ? "inactive" : "active";
+    //     handleChangeStatus(id, newStatus);
+    //   },
+    // },
   ];
-
+  
   const COLUMNS = [
-    // {
-    //   Header: "Sr no",
-    //   accessor: "id",
-    //   Cell: ({ row, flatRows }) => {
-    //     return <span>{flatRows.indexOf(row) + 1}</span>;
-    //   },
-    // },
-    // {
-    //   Header: "Location",
-    //   accessor: "location.locationName", // Make sure roleId is part of the response from the backend
-    //   Cell: (row) => <span>{row?.cell?.value}</span>,
-    // },
-    // {
-    //   Header: "Employees",
-    //   accessor: "employee.employeeName", // Make sure roleId is part of the response from the backend
-    //   Cell: (row) => <span>{row?.cell?.value}</span>,
-    // },
-    // {
-    //   Header: "Check-in",
-    //   accessor: "checkInTime",
-    //   Cell: (row) => (
-    //     <span>
-    //       {row?.cell?.value ? (
-    //         row.cell.value
-    //       ) : (
-    //         <Button
-    //           className="btn-sm btn-outline border"
-    //           onClick={() => openDialog(row.row.original, "checkIn")}
-    //         >
-    //           Check-in
-    //         </Button>
-    //       )}
-    //     </span>
-    //   ),
-    // },
-    // {
-    //   Header: "Check-out",
-    //   accessor: "checkOutTime",
-    //   Cell: (row) => (
-    //     <span>
-    //       {row?.cell?.value ? (
-    //         row.cell.value
-    //       ) : (
-    //         <Button
-    //           className="btn-sm btn-outline border"
-    //           onClick={() => openDialog(row.row.original, "checkOut")}
-    //         >
-    //           Check-out
-    //         </Button>
-    //       )}
-    //     </span>
-    //   ),
-    // },
-    // {
-    //   Header: "Created-At",
-    //   accessor: "createdAt",
-    //   Cell: (row) => (
-    //     <span>{new Date(row?.cell?.value).toLocaleDateString()}</span>
-    //   ),
-    // },
-    // {
-    //   Header: "Action",
-    //   accessor: "action",
-    //   Cell: (row) => {
-    //     const userStatus = row.cell.row.original.status;
-    //     const userId = row.cell.row.original._id;
-
-    //     return (
-    //       <div>
-    //         <Dropdown
-    //           classMenuItems="right-0 w-[140px] top-[110%]"
-    //           label={
-    //             <span className="text-xl text-center block w-full">
-    //               <Icon icon="heroicons-outline:dots-vertical" />
-    //             </span>
-    //           }
-    //         >
-    //           <div className="divide-y divide-slate-100 dark:divide-slate-800">
-    //             {actions.map((item, i) => (
-    //               <Menu.Item key={i}>
-    //                 <div
-    //                   className={`${
-    //                     item.name === "delete"
-    //                       ? "bg-danger-500 text-danger-500 bg-opacity-30 hover:bg-opacity-100 hover:text-white"
-    //                       : "hover:bg-slate-900 hover:text-white dark:hover:bg-slate-600 dark:hover:bg-opacity-50"
-    //                   } w-full border-b border-b-gray-500 border-opacity-10 px-4 py-2 text-sm last:mb-0 cursor-pointer first:rounded-t last:rounded-b flex space-x-2 items-center rtl:space-x-reverse`}
-    //                   onClick={() =>
-    //                     item.name === "change status"
-    //                       ? item.doit(userId, userStatus)
-    //                       : item.doit(userId)
-    //                   }
-    //                 >
-    //                   <span className="text-base">
-    //                     <Icon icon={item.icon} />
-    //                   </span>
-    //                   <span>
-    //                     {item.name === "change status"
-    //                       ? userStatus === "active"
-    //                         ? "inactive"
-    //                         : "active"
-    //                       : item.name}
-    //                   </span>
-    //                 </div>
-    //               </Menu.Item>
-    //             ))}
-    //           </div>
-    //         </Dropdown>
-    //       </div>
-    //     );
-    //   },
-    // },
-
+    {
+      Header: "Sr no",
+      accessor: "id",
+      Cell: ({ row, flatRows }) => {
+        return <span>{flatRows.indexOf(row) + 1}</span>;
+      },
+    },
     {
       Header: "Employee",
       accessor: "employee",
@@ -390,11 +313,9 @@ const AttendancePage = () => {
           <div>
             {checkOutRecords.map((record) => (
               <div key={record._id}>
-                <div>
-                  Time: {new Date(record.checkOutTime).toLocaleString()}
-                </div>
-                <div>Location: {record.checkOutLocationName || "N/A"}</div>
-                <div>Contact: {record.contactNumber || "N/A"}</div>
+                <div className="text-center"><b>Time Out:</b> <br /> <p className="text-green-500">{new Date(record.checkOutTime).toLocaleString()}</p></div>
+                {/* <div>Location: {record.checkOutLocationName || "N/A"}</div> */}
+                {/* <div>Contact: {record.contactNumber || "N/A"}</div> */}
               </div>
             ))}
           </div>
@@ -403,10 +324,7 @@ const AttendancePage = () => {
         );
       },
     },
-    {
-      Header: "Status",
-      accessor: "status",
-    },
+   
     {
       Header: "Created At",
       accessor: "createdAt",
@@ -414,7 +332,36 @@ const AttendancePage = () => {
         return new Date(cell.value).toLocaleString();
       },
     },
+    {
+      Header: "Actions",
+      accessor: "actions",
+      Cell: ({ row }) => {
+        const record = row.original; // Get the original record data
+  
+        return (
+          <div className="flex space-x-2">
+            <button
+              onClick={() => handleCheckOut(record)} // Call the check-out function
+              className="text-white bg-gradient-to-r from-[#0B486B] to-[#F56217] dark:bg-slate-800 hover:bg-blue-700 px-2 py-1 rounded"
+            >
+              Check Out
+            </button>
+            {actions.map((action, i) => (
+              <button
+                key={i}
+                onClick={() => action.doit(record._id, record.status)}
+                className="text-white bg-gradient-to-r from-[#8E0E00] to-[#1F1C18] dark:bg-slate-800 hover:bg-gray-700 px-2 py-1 rounded"
+              >
+                <Icon icon={action.icon} className="mr-1 text-center" />
+                {action.name}
+              </button>
+            ))}
+          </div>
+        );
+      },
+    },
   ];
+  
 
   const columns = useMemo(() => COLUMNS, []);
   const data = useMemo(() => userData, [userData]);
@@ -480,10 +427,10 @@ const AttendancePage = () => {
 
   const handlePageSizeChange = (pageSize) => {
     setPageSize(pageSize);
-    setPageIndex(0); // Reset to first page whenever page size changes
+    setPageIndex(0); 
   };
   if (loading) {
-    return <div>Loading Attendance...</div>; // Show loading indicator
+    return <div>Loading Attendance...</div>; 
   }
 
   const exportToExcel = () => {
@@ -505,7 +452,7 @@ const AttendancePage = () => {
               value={selectedLocation}
               onChange={(e) => {
                 setSelectedLocation(e.target.value);
-                fetchData(pageIndex, pageSize, e.target.value); // Fetch data with selected location
+                fetchData(pageIndex, pageSize, e.target.value); 
               }}
               className="form-select py-2"
             >
@@ -551,10 +498,10 @@ const AttendancePage = () => {
           <div className="inline-block min-w-full align-middle">
             <div className="overflow-hidden">
               <table
-                className="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700"
+                className="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700 "
                 {...getTableProps()}
               >
-                <thead className="bg-slate-200 dark:bg-slate-700">
+                <thead className="bg-gradient-to-r from-[#304352] to-[#d7d2cc] dark:bg-slate-800">
                   {headerGroups.map((headerGroup) => (
                     <tr {...headerGroup.getHeaderGroupProps()}>
                       {headerGroup.headers.map((column) => (
@@ -563,7 +510,7 @@ const AttendancePage = () => {
                             column.getSortByToggleProps()
                           )}
                           scope="col"
-                          className="table-th"
+                          className="table-th text-white"
                         >
                           {column.render("Header")}
                           <span>

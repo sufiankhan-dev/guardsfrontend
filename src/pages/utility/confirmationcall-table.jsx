@@ -348,7 +348,7 @@ const EmployeePage = () => {
     <>
       <Card noborder>
         <div className="md:flex pb-6 items-center">
-          <h6 className="flex-1 md:mb-0 mb-3">Employees</h6>
+          <h6 className="flex-1 md:mb-0 mb-3">COnfirmation Call</h6>
           <div className="md:flex md:space-x-3 items-center flex-none rtl:space-x-reverse">
             <GlobalFilter filter={globalFilter} setFilter={setGlobalFilter} />
             <Button
@@ -381,8 +381,8 @@ const EmployeePage = () => {
                 className="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700"
                 {...getTableProps()}
               >
-                <thead className="bg-slate-200 dark:bg-slate-700">
-                  {headerGroups.map((headerGroup) => (
+                <thead className="bg-gradient-to-r from-[#304352] to-[#d7d2cc] dark:bg-slate-800">
+                {headerGroups.map((headerGroup) => (
                     <tr {...headerGroup.getHeaderGroupProps()}>
                       {headerGroup.headers.map((column) => (
                         <th
@@ -390,7 +390,7 @@ const EmployeePage = () => {
                             column.getSortByToggleProps()
                           )}
                           scope="col"
-                          className="table-th"
+                          className="table-th text-slate-50"
                         >
                           {column.render("Header")}
                           <span>

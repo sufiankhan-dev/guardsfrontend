@@ -365,8 +365,8 @@ const LocationTypePage = () => {
                 className="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700"
                 {...getTableProps()}
               >
-                <thead className="bg-slate-200 dark:bg-slate-700">
-                  {headerGroups.map((headerGroup) => (
+                <thead className="bg-gradient-to-r from-[#304352] to-[#d7d2cc] dark:bg-slate-800">
+                {headerGroups.map((headerGroup) => (
                     <tr {...headerGroup.getHeaderGroupProps()}>
                       {headerGroup.headers.map((column) => (
                         <th
@@ -374,7 +374,7 @@ const LocationTypePage = () => {
                             column.getSortByToggleProps()
                           )}
                           scope="col"
-                          className="table-th"
+                          className="table-th text-slate-50"
                         >
                           {column.render("Header")}
                           <span>
