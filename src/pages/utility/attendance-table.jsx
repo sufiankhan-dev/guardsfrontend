@@ -381,17 +381,9 @@ const AttendancePage = () => {
             )}
             <button
               onClick={() => setShowModal(true)} // Show the modal when clicked
-              style={{
-                marginTop: "10px",
-                display: "flex",
-                alignItems: "center",
-                cursor: "pointer",
-                color: "#007bff",
-                background: "none",
-                border: "none",
-              }}
+              className="text-white flex flex-row bg-blue-700 hover:bg-blue-500 px-2 items-center justify-center py-2 rounded-md "
             >
-              <FaPlus style={{ marginRight: "5px" }} /> Add Check-In
+              <FaPlus className="mr-2" /> Add Check-In
             </button>
 
             {showModal && (
@@ -503,7 +495,7 @@ const AttendancePage = () => {
           <div className="flex flex-col gap-3">
             <button
               onClick={() => handleCheckOut(record)} // Call the check-out function
-              className="text-white flex flex-row bg-black-500 hover:bg-green-500 px-2 items-center justify-center py-2 rounded-md "
+              className="text-white flex flex-row bg-green-700 hover:bg-green-500 px-2 items-center justify-center py-2 rounded-md "
             >
               <FaMinus className="mr-2" />
               Check Out
@@ -512,7 +504,7 @@ const AttendancePage = () => {
               <button
                 key={i}
                 onClick={() => action.doit(record._id, record.status)}
-                className="text-white flex flex-row items-center justify-center bg-black-500 hover:bg-red-600 px-4 py-2 rounded-md"
+                className="text-white flex flex-row items-center justify-center bg-red-700 hover:bg-red-600 px-4 py-2 rounded-md"
               >
                 <Icon icon={action.icon} className="mr-2 text-center text-lg" />
                 {action.name}
