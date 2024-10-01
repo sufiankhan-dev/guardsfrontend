@@ -17,7 +17,7 @@ import GlobalFilter from "../table/react-tables/GlobalFilter";
 import { useSelector } from "react-redux";
 import Icons from "@/components/ui/Icon";
 import * as XLSX from "xlsx";
-import { FaPlus } from "react-icons/fa";
+import { FaMinus, FaPlus } from "react-icons/fa";
 import Select from "@/components/ui/Select";
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/flatpickr.css";
@@ -250,7 +250,7 @@ const AttendancePage = () => {
     //   },
     // },
     {
-      name: "delete",
+      name: "Delete",
       icon: "heroicons-outline:trash",
       doit: (id) => {
         handleDeleteAttendance(id); // Call the updated function
@@ -359,7 +359,7 @@ const AttendancePage = () => {
           <div>
             {checkInRecords.length > 0 ? (
               checkInRecords.map((record, index) => (
-                <div key={index} className="text-center mb-4">
+                <div key={index} className="mb-4">
                   <div>
                     <b>Check-In Time:</b>
                     <p className="text-blue-500">
@@ -469,7 +469,7 @@ const AttendancePage = () => {
           <div>
             {checkOutRecords.map((record) => (
               <div key={record._id}>
-                <div className="text-center">
+                <div className="mb-4">
                   <b>Time Out:</b> <br />{" "}
                   <p className="text-green-500">
                     {new Date(record.checkOutTime).toLocaleString()}
@@ -500,20 +500,21 @@ const AttendancePage = () => {
         const record = row.original; // Get the original record data
 
         return (
-          <div className="flex space-x-2">
+          <div className="flex flex-col gap-3">
             <button
               onClick={() => handleCheckOut(record)} // Call the check-out function
-              className="text-white bg-gradient-to-r from-[#0B486B] to-[#F56217] dark:bg-slate-800 hover:bg-blue-700 px-2 py-1 rounded"
+              className="text-white flex flex-row bg-black-500 hover:bg-green-500 px-2 items-center justify-center py-2 rounded-md "
             >
+              <FaMinus className="mr-2" />
               Check Out
             </button>
             {actions.map((action, i) => (
               <button
                 key={i}
                 onClick={() => action.doit(record._id, record.status)}
-                className="text-white bg-gradient-to-r from-[#8E0E00] to-[#1F1C18] dark:bg-slate-800 hover:bg-gray-700 px-2 py-1 rounded"
+                className="text-white flex flex-row items-center justify-center bg-black-500 hover:bg-red-600 px-4 py-2 rounded-md"
               >
-                <Icon icon={action.icon} className="mr-1 text-center" />
+                <Icon icon={action.icon} className="mr-2 text-center text-lg" />
                 {action.name}
               </button>
             ))}
