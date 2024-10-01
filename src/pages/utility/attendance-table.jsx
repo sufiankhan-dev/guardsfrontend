@@ -22,6 +22,8 @@ import Select from "@/components/ui/Select";
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/flatpickr.css";
 import Textinput from "@/components/ui/Textinput";
+import Datepicker from "react-tailwindcss-datepicker"; // Ensure you have the date picker installed
+// import "react-tailwindcss-datepicker/dist/index.css";
 
 const IndeterminateCheckbox = React.forwardRef(
   ({ indeterminate, ...rest }, ref) => {
@@ -55,12 +57,17 @@ const AttendancePage = () => {
   const user = useSelector((state) => state.auth.user);
   const [loading, setLoading] = useState(true); // Loading state
   const [showDialog, setShowDialog] = useState(false);
+  const [value, setValue] = useState({ startDate: null, endDate: null });
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [selectedAction, setSelectedAction] = useState("");
   const [time, setTime] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
   const [locations, setLocations] = useState([]);
   const [isAnimated, setIsAnimated] = useState(false); // New state for animation
+
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [showCalendar, setShowCalendar] = useState(false);
 
   const fetchLocations = async () => {
     try {
@@ -84,16 +91,28 @@ const AttendancePage = () => {
     fetchLocations();
   }, []);
 
-  const handleLocationChange = (location) => {
-    setSelectedLocation(location);
-    console.log("Selected Location:", location); // Check selected location
-    fetchData(pageIndex, pageSize, location); // Fetch data for the selected location
+  const handleLocationChange = (event) => {
+    const selectedLocationId = event.target.value; // Get the selected location ID directly
+    setSelectedLocation(selectedLocationId);
+    console.log("Selected Location ID:", selectedLocationId); // Check selected location ID
+    fetchData(pageIndex, pageSize, selectedLocationId); // Fetch data for the selected location
   };
 
-  const fetchData = async (pageIndex, pageSize, location) => {
+  const fetchData = async () => {
     try {
       setLoading(true);
-      console.log("Fetching data with location:", location);
+      const params = {
+        page: pageIndex + 1,
+        limit: pageSize,
+        location: selectedLocation || undefined,
+        startDate: value.startDate
+          ? new Date(value.startDate).toISOString()
+          : undefined,
+        endDate: value.endDate
+          ? new Date(value.endDate).toISOString()
+          : undefined,
+      };
+
       const response = await axios.get(
         `${process.env.REACT_APP_BASE_URL}/${user.type}/attendence/get-attendances`,
         {
@@ -101,76 +120,52 @@ const AttendancePage = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-          params: {
-            page: pageIndex + 1,
-            limit: pageSize,
-            location: location || undefined,
-          },
+          params,
         }
       );
+
       setUserData(response.data.attendances);
-      setTotal(response.data.pagination.total);
-      setHasNextPage(response.data.pagination.hasNextPage);
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
   };
 
+  // Fetch data when pageIndex, pageSize, selectedLocation, or date range changes
   useEffect(() => {
-    fetchData(pageIndex, pageSize, selectedLocation);
-    fetchLocations();
-  }, [pageIndex, pageSize, selectedLocation]);
+    fetchData();
+  }, [pageIndex, pageSize, selectedLocation, value]);
 
-  const handleDelete = async (id) => {
-    try {
-      await axios.delete(
-        `${process.env.REACT_APP_BASE_URL}/${user.type}/user/delete-user/${id}`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      toast.success("User deleted successfully");
-      fetchData(pageIndex, pageSize);
-    } catch (error) {
-      console.log(error);
-      toast.error("Failed to delete user");
-    }
-  };
-
-  const handleChangeStatus = async (id, newStatus) => {
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_BASE_URL}/admin/user/change-status/${id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({ status: newStatus }),
-        }
-      );
-      if (response.ok) {
-        setUserData((prevUsers) =>
-          prevUsers.map((user) =>
-            user._id === id ? { ...user, status: newStatus } : user
-          )
-        );
-        toast.success("User status updated");
-      } else {
-        console.error("Failed to update user status");
-        toast.error("Failed to update user status");
-      }
-    } catch (error) {
-      console.error("Error updating user status:", error);
-      toast.error("Error updating user status");
-    }
-  };
+  // const handleChangeStatus = async (id, newStatus) => {
+  //   try {
+  //     const response = await fetch(
+  //       `${process.env.REACT_APP_BASE_URL}/admin/user/change-status/${id}`,
+  //       {
+  //         method: "PUT",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: `Bearer ${localStorage.getItem("token")}`,
+  //         },
+  //         body: JSON.stringify({ status: newStatus }),
+  //       }
+  //     );
+  //     if (response.ok) {
+  //       setUserData((prevUsers) =>
+  //         prevUsers.map((user) =>
+  //           user._id === id ? { ...user, status: newStatus } : user
+  //         )
+  //       );
+  //       toast.success("User status updated");
+  //     } else {
+  //       console.error("Failed to update user status");
+  //       toast.error("Failed to update user status");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error updating user status:", error);
+  //     toast.error("Error updating user status");
+  //   }
+  // };
 
   const openDialog = (employee, action) => {
     console.log("Dialog opened for:", employee, action);
@@ -312,26 +307,6 @@ const AttendancePage = () => {
         );
       },
     },
-    // {
-    //   Header: "Check In",
-    //   accessor: "checkInRecords",
-    //   Cell: ({ cell }) => {
-    //     const checkInRecords = cell.value || [];
-    //     return checkInRecords.length > 0 ? (
-    //       <div>
-    //         {checkInRecords.map((record) => (
-    //           <div key={record._id}>
-    //             <div>Time: {new Date(record.checkInTime).toLocaleString()}</div>
-    //             <div>Location: {record.checkInLocationName || "N/A"}</div>
-    //             <div>Contact: {record.contactNumber || "N/A"}</div>
-    //           </div>
-    //         ))}
-    //       </div>
-    //     ) : (
-    //       <span>No check-in records</span>
-    //     );
-    //   },
-    // },
     {
       Header: "Check In",
       accessor: "checkInRecords",
@@ -348,7 +323,6 @@ const AttendancePage = () => {
         });
         const attendanceId = cell.row.original._id; // Use the existing attendance ID
 
-        // Handle adding a new check-in record and making API request
         const handleAddCheckIn = async () => {
           const newCheckIn = {
             checkInTime: formData.checkInTime.toISOString(), // Format the date
@@ -357,7 +331,6 @@ const AttendancePage = () => {
           };
 
           try {
-            // API call to update the check-in records
             const response = await axios.put(
               `https://dashcart-backend-production.up.railway.app/api/admin/attendence/update-checkin/${attendanceId}`,
               newCheckIn,
@@ -369,7 +342,6 @@ const AttendancePage = () => {
             );
 
             if (response.status === 200) {
-              // Successfully updated, append the new check-in to the local state
               setCheckInRecords([...checkInRecords, newCheckIn]);
               setShowModal(false); // Close the modal after submission
             } else {
@@ -407,8 +379,6 @@ const AttendancePage = () => {
             ) : (
               <span>No check-in records</span>
             )}
-
-            {/* Button to add new check-in */}
             <button
               onClick={() => setShowModal(true)} // Show the modal when clicked
               style={{
@@ -424,7 +394,6 @@ const AttendancePage = () => {
               <FaPlus style={{ marginRight: "5px" }} /> Add Check-In
             </button>
 
-            {/* Modal for adding new check-in */}
             {showModal && (
               <Modal
                 activeModal={showModal}
@@ -624,11 +593,83 @@ const AttendancePage = () => {
     return <div>Loading Attendance...</div>;
   }
 
-  const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(userData);
+  // const handleDateRangeConfirm = () => {
+  //   fetchData(pageIndex, pageSize, selectedLocation); // Fetch data for the selected date range
+  //   setShowCalendar(false); // Hide calendar after confirmation
+  // };
+
+  function formatDateTime(dateTime) {
+    const options = {
+      day: "2-digit", // Get the day with two digits (01, 02, etc.)
+      month: "2-digit", // Get the month with two digits (01, 02, etc.)
+      year: "numeric", // Get the full year (e.g., 2024)
+      hour: "2-digit", // Get the hour in 12-hour format
+      minute: "2-digit", // Get the minutes with two digits
+      hour12: true, // Display the time in 12-hour format with AM/PM
+    };
+
+    return new Date(dateTime).toLocaleString("en-GB", options);
+  }
+
+  const exportToExcel = (attendanceData) => {
+    // Prepare the data for export
+    const exportData = attendanceData.map((attendance) => ({
+      "Employee Name": attendance.employee.employeeName,
+      "Employee ID": attendance.employee.employeeIDNumber,
+      "Location Name": attendance.location.locationName,
+      "Check-In Times": attendance.checkInRecords
+        .map((record) => formatDateTime(record.checkInTime)) // Format the time
+        .join(", "), // Join with a newline character
+      "Check-Out Times": attendance.checkOutRecords
+        .map((record) => formatDateTime(record.checkOutTime)) // Format the time
+        .join(", "),
+      Status: attendance.status,
+      "Created At": formatDateTime(attendance.createdAt),
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+    const headerStyle = {
+      fill: {
+        fgColor: { rgb: "FFFF00" },
+      },
+      font: {
+        bold: true, // Make header text bold
+      },
+      alignment: {
+        vertical: "center",
+        horizontal: "center",
+      },
+    };
+
+    const range = XLSX.utils.decode_range(worksheet["!ref"]);
+    for (let C = range.s.c; C <= range.e.c; ++C) {
+      const headerCell = XLSX.utils.encode_cell({ r: 0, c: C });
+      if (!worksheet[headerCell]) continue;
+      worksheet[headerCell].s = headerStyle;
+    }
+
+    const wrapTextStyle = { alignment: { wrapText: true } };
+
+    Object.keys(worksheet).forEach((key) => {
+      if (key.startsWith("D") || key.startsWith("E")) {
+        worksheet[key].s = wrapTextStyle;
+      }
+    });
+
+    const columnWidths = Object.keys(exportData[0]).map((key) => ({
+      wch: Math.max(
+        key.length, // Use the header length as the minimum width
+        ...exportData.map((row) => (row[key] ? row[key].toString().length : 10)) // Find the max length of the data in each column
+      ),
+    }));
+
+    worksheet["!cols"] = columnWidths;
+
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance");
-    XLSX.writeFile(workbook, "attendance_data.xlsx");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Attendances");
+
+    XLSX.writeFile(workbook, "Attendance_Report.xlsx");
   };
 
   return (
@@ -657,13 +698,36 @@ const AttendancePage = () => {
               text="Select date"
               className="btn-outline-secondary dark:border-slate-700 text-slate-600 btn-sm font-normal dark:text-slate-300"
               iconClass="text-lg"
+              onClick={() => setShowCalendar(!showCalendar)}
             />
-            <Button
-              icon="heroicons-outline:filter"
-              text="Filter"
-              className="btn-outline-secondary dark:border-slate-700 text-slate-600 btn-sm font-normal dark:text-slate-300"
-              iconClass="text-lg"
-            />
+
+            {/* Date Range Picker */}
+            {showCalendar && (
+              <div className="date-range-custom2 relative">
+                <Datepicker
+                  value={[value.startDate, value.endDate]} // Use an array for the date picker
+                  asSingle={false}
+                  onChange={(dates) => {
+                    setValue({ startDate: dates[0], endDate: dates[1] }); // Set start and end dates
+                    // Fetch data immediately after selecting new dates
+                    fetchData();
+                  }}
+                />
+              </div>
+            )}
+
+            {/* Render attendance data */}
+            {loading ? (
+              <p>Loading...</p>
+            ) : (
+              <ul>
+                {userData.map((attendance) => (
+                  <li key={attendance._id}>
+                    {/* {attendance.employee.employeeName} */}
+                  </li>
+                ))}
+              </ul>
+            )}
             <Button
               icon="heroicons:plus"
               text="Add attendance"
@@ -678,7 +742,7 @@ const AttendancePage = () => {
               text="Export to Excel"
               className="btn-dark font-normal btn-sm"
               iconClass="text-lg"
-              onClick={exportToExcel} // Add click handler for export
+              onClick={() => exportToExcel(userData)} // Add click handler for export
             />
           </div>
         </div>
