@@ -119,7 +119,7 @@ const AttendancePage = () => {
   const handleDelete = async (id) => {
     try {
       await axios.delete(
-        `${process.env.REACT_APP_BASE_URL}/${user.type}/user/delete-user/${id}`,
+        `${process.env.REACT_APP_BASE_URL}/${user.type}/attendence/delete-attendance/${id}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -297,7 +297,7 @@ const AttendancePage = () => {
           <div>
             {checkInRecords.map((record) => (
               <div key={record._id}>
-                <div>Time: {new Date(record.checkInTime).toLocaleString()}</div>
+                <div>Check In: {new Date(record.checkInTime).toLocaleString()}</div>
                 <div>Location: {record.checkInLocationName || "N/A"}</div>
                 <div>Contact: {record.contactNumber || "N/A"}</div>
               </div>
@@ -317,7 +317,7 @@ const AttendancePage = () => {
           <div>
             {checkOutRecords.map((record) => (
               <div key={record._id}>
-                <div className="text-center"><b>Time Out:</b> <br /> <p className="text-green-500">{new Date(record.checkOutTime).toLocaleString()}</p></div>
+                <div className="text-center"><b>Check Out:</b> <br /> <p className="text-green-500">{new Date(record.checkOutTime).toLocaleString()}</p></div>
                 {/* <div>Location: {record.checkOutLocationName || "N/A"}</div> */}
                 {/* <div>Contact: {record.contactNumber || "N/A"}</div> */}
               </div>
