@@ -362,7 +362,7 @@ const AttendancePage = () => {
                 <div key={index} className="mb-4">
                   <div>
                     <b>Check-In Time:</b>
-                    <p className="text-blue-500">
+                    <p className="text-green-500">
                       {new Date(record.checkInTime).toLocaleString()}
                     </p>
                   </div>
@@ -462,7 +462,7 @@ const AttendancePage = () => {
             {checkOutRecords.map((record) => (
               <div key={record._id}>
                 <div className="mb-4">
-                  <b>Time Out:</b> <br />{" "}
+                  <b>Check Out:</b> <br />{" "}
                   <p className="text-green-500">
                     {new Date(record.checkOutTime).toLocaleString()}
                   </p>
@@ -495,7 +495,7 @@ const AttendancePage = () => {
           <div className="flex flex-col gap-3">
             <button
               onClick={() => handleCheckOut(record)} // Call the check-out function
-              className="text-white flex flex-row bg-green-700 hover:bg-green-500 px-2 items-center justify-center py-2 rounded-md "
+              className="text-white flex flex-row bg-black-500 hover:bg-green-500 px-2 items-center justify-center py-2 rounded-md "
             >
               <FaMinus className="mr-2" />
               Check Out
@@ -504,7 +504,7 @@ const AttendancePage = () => {
               <button
                 key={i}
                 onClick={() => action.doit(record._id, record.status)}
-                className="text-white flex flex-row items-center justify-center bg-red-700 hover:bg-red-600 px-4 py-2 rounded-md"
+                className="text-white flex flex-row items-center justify-center bg-black-500 hover:bg-red-600 px-4 py-2 rounded-md"
               >
                 <Icon icon={action.icon} className="mr-2 text-center text-lg" />
                 {action.name}
@@ -910,315 +910,3 @@ const AttendancePage = () => {
 };
 
 export default AttendancePage;
-
-// import React, { useState, useMemo, useEffect } from "react";
-// import Card from "@/components/ui/Card";
-// import Icon from "@/components/ui/Icon";
-// import Dropdown from "@/components/ui/Dropdown";
-// import Button from "@/components/ui/Button";
-// import axios from "axios";
-// import { toast } from "react-toastify";
-// import Modal from "@/components/ui/Modal";
-// // Removed TimePicker as it wasn't being used
-// import { useNavigate } from "react-router-dom";
-// import {
-//   useTable,
-//   useRowSelect,
-//   useSortBy,
-//   useGlobalFilter,
-//   usePagination,
-// } from "react-table";
-// import GlobalFilter from "../table/react-tables/GlobalFilter";
-// import { Menu } from "@headlessui/react";
-// import { useSelector } from "react-redux";
-
-// const AttendancePage = () => {
-//   const navigate = useNavigate();
-//   const [userData, setUserData] = useState([]);
-//   const [pageIndex, setPageIndex] = useState(0);
-//   const [pageSize, setPageSize] = useState(10);
-//   const [total, setTotal] = useState(0);
-//   const [hasNextPage, setHasNextPage] = useState(false);
-//   const [locations, setLocations] = useState([]);
-//   const [selectedLocation, setSelectedLocation] = useState("");
-//   const [selectedDate, setSelectedDate] = useState("");
-//   const [loading, setLoading] = useState(true);
-
-//   const user = useSelector((state) => state.auth.user);
-
-//   const fetchLocations = async () => {
-//     try {
-//       const response = await axios.get(
-//         `${process.env.REACT_APP_BASE_URL}/admin/location/get-locations`,
-//         {
-//           headers: {
-//             "Content-Type": "application/json",
-//             Authorization: `Bearer ${localStorage.getItem("token")}`,
-//           },
-//         }
-//       );
-//       setLocations(response.data);
-//     } catch (error) {
-//       console.error("Failed to fetch locations:", error);
-//       toast.error("Error fetching locations");
-//     }
-//   };
-
-//   const fetchData = async (pageIndex, pageSize, location, date) => {
-//     try {
-//       setLoading(true);
-//       const response = await axios.get(
-//         `${process.env.REACT_APP_BASE_URL}/${user.type}/attendence/get-attendances`,
-//         {
-//           headers: {
-//             "Content-Type": "application/json",
-//             Authorization: `Bearer ${localStorage.getItem("token")}`,
-//           },
-//           params: {
-//             page: pageIndex + 1,
-//             limit: pageSize,
-//             location: location || undefined,
-//             date: date || undefined,
-//           },
-//         }
-//       );
-//       setUserData(response.data.attendances);
-//       setTotal(response.data.pagination.total);
-//       setHasNextPage(response.data.pagination.hasNextPage);
-//     } catch (error) {
-//       console.error("Error fetching attendance data:", error);
-//       toast.error("Failed to load attendance data");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   useEffect(() => {
-//     fetchLocations();
-//     fetchData(pageIndex, pageSize, selectedLocation, selectedDate);
-//   }, [pageIndex, pageSize, selectedLocation, selectedDate]); // Added location and date to dependencies
-
-//   const COLUMNS = [
-//     {
-//       Header: "Employee",
-//       accessor: "employee",
-//       Cell: ({ cell }) => {
-//         const { employeeName, employeeIDNumber } = cell.value || {};
-//         return (
-//           <div>
-//             <strong>{employeeName || "N/A"}</strong>
-//             <div>ID: {employeeIDNumber || "N/A"}</div>
-//           </div>
-//         );
-//       },
-//     },
-//     {
-//       Header: "Location",
-//       accessor: "location",
-//       Cell: ({ cell }) => {
-//         const { locationName, address } = cell.value || {};
-//         return (
-//           <div>
-//             <strong>{locationName || "N/A"}</strong>
-//             <div>{address || "N/A"}</div>
-//           </div>
-//         );
-//       },
-//     },
-//     {
-//       Header: "Check In",
-//       accessor: "checkInRecords",
-//       Cell: ({ cell }) => {
-//         const checkInRecords = cell.value || [];
-//         return checkInRecords.length > 0 ? (
-//           <div>
-//             {checkInRecords.map((record) => (
-//               <div key={record._id}>
-//                 <div>Time: {new Date(record.checkInTime).toLocaleString()}</div>
-//                 <div>Location: {record.checkInLocationName || "N/A"}</div>
-//                 <div>Contact: {record.contactNumber || "N/A"}</div>
-//               </div>
-//             ))}
-//           </div>
-//         ) : (
-//           <span>No check-in records</span>
-//         );
-//       },
-//     },
-//     {
-//       Header: "Check Out",
-//       accessor: "checkOutRecords",
-//       Cell: ({ cell }) => {
-//         const checkOutRecords = cell.value || [];
-//         return checkOutRecords.length > 0 ? (
-//           <div>
-//             {checkOutRecords.map((record) => (
-//               <div key={record._id}>
-//                 <div>
-//                   Time: {new Date(record.checkOutTime).toLocaleString()}
-//                 </div>
-//                 <div>Location: {record.checkOutLocationName || "N/A"}</div>
-//                 <div>Contact: {record.contactNumber || "N/A"}</div>
-//               </div>
-//             ))}
-//           </div>
-//         ) : (
-//           <span>No check-out records</span>
-//         );
-//       },
-//     },
-//     {
-//       Header: "Status",
-//       accessor: "status",
-//     },
-//     {
-//       Header: "Created At",
-//       accessor: "createdAt",
-//       Cell: ({ cell }) => {
-//         return new Date(cell.value).toLocaleString();
-//       },
-//     },
-//   ];
-
-//   const columns = useMemo(() => COLUMNS, []);
-//   const data = useMemo(() => userData, [userData]);
-
-//   const tableInstance = useTable(
-//     {
-//       columns,
-//       data,
-//       manualPagination: true,
-//       pageCount: Math.ceil(total / pageSize),
-//       initialState: { pageIndex: 0, pageSize: 10 },
-//     },
-//     useGlobalFilter,
-//     useSortBy,
-//     usePagination,
-//     useRowSelect
-//   );
-
-//   const {
-//     getTableProps,
-//     getTableBodyProps,
-//     headerGroups,
-//     page,
-//     nextPage,
-//     previousPage,
-//     canPreviousPage,
-//     canNextPage,
-//     pageOptions,
-//     state,
-//     gotoPage,
-//     setGlobalFilter,
-//     prepareRow,
-//   } = tableInstance;
-
-//   const {
-//     globalFilter,
-//     pageIndex: currentPageIndex,
-//     pageSize: currentPageSize,
-//   } = state;
-
-//   const handlePageChange = (pageIndex) => {
-//     gotoPage(pageIndex);
-//     setPageIndex(pageIndex);
-//   };
-
-//   const handlePageSizeChange = (pageSize) => {
-//     setPageSize(pageSize);
-//     setPageIndex(0); // Reset to first page whenever page size changes
-//   };
-
-//   const handleDateChange = (e) => {
-//     setSelectedDate(e.target.value);
-//   };
-
-//   if (loading) {
-//     return <div>Loading Attendance...</div>; // Show loading indicator
-//   }
-
-//   return (
-//     <>
-//       <Card noborder>
-//         <div className="md:flex pb-6 items-center">
-//           <h6 className="flex-1 md:mb-0 mb-3">Attendance</h6>
-//           <div className="md:flex md:space-x-3 items-center flex-none rtl:space-x-reverse">
-//             <GlobalFilter filter={globalFilter} setFilter={setGlobalFilter} />
-//             <select
-//               value={selectedLocation}
-//               onChange={(e) => {
-//                 setSelectedLocation(e.target.value);
-//               }}
-//               className="form-select py-2"
-//             >
-//               <option value="">All Locations</option>
-//               {locations.map((location) => (
-//                 <option key={location._id} value={location._id}>
-//                   {location.locationName}
-//                 </option>
-//               ))}
-//             </select>
-
-//             <input
-//               type="date"
-//               value={selectedDate}
-//               onChange={handleDateChange}
-//               className="form-input py-2"
-//             />
-
-//             <Button
-//               icon="heroicons:plus"
-//               text="Add attendance"
-//               className="btn-dark font-normal btn-sm"
-//               iconClass="text-lg"
-//               onClick={() => {
-//                 navigate("/attendence-add");
-//               }}
-//             />
-//           </div>
-//         </div>
-
-//         <div className="overflow-x-auto">
-//           <table {...getTableProps()} className="table-auto w-full">
-//             <thead>
-//               {headerGroups.map((headerGroup) => (
-//                 <tr {...headerGroup.getHeaderGroupProps()}>
-//                   {headerGroup.headers.map((column) => (
-//                     <th {...column.getHeaderProps()}>
-//                       {column.render("Header")}
-//                     </th>
-//                   ))}
-//                 </tr>
-//               ))}
-//             </thead>
-//             <tbody {...getTableBodyProps()}>
-//               {page.map((row) => {
-//                 prepareRow(row);
-//                 return (
-//                   <tr {...row.getRowProps()}>
-//                     {row.cells.map((cell) => {
-//                       return (
-//                         <td {...cell.getCellProps()}>{cell.render("Cell")}</td>
-//                       );
-//                     })}
-//                   </tr>
-//                 );
-//               })}
-//             </tbody>
-//           </table>
-//         </div>
-
-//         <div className="flex justify-between mt-4">
-//           <Button onClick={previousPage} disabled={!canPreviousPage}>
-//             Previous
-//           </Button>
-//           <Button onClick={nextPage} disabled={!canNextPage}>
-//             Next
-//           </Button>
-//         </div>
-//       </Card>
-//     </>
-//   );
-// };
-
-// export default AttendancePage;

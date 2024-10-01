@@ -84,7 +84,7 @@ const EmployeePage = () => {
   const handleDelete = async (id) => {
     try {
       await axios.delete(
-        `${process.env.REACT_APP_BASE_URL}/${user.type}/user/delete-user/${id}`,
+        `${process.env.REACT_APP_BASE_URL}/${user.type}/delete-confirmation-call/${id}`,
         {
           headers: {
             "Content-Type": "application/json",
