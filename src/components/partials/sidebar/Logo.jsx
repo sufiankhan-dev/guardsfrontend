@@ -10,7 +10,7 @@ import useSkin from "@/hooks/useSkin";
 import sufilogo from "@/assets/images/logo/sufi-logo2.png";
 import sufilogo2 from "@/assets/images/logo/sufi-logo.png";
 import MobileLogoWhite from "@/assets/images/logo/logo-c-white.svg";
-import logo from "@/assets/images/all-img/logoguards.jpeg";
+import logo from "@/assets/images/all-img/logoguards.png";
 const SidebarLogo = ({ menuHover }) => {
   const [isDark] = useDarkMode();
   const [collapsed, setMenuCollapsed] = useSidebar();
