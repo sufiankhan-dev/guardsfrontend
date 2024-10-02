@@ -69,7 +69,6 @@ const EmployeePage = () => {
         }
       );
       setUserData(response.data.employees);
-      setIsAnimated(true); // Trigger animation after fetching data
 
       setTotal(response.data.pagination.total);
       setHasNextPage(response.data.pagination.hasNextPage);
@@ -499,7 +498,7 @@ const EmployeePage = () => {
                   {page.map((row) => {
                     prepareRow(row);
                     return (
-                      <tr {...row.getRowProps()} className={isAnimated ? 'fade-in' : ''}>
+                      <tr {...row.getRowProps()}>
                         {row.cells.map((cell) => (
                           <td {...cell.getCellProps()} className="table-td">
                             {cell.render("Cell")}
