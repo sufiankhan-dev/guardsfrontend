@@ -605,64 +605,69 @@ const AttendancePage = () => {
   }
 
   const exportToExcel = (attendanceData) => {
-    // Prepare the data for export
-    const exportData = attendanceData.map((attendance) => ({
-      "Employee Name": attendance.employee.employeeName,
-      "Employee ID": attendance.employee.employeeIDNumber,
-      "Location Name": attendance.location.locationName,
-      "Check-In Times": attendance.checkInRecords
-        .map((record) => formatDateTime(record.checkInTime)) // Format the time
-        .join(", "), // Join with a newline character
-      "Check-Out Times": attendance.checkOutRecords
-        .map((record) => formatDateTime(record.checkOutTime)) // Format the time
-        .join(", "),
-      Status: attendance.status,
-      "Created At": formatDateTime(attendance.createdAt),
-    }));
-
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-
-    const headerStyle = {
-      fill: {
-        fgColor: { rgb: "FFFF00" },
-      },
-      font: {
-        bold: true, // Make header text bold
-      },
-      alignment: {
-        vertical: "center",
-        horizontal: "center",
-      },
-    };
-
-    const range = XLSX.utils.decode_range(worksheet["!ref"]);
-    for (let C = range.s.c; C <= range.e.c; ++C) {
-      const headerCell = XLSX.utils.encode_cell({ r: 0, c: C });
-      if (!worksheet[headerCell]) continue;
-      worksheet[headerCell].s = headerStyle;
-    }
-
-    const wrapTextStyle = { alignment: { wrapText: true } };
-
-    Object.keys(worksheet).forEach((key) => {
-      if (key.startsWith("D") || key.startsWith("E")) {
-        worksheet[key].s = wrapTextStyle;
+    // console.log(attendanceData);
+    console.log("Exporting Data:", attendanceData);
+    // Store the employee reference
+    try {
+      const exportData = attendanceData.map((attendance) => {
+        const employee = attendance.employee; // Store the employee reference here
+        return {
+          "Employee Name": employee ? employee.employeeName : "N/A",
+          "Employee ID": employee ? employee.employeeIDNumber : "N/A",
+          "Location Name": attendance.location.locationName,
+          "Check-In Times": attendance.checkInRecords
+            .map((record) => formatDateTime(record.checkInTime))
+            .join(", "),
+          "Check-Out Times": attendance.checkOutRecords
+            .map((record) => formatDateTime(record.checkOutTime))
+            .join(", "),
+          Status: attendance.status,
+          "Created At": formatDateTime(attendance.createdAt),
+        };
+      });
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+      const headerStyle = {
+        fill: {
+          fgColor: { rgb: "FFFF00" },
+        },
+        font: {
+          bold: true, // Make header text bold
+        },
+        alignment: {
+          vertical: "center",
+          horizontal: "center",
+        },
+      };
+      const range = XLSX.utils.decode_range(worksheet["!ref"]);
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+        const headerCell = XLSX.utils.encode_cell({ r: 0, c: C });
+        if (!worksheet[headerCell]) continue;
+        worksheet[headerCell].s = headerStyle;
       }
-    });
-
-    const columnWidths = Object.keys(exportData[0]).map((key) => ({
-      wch: Math.max(
-        key.length, // Use the header length as the minimum width
-        ...exportData.map((row) => (row[key] ? row[key].toString().length : 10)) // Find the max length of the data in each column
-      ),
-    }));
-
-    worksheet["!cols"] = columnWidths;
-
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Attendances");
-
-    XLSX.writeFile(workbook, "Attendance_Report.xlsx");
+      const wrapTextStyle = { alignment: { wrapText: true } };
+      Object.keys(worksheet).forEach((key) => {
+        if (key.startsWith("D") || key.startsWith("E")) {
+          worksheet[key].s = wrapTextStyle;
+        }
+      });
+      const columnWidths = Object.keys(exportData[0]).map((key) => ({
+        wch: Math.max(
+          key.length, // Use the header length as the minimum width
+          ...exportData.map((row) =>
+            row[key] ? row[key].toString().length : 10
+          ) // Find the max length of the data in each column
+        ),
+      }));
+      worksheet["!cols"] = columnWidths;
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance");
+      XLSX.writeFile(workbook, "attendance_data.xlsx");
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Attendances");
+      XLSX.writeFile(workbook, "Attendance_Report.xlsx");
+    } catch (error) {
+      console.error("Error exporting to Excel:", error);
+    }
+    // Prepare the data for export
   };
 
   return (
@@ -735,7 +740,15 @@ const AttendancePage = () => {
               text="Export to Excel"
               className="btn-dark font-normal btn-sm"
               iconClass="text-lg"
-              onClick={() => exportToExcel(userData)} // Add click handler for export
+              onClick={() => {
+                try {
+                  console.log("Export button clicked");
+                  console.log("Attendance Data:", userData); // Log the data being passed
+                  exportToExcel(userData); // Call export function
+                } catch (error) {
+                  console.error("Error during export:", error);
+                }
+              }} // Add click handler for export
             />
           </div>
         </div>
