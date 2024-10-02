@@ -68,7 +68,7 @@ const EmployeePage = () => {
         }
       );
       setUserData(response.data.employees);
-      // setIsAnimated(true); // Trigger animation after fetching data
+      setIsAnimated(true); // Trigger animation after fetching data
 
       setTotal(response.data.pagination.total);
       setHasNextPage(response.data.pagination.hasNextPage);
