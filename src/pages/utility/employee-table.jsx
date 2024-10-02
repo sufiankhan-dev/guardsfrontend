@@ -51,7 +51,6 @@ const EmployeePage = () => {
   const [loading, setLoading] = useState(true); // Loading state
   const [isAnimated, setIsAnimated] = useState(false);
 
-
   const fetchData = async (pageIndex, pageSize) => {
     try {
       setLoading(true);
@@ -69,7 +68,7 @@ const EmployeePage = () => {
         }
       );
       setUserData(response.data.employees);
-      setIsAnimated(true); // Trigger animation after fetching data
+      // setIsAnimated(true); // Trigger animation after fetching data
 
       setTotal(response.data.pagination.total);
       setHasNextPage(response.data.pagination.hasNextPage);
@@ -145,7 +144,7 @@ const EmployeePage = () => {
           },
         }
       );
-  
+
       if (response.status === 200) {
         // Update the state after the API call succeeds
         setUserData((prevUsers) =>
@@ -162,14 +161,13 @@ const EmployeePage = () => {
       toast.error("Error updating salary status");
     }
   };
-  
 
   const actions = [
     {
       name: "edit",
       icon: "heroicons:pencil-square",
       doit: (id) => {
-        navigate(`/Customer-edit?id=${id}`);
+        navigate(`/employee-edit?id=${id}`);
       },
     },
     {
@@ -198,10 +196,10 @@ const EmployeePage = () => {
       name: "change feestatus",
       icon: "heroicons-outline:refresh",
       doit: (id, currentFeeStatus) => {
-          const newFeeStatus = currentFeeStatus === 'paid' ? 'unpaid' : 'paid';
-          handleChangeSalaryStatus(id, newFeeStatus);
+        const newFeeStatus = currentFeeStatus === "paid" ? "unpaid" : "paid";
+        handleChangeSalaryStatus(id, newFeeStatus);
       },
-  },
+    },
   ];
 
   const COLUMNS = [
@@ -299,8 +297,7 @@ const EmployeePage = () => {
         </span>
       ),
     },
-    
-   
+
     {
       Header: "Created-At",
       accessor: "createdAt",
@@ -316,9 +313,9 @@ const EmployeePage = () => {
         const userId = row.cell.row.original._id;
 
         return (
-          <div>
+          <div className="">
             <Dropdown
-              classMenuItems="right-0 w-[140px] top-[110%]"
+              classMenuItems="fixed right-0 w-[140px] top-[110%]"
               label={
                 <span className="text-xl text-center block w-full">
                   <Icon icon="heroicons-outline:dots-vertical" />
@@ -469,7 +466,7 @@ const EmployeePage = () => {
                 {...getTableProps()}
               >
                 <thead className="bg-gradient-to-r from-[#304352] to-[#d7d2cc] dark:bg-slate-800">
-                {headerGroups.map((headerGroup) => (
+                  {headerGroups.map((headerGroup) => (
                     <tr {...headerGroup.getHeaderGroupProps()}>
                       {headerGroup.headers.map((column) => (
                         <th
@@ -499,7 +496,10 @@ const EmployeePage = () => {
                   {page.map((row) => {
                     prepareRow(row);
                     return (
-                      <tr {...row.getRowProps()} className={isAnimated ? 'fade-in' : ''}>
+                      <tr
+                        {...row.getRowProps()}
+                        className={isAnimated ? "fade-in" : ""}
+                      >
                         {row.cells.map((cell) => (
                           <td {...cell.getCellProps()} className="table-td">
                             {cell.render("Cell")}
