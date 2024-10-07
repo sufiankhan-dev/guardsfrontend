@@ -30,6 +30,7 @@
     "axios": "^1.6.8",
     "bootstrap": "^5.3.3",
     "chart.js": "^4.2.0",
+    "cities.json": "^1.1.41",
     "cleave.js": "^1.6.0",
     "crypto-js": "^4.2.0",
     "d3-array": "^3.2.2",
