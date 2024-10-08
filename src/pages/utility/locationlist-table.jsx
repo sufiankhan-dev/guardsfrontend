@@ -179,21 +179,21 @@ const LocationPage = () => {
       accessor: "address",
       Cell: (row) => <span>{row?.cell?.value}</span>,
     },
-    {
-      Header: "Guards",
-      accessor: "employees", // Accessing the employees array
-      Cell: ({ cell: { value } }) => {
-        // Check if there are employees and map their names
-        return (
-          <span>
-            {value && value.length > 0
-              ? value.map(emp => emp.employeeName).join(", ")
-              : "No Employees"}
-          </span>
-        );
-      },
-    },
-    
+    // {
+    //   Header: "Guards",
+    //   accessor: "employees", // Accessing the employees array
+    //   Cell: ({ cell: { value } }) => {
+    //     // Check if there are employees and map their names
+    //     return (
+    //       <span>
+    //         {value && value.length > 0
+    //           ? value.map(emp => emp.employeeName).join(", ")
+    //           : "No Employees"}
+    //       </span>
+    //     );
+    //   },
+    // },
+
     {
       Header: "Location Type",
       accessor: "locationType.name",
@@ -412,7 +412,7 @@ const LocationPage = () => {
                 {...getTableProps()}
               >
                 <thead className="bg-gradient-to-r from-[#304352] to-[#d7d2cc] dark:bg-slate-800">
-                {headerGroups.map((headerGroup) => (
+                  {headerGroups.map((headerGroup) => (
                     <tr {...headerGroup.getHeaderGroupProps()}>
                       {headerGroup.headers.map((column) => (
                         <th

@@ -102,6 +102,7 @@ const ConfirmationCallAddPage = lazy(() =>
 );
 const EmployeesPage = lazy(() => import("./pages/utility/employee-table"));
 const EmployeesAddPage = lazy(() => import("./pages/utility/employee-add"));
+const EmployeesEditPage = lazy(() => import("./pages/utility/employee-edit"));
 const VendorAddPage = lazy(() => import("./pages/utility/vendor-add"));
 const VendorEditPage = lazy(() => import("./pages/utility/vendor-edit"));
 const InvoicePreviewPage = lazy(() =>
@@ -289,6 +290,7 @@ function App() {
           <Route path="vendor-edit" element={<VendorEditPage />} />
           <Route path="role-add" element={<RoleAddPage />} />
           <Route path="role-edit" element={<RoleEditPage />} />
+          <Route path="employee-edit" element={<EmployeesEditPage />} />
           <Route path="roles" element={<RolePage />} />
           <Route path="product-add" element={<ProductAddPage />} />
           <Route path="products" element={<ProductPage />} />

@@ -12,6 +12,9 @@ import { useSelector } from "react-redux";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import Select from "react-select";
+import { countryOptions } from "../../../data/index";
+import { stateOptions } from "../../../data/country";
+import cities from "cities.json";
 
 const UserAddPage = () => {
   const navigate = useNavigate();
@@ -72,11 +75,11 @@ const UserAddPage = () => {
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       validationErrors.email = "Invalid email format";
     }
-    if (!formData.secondaryEmail) {
-      validationErrors.secondaryEmail = "Secondary Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.secondaryEmail)) {
-      validationErrors.secondaryEmail = "Invalid email format";
-    }
+    // if (!formData.secondaryEmail) {
+    //   validationErrors.secondaryEmail = "Secondary Email is required";
+    // } else if (!/\S+@\S+\.\S+/.test(formData.secondaryEmail)) {
+    //   validationErrors.secondaryEmail = "Invalid email format";
+    // }
 
     if (!formData.password) {
       validationErrors.password = "Password is required";
@@ -157,26 +160,33 @@ const UserAddPage = () => {
     label: role.name, // Role name
   }));
 
-  const countryOptions = [
-    { value: "United States", label: "United States" },
-    { value: "United Kingdom", label: "United Kingdom" },
-    { value: "Canada", label: "Canada" },
-    // Add more countries here
-  ];
+  const cityOptions = cities
+    .filter((city) => city.country === "PK" || city.country === "AE") // Replace "US" with any desired country code
+    .map((city) => ({
+      value: city.name,
+      label: city.name,
+    }));
 
-  const stateOptions = [
-    { value: "ny", label: "New York" },
-    { value: "ca", label: "California" },
-    { value: "tx", label: "Texas" },
-    // Add more states here
-  ];
+  // const countryOptions = [
+  //   { value: "United States", label: "United States" },
+  //   { value: "United Kingdom", label: "United Kingdom" },
+  //   { value: "Canada", label: "Canada" },
+  //   // Add more countries here
+  // ];
 
-  const cityOptions = [
-    { value: "New York City", label: "New York City" },
-    { value: "Los Angeles", label: "Los Angeles" },
-    { value: "Houston", label: "Houston" },
-    // Add more cities here
-  ];
+  // const stateOptions = [
+  //   { value: "ny", label: "New York" },
+  //   { value: "ca", label: "California" },
+  //   { value: "tx", label: "Texas" },
+  //   // Add more states here
+  // ];
+
+  // const cityOptions = [
+  //   { value: "New York City", label: "New York City" },
+  //   { value: "Los Angeles", label: "Los Angeles" },
+  //   { value: "Houston", label: "Houston" },
+  //   // Add more cities here
+  // ];
 
   const genderOptions = [
     { value: "Male", label: "Male" },
@@ -383,7 +393,7 @@ const UserAddPage = () => {
               {errors.address && (
                 <p className="text-red-500">{errors.address}</p>
               )}
-              <Textinput
+              {/* <Textinput
                 label="Secondary Email"
                 type="secondaryEmail"
                 placeholder="Secondary Email Address"
@@ -397,7 +407,7 @@ const UserAddPage = () => {
               />
               {errors.secondaryEmail && (
                 <p className="text-red-500">{errors.secondaryEmail}</p>
-              )}
+              )} */}
               <Textinput
                 label="Secondary Phone"
                 type="secondaryNumber"

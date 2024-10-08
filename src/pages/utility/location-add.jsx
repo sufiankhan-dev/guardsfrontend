@@ -790,37 +790,37 @@ const LocationAddPage = () => {
       });
 
     // Fetching Users
-    axios
-      .get(`${process.env.REACT_APP_BASE_URL}/${user.type}/user/get-users`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      })
-      .then((response) => {
-        setUsers(
-          response.data.users.map((user) => ({
-            value: user._id,
-            label: user.firstName,
-          }))
-        );
-      })
-      .catch((error) => {
-        console.error("Error fetching roles:", error);
-      });
-      axios
-      .get(`${process.env.REACT_APP_BASE_URL}/${user.type}/employe/get-employees`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      })
-      .then((response) => {
-        setemployes(
-          response.data.employees.map((employ) => ({
-            value: employ._id,
-            label: employ.employeeName,
-          }))
-        );
-        console.log(employes,"....");
-      })
-      .catch((error) => {
-        console.error("Error fetching employe:", error);
-      });
+    // axios
+    //   .get(`${process.env.REACT_APP_BASE_URL}/${user.type}/user/get-users`, {
+    //     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    //   })
+    //   .then((response) => {
+    //     setUsers(
+    //       response.data.users.map((user) => ({
+    //         value: user._id,
+    //         label: user.firstName,
+    //       }))
+    //     );
+    //   })
+    //   .catch((error) => {
+    //     console.error("Error fetching roles:", error);
+    //   });
+    //   axios
+    //   .get(`${process.env.REACT_APP_BASE_URL}/${user.type}/employe/get-employees`, {
+    //     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    //   })
+    //   .then((response) => {
+    //     setemployes(
+    //       response.data.employees.map((employ) => ({
+    //         value: employ._id,
+    //         label: employ.employeeName,
+    //       }))
+    //     );
+    //     console.log(employes,"....");
+    //   })
+    //   .catch((error) => {
+    //     console.error("Error fetching employe:", error);
+    //   });
   }, []);
 
   const validate = () => {
@@ -935,7 +935,7 @@ const LocationAddPage = () => {
       <Card title="Create New Location">
         <div className="grid lg:grid-cols-1 grid-cols-1 gap-8">
           <div className="space-y-4">
-            <label htmlFor="maincategory" className="form-label">
+            {/* <label htmlFor="maincategory" className="form-label">
               Select User
             </label>
             <Select
@@ -945,29 +945,29 @@ const LocationAddPage = () => {
                 setFormData({ ...formData, userList: selectedOption.value })
               }
             />
-             <label htmlFor="maincategory" className="form-label">
+            <label htmlFor="maincategory" className="form-label">
               Select Employe
             </label>
-             <Select
+            <Select
               label="Select employe"
               options={employes}
               onChange={(selectedOption) =>
                 setFormData({ ...formData, employees: selectedOption.value })
               }
-            />
+            /> */}
             <Textinput
-              label="Location Name"
+              label="Company Name"
               type="text"
-              placeholder="Location Name"
+              placeholder="Company Name"
               value={formData.locationName}
               onChange={(e) =>
                 setFormData({ ...formData, locationName: e.target.value })
               }
             />
             <Textinput
-              label="Address"
+              label="Street Address"
               type="text"
-              placeholder="Address"
+              placeholder="Street Address"
               value={formData.address}
               onChange={(e) =>
                 setFormData({ ...formData, address: e.target.value })
