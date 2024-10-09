@@ -297,7 +297,7 @@ const Dashboard = () => {
         Revenue: (
           <>
             <br />
-            <strong>{"$50,000"}</strong>{" "}
+            {/* <strong>{"$50,000"}</strong>{" "} */}
           </>
         ),
       },

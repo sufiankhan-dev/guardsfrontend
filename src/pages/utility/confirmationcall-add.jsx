@@ -7,6 +7,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
 import { useSelector } from "react-redux";
+import Flatpickr from "react-flatpickr";
+import "flatpickr/dist/flatpickr.css";
 
 const ConfirmationCallAddPage = () => {
   const navigate = useNavigate();
@@ -153,13 +155,25 @@ const ConfirmationCallAddPage = () => {
               <p className="text-red-500">{errors.locationId}</p>
             )}
 
-            <Textinput
+            {/* <Textinput
               label="Calling Time"
               type="date"
               value={formData.callingTime}
               onChange={(e) =>
                 setFormData({ ...formData, callingTime: e.target.value })
               }
+            /> */}
+            <label htmlFor="callingTime" className="form-label -mb-2">
+              Calling Time
+            </label>
+            <Flatpickr
+              value={formData.callingTime} // Use the same state value for callingTime
+              onChange={
+                (date) => setFormData({ ...formData, callingTime: date[0] }) // Update callingTime with the selected date and time
+              }
+              options={{ enableTime: true, dateFormat: "Y-m-d H:i" }} // Enable time selection and set date format
+              className="border rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-700 shadow-md cursor-pointer" // Apply your desired styling class
+              placeholder="Select Date & Time"
             />
             {errors.callingTime && (
               <p className="text-red-500">{errors.callingTime}</p>

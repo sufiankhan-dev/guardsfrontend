@@ -956,9 +956,9 @@ const LocationAddPage = () => {
               }
             /> */}
             <Textinput
-              label="Company Name"
+              label="Customer Name"
               type="text"
-              placeholder="Company Name"
+              placeholder="Customer Name"
               value={formData.locationName}
               onChange={(e) =>
                 setFormData({ ...formData, locationName: e.target.value })

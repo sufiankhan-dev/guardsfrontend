@@ -170,12 +170,12 @@ const LocationPage = () => {
       },
     },
     {
-      Header: "Location Name",
+      Header: "Customer Name",
       accessor: "locationName",
       Cell: (row) => <span>{row?.cell?.value}</span>,
     },
     {
-      Header: "Address",
+      Header: "Street Address",
       accessor: "address",
       Cell: (row) => <span>{row?.cell?.value}</span>,
     },

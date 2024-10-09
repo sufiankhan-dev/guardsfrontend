@@ -17,6 +17,8 @@ import GlobalFilter from "../table/react-tables/GlobalFilter";
 import { Menu } from "@headlessui/react";
 import { useSelector } from "react-redux";
 import Icons from "@/components/ui/Icon";
+import { FaPlus } from "react-icons/fa";
+import CallingTimeDialog from "./CallingTimeDialog";
 
 const IndeterminateCheckbox = React.forwardRef(
   ({ indeterminate, ...rest }, ref) => {
@@ -51,6 +53,10 @@ const EmployeePage = () => {
   const user = useSelector((state) => state.auth.user);
   const [loading, setLoading] = useState(true); // Loading state
 
+  // callData.forEach((item) => {
+  //   console.log(item._id);
+  // });
+
   const fetchData = async (pageIndex, pageSize) => {
     try {
       setLoading(true);
@@ -76,6 +82,8 @@ const EmployeePage = () => {
       setLoading(false);
     }
   };
+
+  // console.log(callData);
 
   useEffect(() => {
     fetchData(pageIndex, pageSize);
@@ -128,6 +136,78 @@ const EmployeePage = () => {
       console.error("Error updating user status:", error);
       toast.error("Error updating user status");
     }
+  };
+
+  const CallingTimeCell = ({ row }) => {
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    // const [callingTimes, setCallingTimes] = useState([]);
+    const [selectedCallId, setSelectedCallId] = useState(null); // Store selected _id
+
+    const handleOpenDialog = () => {
+      setSelectedCallId(row.row.original._id);
+      setIsDialogOpen(true);
+    };
+
+    const callingTimes = row.row.original.callingTimes || []; // Access callingTimes from the original data
+
+    const handleCloseDialog = () => {
+      setIsDialogOpen(false);
+    };
+
+    const handleSubmitCallingTime = async (callingTime) => {
+      if (!selectedCallId) return;
+
+      const formattedTime = new Date(callingTime).toISOString();
+      const apiUrl = `${process.env.REACT_APP_BASE_URL}/admin/call/add-calling-time/${selectedCallId}`;
+
+      try {
+        const response = await fetch(apiUrl, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({ callingTime: formattedTime }),
+        });
+
+        if (response.ok) {
+          // Refetch the data after successfully adding calling time
+          fetchData(pageIndex, pageSize); // Refetch call data
+          toast.success("Calling time added successfully!");
+        } else {
+          console.error("Error adding calling time:", response.statusText);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    };
+
+    return (
+      <div className="flex flex-col">
+        <ul>
+          {callingTimes.map((time, index) => (
+            <li key={index} className="mb-2">
+              <span className="font-semibold underline">Call Time:</span>
+              <br />
+              {new Date(time).toLocaleString()}
+            </li>
+          ))}
+        </ul>
+        <Button
+          onClick={handleOpenDialog}
+          className="bg-black-500 hover:bg-black-600 mt-2"
+        >
+          <FaPlus className="text-white" />
+        </Button>
+
+        {isDialogOpen && (
+          <CallingTimeDialog
+            onClose={() => setIsDialogOpen(false)}
+            onSubmit={handleSubmitCallingTime}
+          />
+        )}
+      </div>
+    );
   };
 
   const actions = [
@@ -188,8 +268,29 @@ const EmployeePage = () => {
     {
       Header: "Calling Time",
       accessor: "callingTime", // Access calling time
-      Cell: (row) => <span>{new Date(row.cell.value).toLocaleString()}</span>,
+      // Cell: (row) => (
+      //   <div>
+      //     {new Date(row.cell.value).toLocaleString()}
+      //     <Button className="bg-black-500 hover:bg-black-600">
+      //       <FaPlus className="text-white" />
+      //     </Button>
+      //   </div>
+      // ),
+      Cell: (row) => <CallingTimeCell row={row} />,
     },
+    // {
+    //   Header: "Confirmation Call Id",
+    //   accessor: "_id", // Access calling time
+    //   // Cell: (row) => (
+    //   //   <div>
+    //   //     {new Date(row.cell.value).toLocaleString()}
+    //   //     <Button className="bg-black-500 hover:bg-black-600">
+    //   //       <FaPlus className="text-white" />
+    //   //     </Button>
+    //   //   </div>
+    //   // ),
+    //   Cell: (row) => <span>{row.cell.value}</span>,
+    // },
     {
       Header: "Notes",
       accessor: "notes", // Access notes
@@ -382,7 +483,7 @@ const EmployeePage = () => {
                 {...getTableProps()}
               >
                 <thead className="bg-gradient-to-r from-[#304352] to-[#d7d2cc] dark:bg-slate-800">
-                {headerGroups.map((headerGroup) => (
+                  {headerGroups.map((headerGroup) => (
                     <tr {...headerGroup.getHeaderGroupProps()}>
                       {headerGroup.headers.map((column) => (
                         <th

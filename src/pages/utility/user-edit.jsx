@@ -16,12 +16,12 @@ const UserEditPage = () => {
     email: "",
     phoneNumber1: "",
     password: "",
-    role: ""
+    role: "",
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [uploadingData, setUploadingData] = useState(false);
-  
+
   const userId = new URLSearchParams(window.location.search).get("id");
   const currentUser = useSelector((state) => state.auth.user);
 
@@ -63,9 +63,9 @@ const UserEditPage = () => {
       setErrors(validationErrors);
       return;
     }
-  
+
     console.log("Submitting data:", formData); // Log the data being submitted
-  
+
     try {
       setUploadingData(true);
       const response = await axios.put(
@@ -76,7 +76,7 @@ const UserEditPage = () => {
           lastName: formData.lastName,
           phoneNumber1: formData.phoneNumber1,
           password: formData.password,
-          role: formData.role
+          role: formData.role,
         },
         {
           headers: {
@@ -84,19 +84,21 @@ const UserEditPage = () => {
           },
         }
       );
-  
+
       if (response.status === 200) {
         toast.success("User updated successfully");
         navigate("/user");
       }
     } catch (error) {
-      console.error("Error details:", error.response ? error.response.data : error); // Improved error logging
+      console.error(
+        "Error details:",
+        error.response ? error.response.data : error
+      ); // Improved error logging
       toast.error(error.response?.data?.message || "Failed to update user");
     } finally {
       setUploadingData(false);
     }
   };
-  
 
   const validate = () => {
     const errors = {};
@@ -115,11 +117,11 @@ const UserEditPage = () => {
       errors.email = "Email address is invalid";
     }
 
-    if (!formData.phoneNumber1) {
-      errors.phoneNumber1 = "Phone number is required";
-    } else if (!/^\d{11}$/.test(formData.phoneNumber1)) {
-      errors.phoneNumber1 = "Phone number must be 10 digits";
-    }
+    // if (!formData.phoneNumber1) {
+    //   errors.phoneNumber1 = "Phone number is required";
+    // } else if (!/^\d{11}$/.test(formData.phoneNumber1)) {
+    //   errors.phoneNumber1 = "Phone number must be 10 digits";
+    // }
 
     if (!formData.role) {
       errors.role = "Role is required";
@@ -132,9 +134,9 @@ const UserEditPage = () => {
     navigate("/user");
   };
 
-  const roleOptions = roles.map(role => ({
+  const roleOptions = roles.map((role) => ({
     value: role._id,
-    label: role.name
+    label: role.name,
   }));
 
   return (
@@ -151,9 +153,13 @@ const UserEditPage = () => {
                   type="text"
                   className="border-[3px] h-10 w-full mb-3 p-2"
                   value={formData.firstName}
-                  onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, firstName: e.target.value })
+                  }
                 />
-                {errors.firstName && <p className="text-red-500 text-xs">{errors.firstName}</p>}
+                {errors.firstName && (
+                  <p className="text-red-500 text-xs">{errors.firstName}</p>
+                )}
               </div>
               <div>
                 <label className="form-label">Last Name</label>
@@ -161,9 +167,13 @@ const UserEditPage = () => {
                   type="text"
                   className="border-[3px] h-10 w-full mb-3 p-2"
                   value={formData.lastName}
-                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, lastName: e.target.value })
+                  }
                 />
-                {errors.lastName && <p className="text-red-500 text-xs">{errors.lastName}</p>}
+                {errors.lastName && (
+                  <p className="text-red-500 text-xs">{errors.lastName}</p>
+                )}
               </div>
               <div>
                 <label className="form-label">Email</label>
@@ -171,9 +181,13 @@ const UserEditPage = () => {
                   type="email"
                   className="border-[3px] h-10 w-full mb-3 p-2"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                 />
-                {errors.email && <p className="text-red-500 text-xs">{errors.email}</p>}
+                {errors.email && (
+                  <p className="text-red-500 text-xs">{errors.email}</p>
+                )}
               </div>
               <div>
                 <label className="form-label">Phone Number</label>
@@ -181,9 +195,11 @@ const UserEditPage = () => {
                   type="text"
                   className="border-[3px] h-10 w-full mb-3 p-2"
                   value={formData.phoneNumber1}
-                  onChange={(e) => setFormData({ ...formData, phoneNumber1: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, phoneNumber1: e.target.value })
+                  }
                 />
-                {errors.phoneNumber1 && <p className="text-red-500 text-xs">{errors.phoneNumber1}</p>}
+                {/* {errors.phoneNumber1 && <p className="text-red-500 text-xs">{errors.phoneNumber1}</p>} */}
               </div>
               <div>
                 <label className="form-label">Password</label>
@@ -191,7 +207,9 @@ const UserEditPage = () => {
                   type="password"
                   className="border-[3px] h-10 w-full mb-3 p-2"
                   value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
                 />
                 {/* Optionally, handle password errors here */}
               </div>
@@ -199,15 +217,33 @@ const UserEditPage = () => {
                 <label className="form-label">Role</label>
                 <Select
                   options={roleOptions}
-                  value={roleOptions.find(option => option.value === formData.role)}
-                  onChange={(selectedOption) => setFormData({ ...formData, role: selectedOption.value })}
+                  value={roleOptions.find(
+                    (option) => option.value === formData.role
+                  )}
+                  onChange={(selectedOption) =>
+                    setFormData({ ...formData, role: selectedOption.value })
+                  }
                 />
-                {errors.role && <p className="text-red-500 text-xs">{errors.role}</p>}
+                {errors.role && (
+                  <p className="text-red-500 text-xs">{errors.role}</p>
+                )}
               </div>
             </div>
             <div className="space-x-3">
-              <button className="btn btn-light" onClick={handleCancel} type="button">Cancel</button>
-              <Button text="Save" className="btn-dark" onClick={handleSubmit} isLoading={uploadingData} disabled={uploadingData} />
+              <button
+                className="btn btn-light"
+                onClick={handleCancel}
+                type="button"
+              >
+                Cancel
+              </button>
+              <Button
+                text="Save"
+                className="btn-dark"
+                onClick={handleSubmit}
+                isLoading={uploadingData}
+                disabled={uploadingData}
+              />
             </div>
           </div>
         )}
