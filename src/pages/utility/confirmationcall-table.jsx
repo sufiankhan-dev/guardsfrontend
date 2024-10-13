@@ -111,7 +111,7 @@ const EmployeePage = () => {
   const handleChangeStatus = async (id, newStatus) => {
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_BASE_URL}/admin/user/change-status/${id}`,
+        `${process.env.REACT_APP_BASE_URL}/admin/change-call-status/${id}`,
         {
           method: "PUT",
           headers: {
@@ -122,19 +122,19 @@ const EmployeePage = () => {
         }
       );
       if (response.ok) {
-        setUserData((prevUsers) =>
+        setCallData((prevUsers) =>
           prevUsers.map((user) =>
             user._id === id ? { ...user, status: newStatus } : user
           )
         );
-        toast.success("User status updated");
+        toast.success("Call status updated");
       } else {
-        console.error("Failed to update user status");
-        toast.error("Failed to update user status");
+        console.error("Failed to update Call status");
+        toast.error("Failed to update Call status");
       }
     } catch (error) {
-      console.error("Error updating user status:", error);
-      toast.error("Error updating user status");
+      console.error("Error updating Call status:", error);
+      toast.error("Error updating Call status");
     }
   };
 
@@ -328,6 +328,8 @@ const EmployeePage = () => {
       Cell: (row) => {
         const userStatus = row.cell.row.original.status;
         const userId = row.cell.row.original._id;
+
+        // console.log(userStatus);
 
         return (
           <div>

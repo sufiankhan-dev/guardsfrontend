@@ -88,8 +88,8 @@ const UserAddPage = () => {
         "Password must contain at least one special character";
     }
 
-    if (!formData.phoneNumber1)
-      validationErrors.phoneNumber1 = "Phone number is required";
+    // if (!formData.phoneNumber1)
+    //   validationErrors.phoneNumber1 = "Phone number is required";
     // if (!/^\d{11}$/.test(formData.phoneNumber1))
     //   validationErrors.phoneNumber1 = "Phone number is invalid";
 
@@ -280,15 +280,15 @@ const UserAddPage = () => {
               <Textinput
                 label="Phone"
                 type="number"
-                placeholder="Phone Number"
+                placeholder="Phone Number (Optional)"
                 value={formData.phoneNumber1}
                 onChange={(e) =>
                   setFormData({ ...formData, phoneNumber1: e.target.value })
                 }
               />
-              {errors.phoneNumber1 && (
+              {/* {errors.phoneNumber1 && (
                 <p className="text-red-500">{errors.phoneNumber1}</p>
-              )}
+              )} */}
 
               <label className="block text-sm font-medium">Gender</label>
               <Select

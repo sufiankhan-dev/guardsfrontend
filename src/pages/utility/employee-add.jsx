@@ -39,6 +39,8 @@ const EmployeeAddPage = () => {
     expiryDate: "",
     payRate: 0,
     managerName: "",
+    salarystatus: "unpaid",
+    employeeCategory: "Shack",
     approved: false,
     status: "active",
   });
@@ -91,7 +93,7 @@ const EmployeeAddPage = () => {
                 setFormData({ ...formData, employeeName: e.target.value })
               }
             />
-            {/* <Textinput
+            <Textinput
               label="Employee ID*"
               type="text"
               placeholder="Employee ID"
@@ -99,7 +101,7 @@ const EmployeeAddPage = () => {
               onChange={(e) =>
                 setFormData({ ...formData, employeeIDNumber: e.target.value })
               }
-            /> */}
+            />
             <Textinput
               label="Address"
               type="text"

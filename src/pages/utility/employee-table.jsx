@@ -96,11 +96,11 @@ const EmployeePage = () => {
           },
         }
       );
-      toast.success("User deleted successfully");
+      toast.success("Employee deleted successfully");
       fetchData(pageIndex, pageSize);
     } catch (error) {
       console.log(error);
-      toast.error("Failed to delete user");
+      toast.error("Failed to delete employee");
     }
   };
 
@@ -261,9 +261,11 @@ const EmployeePage = () => {
       accessor: "payRate",
       Cell: (row) => {
         return user.role === "66eef36e34ab04e7e1b41cef" ||
-          user.role === "66e08dbec146f84aec8a8e36" ? (
+          user.role === "66eef34934ab04e7e1b41ce9" ? (
           <span>{row.cell.value}</span>
-        ) : null; // Return null if the role doesn't match
+        ) : (
+          <span>Not Access</span>
+        ); // Return null if the role doesn't match
       },
     },
     {
