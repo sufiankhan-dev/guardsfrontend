@@ -17,7 +17,7 @@ const ConfirmationCallAddPage = () => {
   const [formData, setFormData] = useState({
     employeeId: "",
     locationId: "",
-    callingTime: "",
+    callingTimes: [], // Change callingTime to callingTimes if needed
     notes: "",
   });
 
@@ -81,18 +81,21 @@ const ConfirmationCallAddPage = () => {
     if (isSubmitting.current) return;
     isSubmitting.current = true;
 
-    // const validationErrors = validate();
-    // if (Object.keys(validationErrors).length > 0) {
-    //   setErrors(validationErrors);
-    //   isSubmitting.current = false;
-    //   return;
-    // }
+    // Construct callingTimes from the Flatpickr value if needed
+    const callingTimes = formData.callingTime
+      ? [formData.callingTime.toISOString()]
+      : []; // Convert to ISO string
+
+    console.log(formData);
 
     try {
       setUploadingData(true);
       const response = await axios.post(
-        `https://dashcart-backend-production.up.railway.app/api/admin/call/add-confirmation-call`,
-        formData,
+        `${process.env.REACT_APP_BASE_URL}/admin/call/add-confirmation-call`,
+        {
+          ...formData,
+          callingTimes, // Send callingTimes here
+        },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
@@ -167,9 +170,9 @@ const ConfirmationCallAddPage = () => {
               Calling Time
             </label>
             <Flatpickr
-              value={formData.callingTime} // Use the same state value for callingTime
+              value={formData.callingTimes} // Use the same state value for callingTime
               onChange={
-                (date) => setFormData({ ...formData, callingTime: date[0] }) // Update callingTime with the selected date and time
+                (date) => setFormData({ ...formData, callingTimes: date[0] }) // Update callingTime with the selected date and time
               }
               options={{ enableTime: true, dateFormat: "Y-m-d H:i" }} // Enable time selection and set date format
               className="border rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-700 shadow-md cursor-pointer" // Apply your desired styling class
