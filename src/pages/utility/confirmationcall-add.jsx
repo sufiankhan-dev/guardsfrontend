@@ -65,28 +65,28 @@ const ConfirmationCallAddPage = () => {
     fetchEmployees();
     fetchLocations();
   }, []);
-  const validate = () => {
-    const validationErrors = {};
-    if (!formData.employeeId)
-      validationErrors.employeeId = "Employee is required";
-    if (!formData.locationId)
-      validationErrors.locationId = "Location is required";
-    if (!formData.callingTime)
-      validationErrors.callingTime = "Calling Time is required";
-    if (!formData.notes) validationErrors.notes = "Notes are required";
-    return validationErrors;
-  };
+  // const validate = () => {
+  //   const validationErrors = {};
+  //   if (!formData.employeeId)
+  //     validationErrors.employeeId = "Employee is required";
+  //   if (!formData.locationId)
+  //     validationErrors.locationId = "Location is required";
+  //   if (!formData.callingTime)
+  //     validationErrors.callingTime = "Calling Time is required";
+  //   if (!formData.notes) validationErrors.notes = "Notes are required";
+  //   return validationErrors;
+  // };
 
   const handleSubmit = async () => {
     if (isSubmitting.current) return;
     isSubmitting.current = true;
 
-    const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      isSubmitting.current = false;
-      return;
-    }
+    // const validationErrors = validate();
+    // if (Object.keys(validationErrors).length > 0) {
+    //   setErrors(validationErrors);
+    //   isSubmitting.current = false;
+    //   return;
+    // }
 
     try {
       setUploadingData(true);
@@ -135,9 +135,9 @@ const ConfirmationCallAddPage = () => {
               }
               placeholder="Select Employee"
             />
-            {errors.employeeId && (
+            {/* {errors.employeeId && (
               <p className="text-red-500">{errors.employeeId}</p>
-            )}
+            )} */}
             <label htmlFor="locationId" className="form-label">
               Select Location
             </label>
@@ -151,9 +151,9 @@ const ConfirmationCallAddPage = () => {
               }
               placeholder="Select Location"
             />
-            {errors.locationId && (
+            {/* {errors.locationId && (
               <p className="text-red-500">{errors.locationId}</p>
-            )}
+            )} */}
 
             {/* <Textinput
               label="Calling Time"
@@ -175,9 +175,9 @@ const ConfirmationCallAddPage = () => {
               className="border rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-700 shadow-md cursor-pointer" // Apply your desired styling class
               placeholder="Select Date & Time"
             />
-            {errors.callingTime && (
+            {/* {errors.callingTime && (
               <p className="text-red-500">{errors.callingTime}</p>
-            )}
+            )} */}
 
             <Textinput
               label="Notes"
@@ -188,7 +188,7 @@ const ConfirmationCallAddPage = () => {
                 setFormData({ ...formData, notes: e.target.value })
               }
             />
-            {errors.notes && <p className="text-red-500">{errors.notes}</p>}
+            {/* {errors.notes && <p className="text-red-500">{errors.notes}</p>} */}
           </div>
         </div>
 

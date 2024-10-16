@@ -213,8 +213,13 @@ const EmployeePage = () => {
       },
     },
     {
-      Header: "Name",
+      Header: "First Name",
       accessor: "employeeName",
+      Cell: (row) => <span>{row?.cell?.value}</span>,
+    },
+    {
+      Header: "Last Name",
+      accessor: "employeeLastName",
       Cell: (row) => <span>{row?.cell?.value}</span>,
     },
     {

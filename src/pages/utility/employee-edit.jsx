@@ -10,6 +10,7 @@ const EmployeeEditPage = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     employeeName: "",
+    employeeLastName: "",
     employeeAddress: "",
     employeeIDNumber: "",
     contactNumber1: "",
@@ -52,11 +53,11 @@ const EmployeeEditPage = () => {
   }, [employeeId]);
 
   const handleSubmit = async () => {
-    const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
+    // const validationErrors = validate();
+    // if (Object.keys(validationErrors).length > 0) {
+    //   setErrors(validationErrors);
+    //   return;
+    // }
 
     try {
       setUploadingData(true);
@@ -89,7 +90,10 @@ const EmployeeEditPage = () => {
     const errors = {};
 
     if (!formData.employeeName) {
-      errors.employeeName = "Employee name is required";
+      errors.employeeName = "Employee first name is required";
+    }
+    if (!formData.employeeLastName) {
+      errors.employeeLastName = "Employee last name is required";
     }
 
     if (!formData.employeeAddress) {
@@ -136,17 +140,39 @@ const EmployeeEditPage = () => {
           <div>
             <div className="grid lg:grid-cols-2 grid-cols-1 gap-5 mb-5">
               <div>
-                <label className="form-label">Employee Name</label>
+                <label className="form-label">Employee First Name</label>
                 <input
                   type="text"
                   className="border-[3px] h-10 w-full mb-3 p-2"
                   value={formData.employeeName}
                   onChange={(e) =>
-                    setFormData({ ...formData, employeeName: e.target.value })
+                    setFormData({
+                      ...formData,
+                      employeeName: e.target.value,
+                    })
                   }
                 />
                 {errors.employeeName && (
                   <p className="text-red-500 text-xs">{errors.employeeName}</p>
+                )}
+              </div>
+              <div>
+                <label className="form-label">Employee Last Name</label>
+                <input
+                  type="text"
+                  className="border-[3px] h-10 w-full mb-3 p-2"
+                  value={formData.employeeLastName}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      employeeLastName: e.target.value,
+                    })
+                  }
+                />
+                {errors.employeeLastName && (
+                  <p className="text-red-500 text-xs">
+                    {errors.employeeLastName}
+                  </p>
                 )}
               </div>
               <div>
