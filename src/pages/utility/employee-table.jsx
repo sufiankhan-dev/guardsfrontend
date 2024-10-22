@@ -51,6 +51,8 @@ const EmployeePage = () => {
   const [loading, setLoading] = useState(true); // Loading state
   const [isAnimated, setIsAnimated] = useState(false);
 
+  console.log(user.role);
+
   const fetchData = async (pageIndex, pageSize) => {
     try {
       setLoading(true);
@@ -94,11 +96,11 @@ const EmployeePage = () => {
           },
         }
       );
-      toast.success("User deleted successfully");
+      toast.success("Employee deleted successfully");
       fetchData(pageIndex, pageSize);
     } catch (error) {
       console.log(error);
-      toast.error("Failed to delete user");
+      toast.error("Failed to delete employee");
     }
   };
 
@@ -211,8 +213,13 @@ const EmployeePage = () => {
       },
     },
     {
-      Header: "Name",
+      Header: "First Name",
       accessor: "employeeName",
+      Cell: (row) => <span>{row?.cell?.value}</span>,
+    },
+    {
+      Header: "Last Name",
+      accessor: "employeeLastName",
       Cell: (row) => <span>{row?.cell?.value}</span>,
     },
     {
@@ -257,7 +264,14 @@ const EmployeePage = () => {
     {
       Header: "Pay Rate",
       accessor: "payRate",
-      Cell: (row) => <span>PKR {row?.cell?.value}</span>,
+      Cell: (row) => {
+        return user.role === "66eef36e34ab04e7e1b41cef" ||
+          user.role === "66eef34934ab04e7e1b41ce9" ? (
+          <span>{row.cell.value}</span>
+        ) : (
+          <span>Not Access</span>
+        ); // Return null if the role doesn't match
+      },
     },
     {
       Header: "Status",

@@ -35,7 +35,7 @@ const UserAddPage = () => {
     country: "",
     gender: "",
     dateOfBirth: "",
-    roleId: "",
+    role: "",
   });
 
   const [roles, setRoles] = useState([]);
@@ -88,10 +88,10 @@ const UserAddPage = () => {
         "Password must contain at least one special character";
     }
 
-    if (!formData.phoneNumber1)
-      validationErrors.phoneNumber1 = "Phone number is required";
-    if (!/^\d{11}$/.test(formData.phoneNumber1))
-      validationErrors.phoneNumber1 = "Phone number is invalid";
+    // if (!formData.phoneNumber1)
+    //   validationErrors.phoneNumber1 = "Phone number is required";
+    // if (!/^\d{11}$/.test(formData.phoneNumber1))
+    //   validationErrors.phoneNumber1 = "Phone number is invalid";
 
     if (!formData.address) validationErrors.address = "Address is required";
     if (!formData.city) validationErrors.city = "City is required";
@@ -100,7 +100,7 @@ const UserAddPage = () => {
     if (!formData.gender) validationErrors.gender = "Gender is required";
     if (!formData.dateOfBirth)
       validationErrors.dateOfBirth = "Date of Birth is required";
-    if (!formData.roleId) validationErrors.roleId = "Role is required";
+    if (!formData.role) validationErrors.role = "Role is required";
 
     return validationErrors;
   };
@@ -217,14 +217,14 @@ const UserAddPage = () => {
                 placeholder="Select Role"
                 value={
                   roleOptions.find(
-                    (option) => option.value === formData.roleId
+                    (option) => option.value === formData.role
                   ) || null
                 }
                 onChange={(selectedOption) =>
-                  setFormData({ ...formData, roleId: selectedOption.value })
+                  setFormData({ ...formData, role: selectedOption.value })
                 }
               />
-              {errors.roleId && <p className="text-red-500">{errors.roleId}</p>}
+              {errors.roleId && <p className="text-red-500">{errors.role}</p>}
               <label htmlFor="state" className="form-label">
                 User State
               </label>
@@ -258,7 +258,7 @@ const UserAddPage = () => {
               <Textinput
                 label="Middle Name"
                 type="text"
-                placeholder="Middle Name"
+                placeholder="Middle Name (Optional)"
                 value={formData.middleName}
                 onChange={(e) =>
                   setFormData({ ...formData, middleName: e.target.value })
@@ -280,15 +280,15 @@ const UserAddPage = () => {
               <Textinput
                 label="Phone"
                 type="number"
-                placeholder="Phone Number"
+                placeholder="Phone Number (Optional)"
                 value={formData.phoneNumber1}
                 onChange={(e) =>
                   setFormData({ ...formData, phoneNumber1: e.target.value })
                 }
               />
-              {errors.phoneNumber1 && (
+              {/* {errors.phoneNumber1 && (
                 <p className="text-red-500">{errors.phoneNumber1}</p>
-              )}
+              )} */}
 
               <label className="block text-sm font-medium">Gender</label>
               <Select
@@ -341,11 +341,11 @@ const UserAddPage = () => {
                 placeholder="Select Country"
                 value={
                   countryOptions.find(
-                    (option) => option.value === formData.country
+                    (option) => option.label === formData.country
                   ) || null
                 }
                 onChange={(selectedOption) =>
-                  setFormData({ ...formData, country: selectedOption.value })
+                  setFormData({ ...formData, country: selectedOption.label })
                 }
               />
               {errors.country && (
@@ -393,10 +393,10 @@ const UserAddPage = () => {
               {errors.address && (
                 <p className="text-red-500">{errors.address}</p>
               )}
-              {/* <Textinput
+              <Textinput
                 label="Secondary Email"
                 type="secondaryEmail"
-                placeholder="Secondary Email Address"
+                placeholder="Secondary Email Address (Optional)"
                 value={formData.secondaryEmail}
                 onChange={(e) =>
                   setFormData({
@@ -405,21 +405,21 @@ const UserAddPage = () => {
                   })
                 }
               />
-              {errors.secondaryEmail && (
+              {/* {errors.secondaryEmail && (
                 <p className="text-red-500">{errors.secondaryEmail}</p>
               )} */}
               <Textinput
                 label="Secondary Phone"
                 type="secondaryNumber"
-                placeholder="Secondary Phone Number"
+                placeholder="Secondary Phone Number (Optional)"
                 value={formData.phoneNumber2}
                 onChange={(e) =>
                   setFormData({ ...formData, phoneNumber2: e.target.value })
                 }
               />
-              {errors.phoneNumber2 && (
+              {/* {errors.phoneNumber2 && (
                 <p className="text-red-500">{errors.phoneNumber2}</p>
-              )}
+              )} */}
               <span className="py-4">
                 <label className="block text-sm font-medium my-3">
                   Date of Birth

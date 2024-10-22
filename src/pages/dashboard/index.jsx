@@ -264,12 +264,12 @@ const Dashboard = () => {
     },
     {
       name: shapeLine2,
-      title: "Total no of ",
+      title: "Total no of Active",
       count: {
         Users: (
           <>
             <br />
-            <strong>{dash?.users || 0}</strong>{" "}
+            <strong>{dash?.activeUsers || 0}</strong>{" "}
           </>
         ),
       },
@@ -290,20 +290,20 @@ const Dashboard = () => {
       bg: "bg-gradient-to-r from-[#11998E] to-[#38EF7D] dark:bg-slate-800",
       icon: "heroicons:map-pin",
     },
-    {
-      name: shapeLine3,
-      title: "Total no of ",
-      count: {
-        Revenue: (
-          <>
-            <br />
-            <strong>{"$50,000"}</strong>{" "}
-          </>
-        ),
-      },
-      bg: "bg-gradient-to-r from-[#93A5CF] to-[#E4EfE9] dark:bg-slate-800",
-      icon: "heroicons-outline:currency-dollar",
-    },
+    // {
+    //   name: shapeLine3,
+    //   title: "Total no of ",
+    //   count: {
+    //     Revenue: (
+    //       <>
+    //         <br />
+    //         {/* <strong>{"$50,000"}</strong>{" "} */}
+    //       </>
+    //     ),
+    //   },
+    //   bg: "bg-gradient-to-r from-[#93A5CF] to-[#E4EfE9] dark:bg-slate-800",
+    //   icon: "heroicons-outline:currency-dollar",
+    // },
   ];
 
   // counts
@@ -374,7 +374,9 @@ const Dashboard = () => {
         </div> */}
         <div className="2xl:col-span-12 lg:col-span-12 col-span-12">
           <Card bodyClass="p-4">
-            <div className="grid md:grid-cols-4 col-span-1 gap-4">
+            <div
+              className={`grid grid-cols-${Dashcode.length} col-span-1 gap-4`}
+            >
               <GroupChart4 statistics={Dashcode} />
             </div>
           </Card>

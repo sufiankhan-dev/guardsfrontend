@@ -180,6 +180,11 @@ const UserPage = () => {
       Cell: (row) => <span>{row?.cell?.value}</span>,
     },
     {
+      Header: "Country",
+      accessor: "country", // Make sure roleId is part of the response from the backend
+      Cell: (row) => <span>{row?.cell?.value}</span>,
+    },
+    {
       Header: "First Name",
       accessor: "firstName",
       Cell: (row) => <span>{row?.cell?.value}</span>,
@@ -399,7 +404,7 @@ const UserPage = () => {
                 {...getTableProps()}
               >
                 <thead className="bg-gradient-to-r from-[#304352] to-[#d7d2cc] dark:bg-slate-800">
-                {headerGroups.map((headerGroup) => (
+                  {headerGroups.map((headerGroup) => (
                     <tr {...headerGroup.getHeaderGroupProps()}>
                       {headerGroup.headers.map((column) => (
                         <th

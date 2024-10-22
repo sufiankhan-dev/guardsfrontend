@@ -170,12 +170,12 @@ const LocationPage = () => {
       },
     },
     {
-      Header: "Location Name",
+      Header: "Customer Name",
       accessor: "locationName",
       Cell: (row) => <span>{row?.cell?.value}</span>,
     },
     {
-      Header: "Address",
+      Header: "Street Address",
       accessor: "address",
       Cell: (row) => <span>{row?.cell?.value}</span>,
     },
@@ -215,13 +215,24 @@ const LocationPage = () => {
     {
       Header: "Schedule",
       accessor: "schedule",
-      Cell: (row) => (
+      Cell: ({ cell: { value } }) => (
         <ul>
-          {row?.cell?.value.map((schedule) => (
-            <li key={schedule._id}>
-              {schedule.day}: {schedule.startTime} - {schedule.endTime}
-            </li>
-          ))}
+          {value && value.length > 0 ? (
+            value.map((schedule) => (
+              <li key={schedule._id}>
+                <span className="bg-yellow-300 font-bold">{schedule.day}:</span>
+                <ul>
+                  {schedule.intervals.map((interval) => (
+                    <li key={interval._id}>
+                      {interval.startTime} - {interval.endTime}
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))
+          ) : (
+            <li>No schedule available</li>
+          )}
         </ul>
       ),
     },

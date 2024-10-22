@@ -30,6 +30,7 @@ const EmployeeAddPage = () => {
     // status: "",
 
     employeeName: "",
+    employeeLastName: "",
     employeeAddress: "",
     employeeIDNumber: "",
     contactNumber1: "",
@@ -39,6 +40,8 @@ const EmployeeAddPage = () => {
     expiryDate: "",
     payRate: 0,
     managerName: "",
+    salarystatus: "unpaid",
+    employeeCategory: "Shack",
     approved: false,
     status: "active",
   });
@@ -83,15 +86,24 @@ const EmployeeAddPage = () => {
           {/* Employee Information */}
           <div className="space-y-4">
             <Textinput
-              label="Employee Name*"
+              label="Employee First Name*"
               type="text"
-              placeholder="Employee Name"
+              placeholder="Employee First Name"
               value={formData.employeeName}
               onChange={(e) =>
                 setFormData({ ...formData, employeeName: e.target.value })
               }
             />
-            {/* <Textinput
+            <Textinput
+              label="Employee Last Name*"
+              type="text"
+              placeholder="Employee Last Name"
+              value={formData.employeeLastName}
+              onChange={(e) =>
+                setFormData({ ...formData, employeeLastName: e.target.value })
+              }
+            />
+            <Textinput
               label="Employee ID*"
               type="text"
               placeholder="Employee ID"
@@ -99,7 +111,7 @@ const EmployeeAddPage = () => {
               onChange={(e) =>
                 setFormData({ ...formData, employeeIDNumber: e.target.value })
               }
-            /> */}
+            />
             <Textinput
               label="Address"
               type="text"
