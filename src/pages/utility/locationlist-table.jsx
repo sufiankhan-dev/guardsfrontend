@@ -206,7 +206,12 @@ const LocationPage = () => {
         <ul>
           {row?.cell?.value.map((client) => (
             <li key={client._id}>
-              {client.name} ({client.designation}) - {client.email}
+             <span><b>Customer Name:</b>{client.name}</span> 
+             <br /> 
+              <span><b>customerNo:</b>({client.customerNo}) </span>
+              <br />
+              
+             <span><b>email:</b>{client.email}</span> 
             </li>
           ))}
         </ul>

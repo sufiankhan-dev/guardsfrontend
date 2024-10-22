@@ -17,11 +17,11 @@ const LocationAddPage = () => {
     userList: "",
     locationName: "",
     address: "",
-    timeZone: "",
+    timeZone: "kkkk",
     locationType: "",
     employees: [],
 
-    clientDetails: [{ name: "", designation: "", email: "", phone: "" }],
+    clientDetails: [{ name: "", designation: "", email: "", phone: "",customerNo:"" }],
     // schedule: [
     //   { day: "Monday", startTime: "", endTime: "", selected: false },
     //   { day: "Tuesday", startTime: "", endTime: "", selected: false },
@@ -143,7 +143,7 @@ const LocationAddPage = () => {
     const validationErrors = {};
     if (!formData.locationName)
       validationErrors.locationName = "Location Name is required";
-    if (!formData.timeZone) validationErrors.timeZone = "Time Zone is required";
+    // if (!formData.timeZone) validationErrors.timeZone = "Time Zone is required";
     if (!formData.locationType)
       validationErrors.locationType = "Location Type is required";
 
@@ -227,7 +227,7 @@ const LocationAddPage = () => {
       ...formData,
       clientDetails: [
         ...formData.clientDetails,
-        { name: "", designation: "", email: "", phone: "" },
+        { name: "", designation: "", email: "", phone: "" ,customerNo:""},
       ],
     });
   };
@@ -409,12 +409,14 @@ const LocationAddPage = () => {
                     //   errors[`clientDetails.${index}.designation`]
                     // }
                   />
+                 
                 </div>
                 <div className="mt-3" />
                 <div className="grid grid-cols-2 space-x-6">
                   <Textinput
                     label="Email"
                     type="email"
+                    className="mb-3"
                     placeholder="Email"
                     value={client.email}
                     onChange={(e) =>
@@ -438,7 +440,25 @@ const LocationAddPage = () => {
                     //   errors[`clientDetails.${index}.phone`]
                     // }
                   />
+                  
                 </div>
+                <Textinput
+                    label="customer ID"
+                    type="text"
+                    placeholder="Designation"
+                    value={client.customerNo}
+                    onChange={(e) =>
+                      handleClientDetailsChange(
+                        index,
+                        "customerNo",
+                        e.target.value
+                      )
+                    }
+                    // error={
+                    //   errors[`clientDetails.${index}.designation`] &&
+                    //   errors[`clientDetails.${index}.designation`]
+                    // }
+                  />
               </div>
             ))}
             <Button

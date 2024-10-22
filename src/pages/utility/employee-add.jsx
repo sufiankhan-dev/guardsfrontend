@@ -36,7 +36,7 @@ const EmployeeAddPage = () => {
     contactNumber1: "",
     employeeCategory: "",
     guardCardNumber: "",
-    issueDate: "",
+    issueDate: "000",
     expiryDate: "",
     payRate: 0,
     managerName: "",
@@ -164,7 +164,7 @@ const EmployeeAddPage = () => {
                 }
               />
               <div className="flex space-x-4 mt-3">
-                <span className="w-full">
+                {/* <span className="w-full">
                   <label className="block text-sm mb-1 font-medium">
                     Issue Date
                   </label>
@@ -180,7 +180,7 @@ const EmployeeAddPage = () => {
                     placeholder="Select Issue Date"
                     className="block w-full rounded-md border border-gray-300 p-2"
                   />
-                </span>
+                </span> */}
                 <span className="w-full">
                   <label className="block text-sm font-medium mb-1">
                     Expiry Date
