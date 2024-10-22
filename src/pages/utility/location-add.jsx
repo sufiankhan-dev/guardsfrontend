@@ -21,7 +21,9 @@ const LocationAddPage = () => {
     locationType: "",
     employees: [],
 
-    clientDetails: [{ name: "", designation: "", email: "", phone: "",customerNo:"" }],
+    clientDetails: [
+      { name: "", designation: "", email: "", phone: "", customerNo: "" },
+    ],
     // schedule: [
     //   { day: "Monday", startTime: "", endTime: "", selected: false },
     //   { day: "Tuesday", startTime: "", endTime: "", selected: false },
@@ -227,7 +229,7 @@ const LocationAddPage = () => {
       ...formData,
       clientDetails: [
         ...formData.clientDetails,
-        { name: "", designation: "", email: "", phone: "" ,customerNo:""},
+        { name: "", designation: "", email: "", phone: "", customerNo: "" },
       ],
     });
   };
@@ -409,7 +411,6 @@ const LocationAddPage = () => {
                     //   errors[`clientDetails.${index}.designation`]
                     // }
                   />
-                 
                 </div>
                 <div className="mt-3" />
                 <div className="grid grid-cols-2 space-x-6">
@@ -440,25 +441,24 @@ const LocationAddPage = () => {
                     //   errors[`clientDetails.${index}.phone`]
                     // }
                   />
-                  
                 </div>
                 <Textinput
-                    label="customer ID"
-                    type="text"
-                    placeholder="Designation"
-                    value={client.customerNo}
-                    onChange={(e) =>
-                      handleClientDetailsChange(
-                        index,
-                        "customerNo",
-                        e.target.value
-                      )
-                    }
-                    // error={
-                    //   errors[`clientDetails.${index}.designation`] &&
-                    //   errors[`clientDetails.${index}.designation`]
-                    // }
-                  />
+                  label="customer ID"
+                  type="text"
+                  placeholder="Designation"
+                  value={client.customerNo}
+                  onChange={(e) =>
+                    handleClientDetailsChange(
+                      index,
+                      "customerNo",
+                      e.target.value
+                    )
+                  }
+                  // error={
+                  //   errors[`clientDetails.${index}.designation`] &&
+                  //   errors[`clientDetails.${index}.designation`]
+                  // }
+                />
               </div>
             ))}
             <Button

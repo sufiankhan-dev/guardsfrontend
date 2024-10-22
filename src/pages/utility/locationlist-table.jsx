@@ -134,7 +134,7 @@ const LocationPage = () => {
       name: "edit",
       icon: "heroicons:pencil-square",
       doit: (id) => {
-        navigate(`/Customer-edit?id=${id}`);
+        navigate(`/locationlist-edit?id=${id}`);
       },
     },
     {
@@ -206,12 +206,20 @@ const LocationPage = () => {
         <ul>
           {row?.cell?.value.map((client) => (
             <li key={client._id}>
-             <span><b>Customer Name:</b>{client.name}</span> 
-             <br /> 
-              <span><b>customerNo:</b>({client.customerNo}) </span>
+              <span>
+                <b>Customer Name:</b>
+                {client.name}
+              </span>
               <br />
-              
-             <span><b>email:</b>{client.email}</span> 
+              <span>
+                <b>customerNo:</b>({client.customerNo}){" "}
+              </span>
+              <br />
+
+              <span>
+                <b>email:</b>
+                {client.email}
+              </span>
             </li>
           ))}
         </ul>

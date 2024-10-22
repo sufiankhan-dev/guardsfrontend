@@ -84,6 +84,9 @@ const VerifiedRecordsPage = lazy(() =>
 );
 const UserAddPage = lazy(() => import("./pages/utility/user-add"));
 const UserEditPage = lazy(() => import("./pages/utility/user-edit"));
+const LocationEditPage = lazy(() =>
+  import("./pages/utility/locationlist-edit")
+);
 const LocationListPage = lazy(() =>
   import("./pages/utility/locationlist-table")
 );
@@ -291,6 +294,7 @@ function App() {
           <Route path="role-add" element={<RoleAddPage />} />
           <Route path="role-edit" element={<RoleEditPage />} />
           <Route path="employee-edit" element={<EmployeesEditPage />} />
+          <Route path="locationlist-edit" element={<LocationEditPage />} />
           <Route path="roles" element={<RolePage />} />
           <Route path="product-add" element={<ProductAddPage />} />
           <Route path="products" element={<ProductPage />} />
