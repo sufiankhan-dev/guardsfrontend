@@ -186,6 +186,8 @@ const CalendarPage = () => {
     { id: 4, title: "Miscellaneous", tag: "etc" },
   ];
 
+  // console.log("Calender Event", );
+
   return (
     <div className="dashcode-calender">
       <div className="grid grid-cols-12 gap-4">

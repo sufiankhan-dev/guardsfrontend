@@ -197,6 +197,17 @@ const AttendancePage = () => {
   };
 
   const handleCheckOut = async (record) => {
+    // Get the current attendance record to check in/out counts
+    const attendanceId = record._id; // Get the attendance ID
+    const checkInRecords = record.checkInRecords || []; // Get check-in records
+    const checkOutRecords = record.checkOutRecords || []; // Get check-out records
+
+    // Check if the number of check-out records is less than the number of check-in records
+    if (checkOutRecords.length >= checkInRecords.length) {
+      toast.error("You cannot check out more times than you have checked in.");
+      return; // Stop further execution if the user cannot check out
+    }
+
     const updateData = {
       checkOutTime: new Date().toISOString(), // or set it as needed
       checkOutLocationName: "Your Location Here", // Get the location appropriately

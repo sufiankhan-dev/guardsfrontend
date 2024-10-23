@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import Select from "react-select";
 import { useSelector } from "react-redux";
 import { FaPlus, FaMinus } from "react-icons/fa";
+import { timeZoneData } from "../../../data/timezone";
 
 const LocationAddPage = () => {
   const navigate = useNavigate();
@@ -76,16 +77,22 @@ const LocationAddPage = () => {
 
   useEffect(() => {
     // Fetch time zones
-    axios
-      .get("https://worldtimeapi.org/api/timezone")
-      .then((response) => {
-        setTimeZones(
-          response.data.map((zone) => ({ value: zone, label: zone }))
-        );
-      })
-      .catch((error) => {
-        console.error("Error fetching time zones:", error);
-      });
+    // axios
+    //   .get("https://worldtimeapi.org/api/timezone")
+    //   .then((response) => {
+    //     setTimeZones(
+    //       response.data.map((zone) => ({ value: zone, label: zone }))
+    //     );
+    //   })
+    //   .catch((error) => {
+    //     console.error("Error fetching time zones:", error);
+    //   });
+    setTimeZones(
+      timeZoneData.map((zone) => ({
+        value: zone.value,
+        label: `${zone.text}`,
+      }))
+    );
 
     // Fetch location types from your database
     axios

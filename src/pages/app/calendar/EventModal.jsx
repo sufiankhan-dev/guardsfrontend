@@ -24,6 +24,8 @@ const EventModal = ({
   const [endDate, setEndDate] = useState(new Date());
   const [employees, setEmployees] = useState([]); // State for storing employees
 
+  console.log(selectedEvent?._id);
+
   // Form validation schema
   const FormValidationSchema = yup
     .object({
@@ -76,8 +78,16 @@ const EventModal = ({
   const onSubmit = (data) => {
     const newEvent = {
       date: startDate.toISOString().split("T")[0], // Get date as YYYY-MM-DD
-      startTime: startDate.toISOString().split("T")[1].substring(0, 5), // Get time as HH:MM
-      endTime: endDate.toISOString().split("T")[1].substring(0, 5), // Get time as HH:MM
+      // startTime: startDate.toISOString().split("T")[1].substring(0, 5), // Get time as HH:MM
+      // endTime: endDate.toISOString().split("T")[1].substring(0, 5), // Get time as HH:MM
+      startTime: startDate.toLocaleTimeString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }), // Local time
+      endTime: endDate.toLocaleTimeString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }), // Local time
       assignedEmployeeId: data.employee, // Assuming employee ID is selected
     };
 
@@ -90,7 +100,6 @@ const EventModal = ({
   };
 
   const handleDelete = (id) => {
-    onClose();
     Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -101,8 +110,27 @@ const EventModal = ({
       confirmButtonText: "Yes, delete it!",
     }).then((result) => {
       if (result.isConfirmed) {
-        onDelete(id);
-        Swal.fire("Deleted!", "Your event has been deleted.", "success");
+        axios
+          .delete(
+            `${process.env.REACT_APP_BASE_URL}/admin/schedule/delete-schedule/${id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`, // Include the token if necessary
+              },
+            }
+          )
+          .then((response) => {
+            onDelete(id); // Call the onDelete prop to update the UI after deletion
+            Swal.fire("Deleted!", "Your event has been deleted.", "success");
+          })
+          .catch((error) => {
+            console.error("Error deleting event:", error);
+            Swal.fire(
+              "Error!",
+              "There was an error deleting the event.",
+              "error"
+            );
+          });
       }
     });
   };
@@ -127,7 +155,7 @@ const EventModal = ({
 
           {/* Start Date */}
           <FormGroup
-            label="Start Date"
+            label="Start Time"
             id="start-date"
             error={errors.startDate}
           >
@@ -142,9 +170,9 @@ const EventModal = ({
                   value={startDate}
                   onChange={(date) => setStartDate(date[0])}
                   options={{
-                    altInput: true,
-                    altFormat: "F j, Y",
-                    dateFormat: "Y-m-d",
+                    enableTime: true,
+                    noCalendar: true,
+                    dateFormat: "H:i",
                   }}
                 />
               )}
@@ -152,7 +180,7 @@ const EventModal = ({
           </FormGroup>
 
           {/* End Date */}
-          <FormGroup label="End Date" id="end-date" error={errors.endDate}>
+          <FormGroup label="End Time" id="end-date" error={errors.endDate}>
             <Controller
               name="endDate"
               control={control}
@@ -164,9 +192,10 @@ const EventModal = ({
                   value={endDate}
                   onChange={(date) => setEndDate(date[0])}
                   options={{
-                    altInput: true,
-                    altFormat: "F j, Y",
-                    dateFormat: "Y-m-d",
+                    enableTime: true,
+                    noCalendar: true,
+                    dateFormat: "H:i",
+                    minTime: startDate,
                   }}
                 />
               )}
