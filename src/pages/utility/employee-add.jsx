@@ -104,7 +104,7 @@ const EmployeeAddPage = () => {
               }
             />
             <Textinput
-              label="Employee ID*"
+              label="Employee ID"
               type="text"
               placeholder="Employee ID"
               value={formData.employeeIDNumber}
