@@ -262,10 +262,10 @@ export const menuItems = [
         childtitle: "Location List",
         childlink: "location",
       },
-      {
-        childtitle: "Location Type",
-        childlink: "locationtype",
-      },
+      // {
+      //   childtitle: "Location Type",
+      //   childlink: "locationtype",
+      // },
     ],
   },
   {

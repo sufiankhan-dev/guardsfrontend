@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import Select from "react-select";
 import { useSelector } from "react-redux";
 import { FaPlus, FaMinus } from "react-icons/fa";
+import { FaCopy } from "react-icons/fa";
 
 const LocationAddPage = () => {
   const navigate = useNavigate();
@@ -16,12 +17,13 @@ const LocationAddPage = () => {
   const [formData, setFormData] = useState({
     userList: "",
     locationName: "",
+    customerNo:"",
     address: "",
     timeZone: "kkkk",
     locationType: "",
     employees: [],
 
-    clientDetails: [{ name: "", designation: "", email: "", phone: "",customerNo:"" }],
+    clientDetails: [{ name: "", designation: "", email: "", phone: "",  }],
     // schedule: [
     //   { day: "Monday", startTime: "", endTime: "", selected: false },
     //   { day: "Tuesday", startTime: "", endTime: "", selected: false },
@@ -74,70 +76,87 @@ const LocationAddPage = () => {
 
   useEffect(() => {
     // Fetch time zones
-    axios
-      .get("https://worldtimeapi.org/api/timezone")
-      .then((response) => {
-        setTimeZones(
-          response.data.map((zone) => ({ value: zone, label: zone }))
-        );
-      })
-      .catch((error) => {
+    const fetchTimeZones = async () => {
+      try {
+        const response = await axios.get("https://timeapi.io/api/time/current/zone?timeZone=Europe%2FAmsterdam");
+        console.log("API Response:", response.data); // Log the API response
+        if (response.data && response.data) {
+          const zones = response.data.map((zone) => ({
+            value: zone,
+            label: zone,
+          }));
+          setTimeZones(zones);
+        } else {
+          throw new Error("Unexpected response format");
+        }
+      } catch (error) {
         console.error("Error fetching time zones:", error);
-      });
+      }
+    };
+
+    fetchTimeZones();
 
     // Fetch location types from your database
-    axios
-      .get(
-        `${process.env.REACT_APP_BASE_URL}/${user.type}/locationtype/get-location-types`,
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
-      )
-      .then((response) => {
+    const fetchLocationTypes = async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.REACT_APP_BASE_URL}/${user.type}/locationtype/get-location-types`,
+          {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          }
+        );
         setLocationTypes(
           response.data.locationTypes.map((type) => ({
             value: type._id,
             label: `${type.name} (${type.maincategory})`,
           }))
         );
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("Error fetching location types:", error);
-      });
+      }
+    };
 
-    // Fetching Users
-    // axios
-    //   .get(`${process.env.REACT_APP_BASE_URL}/${user.type}/user/get-users`, {
-    //     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    //   })
-    //   .then((response) => {
-    //     setUsers(
-    //       response.data.users.map((user) => ({
-    //         value: user._id,
-    //         label: user.firstName,
-    //       }))
-    //     );
-    //   })
-    //   .catch((error) => {
-    //     console.error("Error fetching roles:", error);
-    //   });
-    //   axios
-    //   .get(`${process.env.REACT_APP_BASE_URL}/${user.type}/employe/get-employees`, {
-    //     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    //   })
-    //   .then((response) => {
-    //     setemployes(
-    //       response.data.employees.map((employ) => ({
-    //         value: employ._id,
-    //         label: employ.employeeName,
-    //       }))
-    //     );
-    //     console.log(employes,"....");
-    //   })
-    //   .catch((error) => {
-    //     console.error("Error fetching employe:", error);
-    //   });
-  }, []);
+    fetchLocationTypes();
+
+    // Uncomment and modify these blocks to fetch users and employees as needed
+    /*
+    const fetchUsers = async () => {
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/${user.type}/user/get-users`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        setUsers(
+          response.data.users.map((user) => ({
+            value: user._id,
+            label: user.firstName,
+          }))
+        );
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+
+    const fetchEmployees = async () => {
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/${user.type}/employe/get-employees`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        setEmployees(
+          response.data.employees.map((employee) => ({
+            value: employee._id,
+            label: employee.employeeName,
+          }))
+        );
+      } catch (error) {
+        console.error("Error fetching employees:", error);
+      }
+    };
+    
+    fetchUsers();
+    fetchEmployees();
+    */
+
+  }, [user.type]);
 
   const validate = () => {
     const validationErrors = {};
@@ -227,7 +246,7 @@ const LocationAddPage = () => {
       ...formData,
       clientDetails: [
         ...formData.clientDetails,
-        { name: "", designation: "", email: "", phone: "" ,customerNo:""},
+        { name: "", designation: "", email: "", phone: "",  },
       ],
     });
   };
@@ -257,12 +276,12 @@ const LocationAddPage = () => {
     const updatedSchedule = formData.schedule.map((scheduleItem) =>
       scheduleItem.day === day
         ? {
-            ...scheduleItem,
-            intervals: [
-              ...scheduleItem.intervals,
-              { startTime: "", endTime: "" },
-            ],
-          }
+          ...scheduleItem,
+          intervals: [
+            ...scheduleItem.intervals,
+            { startTime: "", endTime: "" },
+          ],
+        }
         : scheduleItem
     );
     setFormData({ ...formData, schedule: updatedSchedule });
@@ -272,9 +291,9 @@ const LocationAddPage = () => {
     const updatedSchedule = formData.schedule.map((scheduleItem) =>
       scheduleItem.day === day
         ? {
-            ...scheduleItem,
-            intervals: scheduleItem.intervals.filter((_, i) => i !== index),
-          }
+          ...scheduleItem,
+          intervals: scheduleItem.intervals.filter((_, i) => i !== index),
+        }
         : scheduleItem
     );
     setFormData({ ...formData, schedule: updatedSchedule });
@@ -284,20 +303,23 @@ const LocationAddPage = () => {
     const updatedSchedule = formData.schedule.map((scheduleItem) =>
       scheduleItem.day === day
         ? {
-            ...scheduleItem,
-            intervals: scheduleItem.intervals.map((interval, i) =>
-              i === index
-                ? {
-                    ...interval,
-                    [timeType === "startTime" ? "startTime" : "endTime"]: value,
-                  }
-                : interval
-            ),
-          }
+          ...scheduleItem,
+          intervals: scheduleItem.intervals.map((interval, i) =>
+            i === index
+              ? {
+                ...interval,
+                [timeType === "startTime" ? "startTime" : "endTime"]: value,
+              }
+              : interval
+          ),
+        }
         : scheduleItem
     );
     console.log(updatedSchedule);
     setFormData({ ...formData, schedule: updatedSchedule });
+  };
+  const handleSelectChange = (selectedOption) => {
+    setFormData({ ...formData, timeZone: selectedOption.value });
   };
 
   return (
@@ -325,6 +347,20 @@ const LocationAddPage = () => {
                 setFormData({ ...formData, employees: selectedOption.value })
               }
             /> */}
+             <Textinput
+                  label="Customer ID"
+                  type="number" // Using "text" to manage input more effectively
+                  placeholder="Enter 5-digit Customer ID"
+                  value={formData.customerNo}
+                  onChange={(e) => {
+                    const value = e.target.value;
+
+                    // Allow only numbers and restrict the length to 5 digits
+                    if (/^\d*$/.test(value) && value.length <= 5) {
+                      handleClientDetailsChange(index, "customerNo", value);
+                    }
+                  }}
+                />
             <Textinput
               label="Customer Name"
               type="text"
@@ -349,12 +385,10 @@ const LocationAddPage = () => {
                   Time Zone
                 </label>
                 <Select
-                  label="Time Zone"
-                  options={timeZones}
-                  onChange={(selectedOption) =>
-                    setFormData({ ...formData, timeZone: selectedOption.value })
-                  }
-                />
+        options={timeZones}
+        placeholder="Select a Time Zone"
+      />
+     
               </div>
               <div>
                 <label htmlFor="locationType" className="form-label pt-1">
@@ -387,10 +421,10 @@ const LocationAddPage = () => {
                     onChange={(e) =>
                       handleClientDetailsChange(index, "name", e.target.value)
                     }
-                    // error={
-                    //   errors[`clientDetails.${index}.name`] &&
-                    //   errors[`clientDetails.${index}.name`]
-                    // }
+                  // error={
+                  //   errors[`clientDetails.${index}.name`] &&
+                  //   errors[`clientDetails.${index}.name`]
+                  // }
                   />
                   <Textinput
                     label="Designation"
@@ -404,12 +438,12 @@ const LocationAddPage = () => {
                         e.target.value
                       )
                     }
-                    // error={
-                    //   errors[`clientDetails.${index}.designation`] &&
-                    //   errors[`clientDetails.${index}.designation`]
-                    // }
+                  // error={
+                  //   errors[`clientDetails.${index}.designation`] &&
+                  //   errors[`clientDetails.${index}.designation`]
+                  // }
                   />
-                 
+
                 </div>
                 <div className="mt-3" />
                 <div className="grid grid-cols-2 space-x-6">
@@ -422,10 +456,10 @@ const LocationAddPage = () => {
                     onChange={(e) =>
                       handleClientDetailsChange(index, "email", e.target.value)
                     }
-                    // error={
-                    //   errors[`clientDetails.${index}.email`] &&
-                    //   errors[`clientDetails.${index}.email`]
-                    // }
+                  // error={
+                  //   errors[`clientDetails.${index}.email`] &&
+                  //   errors[`clientDetails.${index}.email`]
+                  // }
                   />
                   <Textinput
                     label="Phone"
@@ -435,30 +469,15 @@ const LocationAddPage = () => {
                     onChange={(e) =>
                       handleClientDetailsChange(index, "phone", e.target.value)
                     }
-                    // error={
-                    //   errors[`clientDetails.${index}.phone`] &&
-                    //   errors[`clientDetails.${index}.phone`]
-                    // }
+                  // error={
+                  //   errors[`clientDetails.${index}.phone`] &&
+                  //   errors[`clientDetails.${index}.phone`]
+                  // }
                   />
-                  
+
                 </div>
-                <Textinput
-                    label="customer ID"
-                    type="text"
-                    placeholder="Designation"
-                    value={client.customerNo}
-                    onChange={(e) =>
-                      handleClientDetailsChange(
-                        index,
-                        "customerNo",
-                        e.target.value
-                      )
-                    }
-                    // error={
-                    //   errors[`clientDetails.${index}.designation`] &&
-                    //   errors[`clientDetails.${index}.designation`]
-                    // }
-                  />
+               
+
               </div>
             ))}
             <Button
@@ -527,48 +546,68 @@ const LocationAddPage = () => {
               <div key={dayIndex}>
                 <h3 className="text-xl font-semibold">{daySchedule.day}</h3>
                 {daySchedule.intervals.map((interval, intervalIndex) => (
-                  <div
-                    key={intervalIndex}
-                    className="grid grid-cols-2 gap-4 mt-2"
-                  >
-                    <Textinput
-                      label="Start Time"
-                      type="time"
-                      value={interval.startTime}
-                      onChange={(e) =>
-                        handleTimeChange(
-                          daySchedule.day,
-                          intervalIndex,
-                          "startTime",
-                          e.target.value
-                        )
-                      }
-                    />
-                    <Textinput
-                      label="End Time"
-                      type="time"
-                      value={interval.endTime}
-                      onChange={(e) =>
-                        handleTimeChange(
-                          daySchedule.day,
-                          intervalIndex,
-                          "endTime",
-                          e.target.value
-                        )
-                      }
-                    />
+                  <div key={intervalIndex} className="grid grid-cols-3 gap-4 mt-2">
+                    {/* Start Time Input and Copy Button */}
+                    <div className="flex items-center">
+                      <Textinput
+                        label="Start Time"
+                        type="time"
+                        value={interval.startTime}
+                        onChange={(e) =>
+                          handleTimeChange(
+                            daySchedule.day,
+                            intervalIndex,
+                            "startTime",
+                            e.target.value
+                          )
+                        }
+                      />
+                      <button
+                        onClick={() => navigator.clipboard.writeText(interval.startTime)}
+                        className="ml-2 p-2 text-gray-500 hover:text-gray-700"
+                        title="Copy Start Time"
+                      >
+                        <FaCopy />
+                      </button>
+                    </div>
+
+                    {/* End Time Input and Copy Button */}
+                    <div className="flex items-center">
+                      <Textinput
+                        label="End Time"
+                        type="time"
+                        value={interval.endTime}
+                        onChange={(e) =>
+                          handleTimeChange(
+                            daySchedule.day,
+                            intervalIndex,
+                            "endTime",
+                            e.target.value
+                          )
+                        }
+                      />
+                      <button
+                        onClick={() => navigator.clipboard.writeText(interval.endTime)}
+                        className="ml-2 p-2 text-gray-500 hover:text-gray-700"
+                        title="Copy End Time"
+                      >
+                        <FaCopy />
+                      </button>
+                    </div>
+
+                    {/* Remove Interval Button */}
                     {intervalIndex > 0 && (
                       <Button
                         className="bg-red-500 text-white hover:bg-red-600 mt-2 w-56 flex flex-row items-center"
-                        onClick={() =>
-                          handleRemoveInterval(daySchedule.day, intervalIndex)
-                        }
+                        onClick={() => handleRemoveInterval(daySchedule.day, intervalIndex)}
                       >
                         <FaMinus className="mr-2" /> Remove Time Slot
                       </Button>
                     )}
                   </div>
                 ))}
+
+                {/* Add Another Time Slot Button */}
                 <Button
                   className="bg-green-600 text-white hover:bg-green-700 mt-4 flex items-center"
                   onClick={() => handleAddInterval(daySchedule.day)}
