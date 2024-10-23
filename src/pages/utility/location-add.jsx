@@ -9,6 +9,7 @@ import Select from "react-select";
 import { useSelector } from "react-redux";
 import { FaPlus, FaMinus } from "react-icons/fa";
 import { timeZoneData } from "../../../data/timezone";
+//merge conflict
 
 const LocationAddPage = () => {
   const navigate = useNavigate();
