@@ -7,8 +7,9 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
 import { useSelector } from "react-redux";
-import { FaPlus, FaMinus } from "react-icons/fa";
+import { FaPlus, FaMinus, FaCopy, FaPaste } from "react-icons/fa";
 import { timeZoneData } from "../../../data/timezone";
+import TimePickerInput from "./TimePicker";
 //merge conflict
 
 const LocationAddPage = () => {
@@ -20,12 +21,12 @@ const LocationAddPage = () => {
     locationName: "",
     address: "",
     timeZone: "kkkk",
+    locationTypeName: "",
     locationType: "",
+    customerNo: "",
     employees: [],
 
-    clientDetails: [
-      { name: "", designation: "", email: "", phone: "", customerNo: "" },
-    ],
+    clientDetails: [{ name: "", designation: "", email: "", phone: "" }],
     // schedule: [
     //   { day: "Monday", startTime: "", endTime: "", selected: false },
     //   { day: "Tuesday", startTime: "", endTime: "", selected: false },
@@ -75,6 +76,7 @@ const LocationAddPage = () => {
   const [errors, setErrors] = useState({});
   const [uploadingData, setUploadingData] = useState(false);
   const isSubmitting = useRef(false);
+  const [copiedTime, setCopiedTime] = useState({ startTime: "", endTime: "" });
 
   useEffect(() => {
     // Fetch time zones
@@ -345,12 +347,34 @@ const LocationAddPage = () => {
               }
             />
             <Textinput
+              label="customer ID"
+              type="text"
+              placeholder="Customer ID"
+              value={formData.customerNo}
+              onChange={(e) =>
+                setFormData({ ...formData, customerNo: e.target.value })
+              }
+              // error={
+              //   errors[`clientDetails.${index}.designation`] &&
+              //   errors[`clientDetails.${index}.designation`]
+              // }
+            />
+            <Textinput
               label="Street Address"
               type="text"
               placeholder="Street Address"
               value={formData.address}
               onChange={(e) =>
                 setFormData({ ...formData, address: e.target.value })
+              }
+            />
+            <Textinput
+              label="Location Name"
+              type="text"
+              placeholder="Location Name"
+              value={formData.locationTypeName}
+              onChange={(e) =>
+                setFormData({ ...formData, locationTypeName: e.target.value })
               }
             />
             <div className="grid grid-cols-2 space-x-6">
@@ -372,7 +396,10 @@ const LocationAddPage = () => {
                 </label>
                 <Select
                   label="Location Type"
-                  options={locationTypes}
+                  options={[
+                    { value: "commercial", label: "Commercial" },
+                    { value: "construction", label: "Construction" },
+                  ]}
                   onChange={(selectedOption) =>
                     setFormData({
                       ...formData,
@@ -450,23 +477,6 @@ const LocationAddPage = () => {
                     // }
                   />
                 </div>
-                <Textinput
-                  label="customer ID"
-                  type="text"
-                  placeholder="Designation"
-                  value={client.customerNo}
-                  onChange={(e) =>
-                    handleClientDetailsChange(
-                      index,
-                      "customerNo",
-                      e.target.value
-                    )
-                  }
-                  // error={
-                  //   errors[`clientDetails.${index}.designation`] &&
-                  //   errors[`clientDetails.${index}.designation`]
-                  // }
-                />
               </div>
             ))}
             <Button
@@ -478,59 +488,6 @@ const LocationAddPage = () => {
             </Button>
           </div>
           {/* <div className="space-y-4">
-            <span className="text-2xl font-semibold">Schedule</span>
-            {formData.schedule.map((scheduleItem) => (
-              <div
-                key={scheduleItem.day}
-                className="flex items-center justify-between p-2 border border-gray-300 rounded-md"
-              >
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={scheduleItem.selected}
-                    onChange={() => handleScheduleChange(scheduleItem.day)}
-                    className="mr-2"
-                  />
-                  <label className="font-medium">{scheduleItem.day}</label>
-                </div>
-                {scheduleItem.selected && (
-                  <div className="flex space-x-4">
-                    <div className="flex items-center">
-                      <label className="mr-2">Start Time:</label>
-                      <Textinput
-                        type="time"
-                        value={scheduleItem.startTime}
-                        onChange={(e) =>
-                          handleTimeChange(
-                            scheduleItem.day,
-                            "startTime",
-                            e.target.value
-                          )
-                        }
-                        className="border border-gray-300 rounded-md p-1"
-                      />
-                    </div>
-                    <div className="flex items-center">
-                      <label className="mr-2">End Time:</label>
-                      <Textinput
-                        type="time"
-                        value={scheduleItem.endTime}
-                        onChange={(e) =>
-                          handleTimeChange(
-                            scheduleItem.day,
-                            "endTime",
-                            e.target.value
-                          )
-                        }
-                        className="border border-gray-300 rounded-md p-1"
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div> */}
-          <div className="space-y-4">
             {formData.schedule.map((daySchedule, dayIndex) => (
               <div key={dayIndex}>
                 <h3 className="text-xl font-semibold">{daySchedule.day}</h3>
@@ -562,6 +519,60 @@ const LocationAddPage = () => {
                           intervalIndex,
                           "endTime",
                           e.target.value
+                        )
+                      }
+                    />
+                    {intervalIndex > 0 && (
+                      <Button
+                        className="bg-red-500 text-white hover:bg-red-600 mt-2 w-56 flex flex-row items-center"
+                        onClick={() =>
+                          handleRemoveInterval(daySchedule.day, intervalIndex)
+                        }
+                      >
+                        <FaMinus className="mr-2" /> Remove Time Slot
+                      </Button>
+                    )}
+                  </div>
+                ))}
+                <Button
+                  className="bg-green-600 text-white hover:bg-green-700 mt-4 flex items-center"
+                  onClick={() => handleAddInterval(daySchedule.day)}
+                >
+                  <FaPlus className="mr-2" /> Add Another Time Slot
+                </Button>
+              </div>
+            ))}
+          </div> */}
+          <div className="space-y-4">
+            {formData.schedule.map((daySchedule, dayIndex) => (
+              <div key={dayIndex}>
+                <h3 className="text-xl font-semibold">{daySchedule.day}</h3>
+                {daySchedule.intervals.map((interval, intervalIndex) => (
+                  <div
+                    key={intervalIndex}
+                    className="grid grid-cols-2 gap-4 mt-2"
+                  >
+                    <TimePickerInput
+                      label="Start Time"
+                      value={interval.startTime}
+                      onChange={(newValue) =>
+                        handleTimeChange(
+                          daySchedule.day,
+                          intervalIndex,
+                          "startTime",
+                          newValue
+                        )
+                      }
+                    />
+                    <TimePickerInput
+                      label="End Time"
+                      value={interval.endTime}
+                      onChange={(newValue) =>
+                        handleTimeChange(
+                          daySchedule.day,
+                          intervalIndex,
+                          "endTime",
+                          newValue
                         )
                       }
                     />

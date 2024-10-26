@@ -24,13 +24,13 @@ const EventModal = ({
   const [endDate, setEndDate] = useState(new Date());
   const [employees, setEmployees] = useState([]); // State for storing employees
 
-  console.log(selectedEvent?._id);
+  console.log("Event", event);
 
   // Form validation schema
   const FormValidationSchema = yup
     .object({
       // title: yup.string().required("Event Name is required"),
-      employee: yup.string().required("Assigned Employee is required"), // New validation for employee
+      // employee: yup.string().required("Assigned Employee is required"), // New validation for employee
     })
     .required();
 
@@ -57,8 +57,8 @@ const EventModal = ({
       setEndDate(selectedEvent.date);
     }
     if (event) {
-      setStartDate(event.event.start);
-      setEndDate(event.event.end);
+      setStartDate(event?.event?.start);
+      setEndDate(event?.event?.end);
     }
     reset(event);
   }, [selectedEvent, event]);
@@ -75,11 +75,34 @@ const EventModal = ({
   });
 
   // Handle form submission
+  // const onSubmit = (data) => {
+  //   const newEvent = {
+  //     date: startDate.toISOString().split("T")[0], // Get date as YYYY-MM-DD
+  //     // startTime: startDate.toISOString().split("T")[1].substring(0, 5), // Get time as HH:MM
+  //     // endTime: endDate.toISOString().split("T")[1].substring(0, 5), // Get time as HH:MM
+  //     startTime: startDate.toLocaleTimeString("en-GB", {
+  //       hour: "2-digit",
+  //       minute: "2-digit",
+  //     }), // Local time
+  //     endTime: endDate.toLocaleTimeString("en-GB", {
+  //       hour: "2-digit",
+  //       minute: "2-digit",
+  //     }), // Local time
+  //     assignedEmployeeId: data.employee, // Assuming employee ID is selected
+  //   };
+
+  //   // Check the values before submitting
+  //   console.log(newEvent);
+
+  //   onAdd(newEvent);
+  //   toast.success("Event added successfully!");
+  //   onClose();
+  // };
+
+  // Handle form submission
   const onSubmit = (data) => {
     const newEvent = {
       date: startDate.toISOString().split("T")[0], // Get date as YYYY-MM-DD
-      // startTime: startDate.toISOString().split("T")[1].substring(0, 5), // Get time as HH:MM
-      // endTime: endDate.toISOString().split("T")[1].substring(0, 5), // Get time as HH:MM
       startTime: startDate.toLocaleTimeString("en-GB", {
         hour: "2-digit",
         minute: "2-digit",
@@ -91,48 +114,58 @@ const EventModal = ({
       assignedEmployeeId: data.employee, // Assuming employee ID is selected
     };
 
-    // Check the values before submitting
-    console.log(newEvent);
-
-    onAdd(newEvent);
-    toast.success("Event added successfully!");
-    onClose();
+    if (event) {
+      console.log("New Event", newEvent);
+      // Update the existing event
+      axios
+        .put(
+          `${process.env.REACT_APP_BASE_URL}/admin/schedule/update-schedule/${event.publicId}`,
+          { date: newEvent.date, events: [newEvent] }, // Wrap in events array
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        )
+        .then((response) => {
+          toast.success("Event updated successfully!");
+          console.log("Response after update", response.data);
+          onEdit(response.data.schedule); // Pass updated schedule to parent
+          onClose();
+        })
+        .catch((error) => {
+          console.error("Error updating event:", error);
+          toast.error("Failed to update event.");
+        });
+    } else {
+      // Add new event
+      onAdd(newEvent);
+      toast.success("Event added successfully!");
+      onClose();
+    }
   };
 
   const handleDelete = (id) => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#22c55e",
-      cancelButtonColor: "#ef4444",
-      confirmButtonText: "Yes, delete it!",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        axios
-          .delete(
-            `${process.env.REACT_APP_BASE_URL}/admin/schedule/delete-schedule/${id}`,
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`, // Include the token if necessary
-              },
-            }
-          )
-          .then((response) => {
-            onDelete(id); // Call the onDelete prop to update the UI after deletion
-            Swal.fire("Deleted!", "Your event has been deleted.", "success");
-          })
-          .catch((error) => {
-            console.error("Error deleting event:", error);
-            Swal.fire(
-              "Error!",
-              "There was an error deleting the event.",
-              "error"
-            );
-          });
-      }
-    });
+    // Directly delete the event without confirmation
+    axios
+      .delete(
+        `${process.env.REACT_APP_BASE_URL}/admin/schedule/delete-schedule/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`, // Include the token if necessary
+          },
+        }
+      )
+      .then((response) => {
+        onDelete(id); // Call the onDelete prop to update the UI after deletion
+        // Optionally, you can show a success message
+        Swal.fire("Deleted!", "Your event has been deleted.", "success");
+        onClose();
+      })
+      .catch((error) => {
+        console.error("Error deleting event:", error);
+        Swal.fire("Error!", "There was an error deleting the event.", "error");
+      });
   };
 
   return (
@@ -215,7 +248,7 @@ const EventModal = ({
             >
               <option value="">Select Employee</option>
               {employees.map((employee) => (
-                <option key={employee._id} value={employee._id}>
+                <option key={employee._id} value={employee.value}>
                   {employee.employeeName}
                 </option>
               ))}
@@ -227,7 +260,7 @@ const EventModal = ({
               <button
                 type="button"
                 className="btn btn-danger"
-                onClick={() => handleDelete(event?.event.id)}
+                onClick={() => handleDelete(event?.publicId)}
               >
                 Delete
               </button>

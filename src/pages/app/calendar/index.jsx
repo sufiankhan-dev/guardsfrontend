@@ -75,8 +75,10 @@ const CalendarPage = () => {
           "success",
           "dark",
         ];
+        console.log("responese", response.data);
         const events = response.data.map((schedule, index) => {
           const eventDate = new Date(schedule.date);
+          eventDate.setHours(0, 0, 0, 0);
           const timezoneOffset = eventDate.getTimezoneOffset() * 60000; // Convert offset to milliseconds
           eventDate.setTime(eventDate.getTime() + timezoneOffset); // Set end date to the next day
 
@@ -92,8 +94,13 @@ const CalendarPage = () => {
           const startTime = formatTime(schedule.events[0].startTime);
           const endTime = formatTime(schedule.events[0].endTime);
 
+          // console.log("ID", schedule._id);
+          // console.log("DATE", schedule.date);
+
           return {
-            title: `${schedule.events[0].assignedEmployee.employeeName}`, // Add times to title
+            date: schedule.date,
+            id: schedule._id,
+            title: `${schedule.events[0].assignedEmployee}`, // Add times to title
             start: schedule.date,
             end: schedule.date,
             classNames: [colors[index % colors.length]],
@@ -103,8 +110,8 @@ const CalendarPage = () => {
             },
           };
         });
-        console.log(events);
         setCalendarEvents(events);
+        console.log("Calender Events:", calendarEvents);
         setIsLoading(false);
       })
       .catch((error) => {
@@ -166,13 +173,41 @@ const CalendarPage = () => {
 
   const handleEventClick = (arg) => {
     setShowModal(true);
-    setEditEvent(arg);
+    setEditEvent(arg.event._def);
+    // console.logs(editEvent);
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
     setEditEvent(null);
     setSelectedEvent(null);
+  };
+
+  const handleDeleteEvent = async (eventId) => {
+    // Delete the event (add your deletion logic here, e.g., API call)
+    // await deleteEvent(eventId); // Assume this function handles the deletion logic
+
+    // Update the calendar events state
+    setCalendarEvents((prevEvents) =>
+      prevEvents.filter((event) => event.id !== eventId)
+    );
+
+    // Fetch events again for the selected location
+    fetchEvents(selectedLocation);
+  };
+
+  const onEdit = (updatedSchedule) => {
+    // Find and replace the updated event in the calendarEvents state
+    // setCalendarEvents((prevEvents) =>
+    //   prevEvents.map((event) =>
+    //     event.id === updatedSchedule._id
+    //       ? { ...event, ...updatedSchedule }
+    //       : event
+    //   )
+    // );
+
+    // Fetch events again for the selected location
+    fetchEvents(selectedLocation);
   };
 
   if (isLoading) {
@@ -273,8 +308,10 @@ const CalendarPage = () => {
         showModal={showModal}
         onClose={handleCloseModal}
         onAdd={handleAddEvent}
+        onEdit={onEdit}
         selectedEvent={selectedEvent}
         event={editEvent}
+        onDelete={handleDeleteEvent}
       />
     </div>
   );

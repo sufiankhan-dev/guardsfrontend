@@ -175,6 +175,12 @@ const LocationPage = () => {
       Cell: (row) => <span>{row?.cell?.value}</span>,
     },
     {
+      Header: "Customer ID",
+      accessor: "customerNo",
+      Cell: (row) => <span>{row?.cell?.value}</span>,
+    },
+
+    {
       Header: "Street Address",
       accessor: "address",
       Cell: (row) => <span>{row?.cell?.value}</span>,
@@ -195,8 +201,13 @@ const LocationPage = () => {
     // },
 
     {
+      Header: "Location Name",
+      accessor: "locationTypeName",
+      Cell: (row) => <span>{row?.cell?.value}</span>,
+    },
+    {
       Header: "Location Type",
-      accessor: "locationType.name",
+      accessor: "locationType",
       Cell: (row) => <span>{row?.cell?.value}</span>,
     },
     {
@@ -206,20 +217,35 @@ const LocationPage = () => {
         <ul>
           {row?.cell?.value.map((client) => (
             <li key={client._id}>
-              <span>
-                <b>Customer Name:</b>
-                {client.name}
-              </span>
+              {client.name ? (
+                <span>
+                  <b>Customer Name:</b>
+                  {client.name}
+                </span>
+              ) : (
+                <span>
+                  <b>----</b>
+                  {/* {client.name} */}
+                </span>
+              )}
+
               <br />
-              <span>
+              {/* <span>
                 <b>customerNo:</b>({client.customerNo}){" "}
               </span>
-              <br />
+              <br /> */}
 
-              <span>
-                <b>email:</b>
-                {client.email}
-              </span>
+              {client.email ? (
+                <span>
+                  <b>email:</b>
+                  {client.email}
+                </span>
+              ) : (
+                <span>
+                  <b>----</b>
+                  {/* {client.email} */}
+                </span>
+              )}
             </li>
           ))}
         </ul>
