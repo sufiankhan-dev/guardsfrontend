@@ -34,6 +34,7 @@ const EmployeeAddPage = () => {
     employeeAddress: "",
     employeeIDNumber: "",
     contactNumber1: "",
+    contactNumber2: "",
     employeeCategory: "",
     guardCardNumber: "",
     issueDate: "000",
@@ -128,6 +129,15 @@ const EmployeeAddPage = () => {
               value={formData.contactNumber1}
               onChange={(e) =>
                 setFormData({ ...formData, contactNumber1: e.target.value })
+              }
+            />
+            <Textinput
+              label="Company Phone"
+              type="tel"
+              placeholder="Company Phone"
+              value={formData.contactNumber2}
+              onChange={(e) =>
+                setFormData({ ...formData, contactNumber2: e.target.value })
               }
             />
             <label className="block text-sm font-medium">Category</label>

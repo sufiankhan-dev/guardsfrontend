@@ -25,6 +25,7 @@ const LocationAddPage = () => {
     locationType: "",
     customerNo: "",
     employees: [],
+    postphone: "",
 
     clientDetails: [{ name: "", designation: "", email: "", phone: "" }],
     // schedule: [
@@ -409,6 +410,15 @@ const LocationAddPage = () => {
                 />
               </div>
             </div>
+            <Textinput
+              label="Post Phone"
+              type="text"
+              placeholder="Post Phone"
+              value={formData.postphone}
+              onChange={(e) =>
+                setFormData({ ...formData, postphone: e.target.value })
+              }
+            />
           </div>
           <div className="space-y-4">
             {formData.clientDetails.map((client, index) => (

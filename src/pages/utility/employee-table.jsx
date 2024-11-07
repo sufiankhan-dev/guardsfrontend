@@ -237,6 +237,11 @@ const EmployeePage = () => {
       accessor: "contactNumber1",
       Cell: (row) => <span>{row?.cell?.value}</span>,
     },
+    {
+      Header: "Company Phone",
+      accessor: "contactNumber2",
+      Cell: (row) => <span>{row?.cell?.value}</span>,
+    },
     // {
     //   Header: "Category",
     //   accessor: "employeeCategory",

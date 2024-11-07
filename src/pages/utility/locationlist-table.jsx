@@ -185,6 +185,11 @@ const LocationPage = () => {
       accessor: "address",
       Cell: (row) => <span>{row?.cell?.value}</span>,
     },
+    {
+      Header: "Post Phone",
+      accessor: "postphone",
+      Cell: (row) => <span>{row?.cell?.value}</span>,
+    },
     // {
     //   Header: "Guards",
     //   accessor: "employees", // Accessing the employees array
