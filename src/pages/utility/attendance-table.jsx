@@ -81,7 +81,7 @@ const AttendancePage = () => {
         }
       );
       setLocations(response.data);
-      setIsAnimated(true);
+      // setIsAnimated(true);
     } catch (error) {
       console.error("Failed to fetch locations:", error);
     }
@@ -343,7 +343,7 @@ const AttendancePage = () => {
 
           try {
             const response = await axios.put(
-              `https://dashcart-backend-production.up.railway.app/api/admin/attendence/update-checkin/${attendanceId}`,
+              `${process.env.REACT_APP_BASE_URL}/admin/attendence/update-checkin/${attendanceId}`,
               newCheckIn,
               {
                 headers: {
@@ -487,6 +487,11 @@ const AttendancePage = () => {
           <span>No check-out records</span>
         );
       },
+    },
+    {
+      Header: "Notes",
+      accessor: "notes",
+      Cell: (row) => <span>{row?.cell?.value}</span>,
     },
 
     {

@@ -23,6 +23,7 @@ const AttendenceAddPage = () => {
     checkInTime: "",
     checkInLocationName: "",
     contactNumber: "",
+    notes: "",
   });
 
   const [roles, setRoles] = useState([]);
@@ -101,13 +102,14 @@ const AttendenceAddPage = () => {
 
     try {
       const response = await axios.post(
-        "https://dashcart-backend-production.up.railway.app/api/admin/attendence/create-attendance",
+        `${process.env.REACT_APP_BASE_URL}/admin/attendence/create-attendance`,
         {
           employeeId: formData.employeeId,
           locationId: formData.locationId,
           checkInTime: formData.checkInTime,
           checkInLocationName: formData.checkInLocationName,
           contactNumber: formData.contactNumber,
+          notes: formData.notes,
         },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -144,7 +146,7 @@ const AttendenceAddPage = () => {
               <Select
                 options={employees.map((emp) => ({
                   value: emp._id,
-                  label: `${emp.employeeName}`,
+                  label: `${emp.employeeName}  (Id: ${emp.employeeIDNumber})`,
                 }))}
                 onChange={(selectedOption) =>
                   setFormData({ ...formData, employeeId: selectedOption.value })
@@ -181,7 +183,8 @@ const AttendenceAddPage = () => {
                   setFormData({ ...formData, checkInTime: date[0] })
                 }
                 options={{ enableTime: true, dateFormat: "Y-m-d H:i" }}
-                className="form-input"
+                className="form-input py-2 border-2 rounded-md px-2"
+                placeholder="Select Check-in Time"
               />
               {errors.checkInTime && (
                 <p className="text-red-500">{errors.checkInTime}</p>
@@ -217,6 +220,16 @@ const AttendenceAddPage = () => {
               {errors.contactNumber && (
                 <p className="text-red-500">{errors.contactNumber}</p>
               )}
+
+              <Textinput
+                label="Notes"
+                type="text"
+                placeholder="Enter Notes"
+                value={formData.notes}
+                onChange={(e) =>
+                  setFormData({ ...formData, notes: e.target.value })
+                }
+              />
             </div>
           </div>
         </div>

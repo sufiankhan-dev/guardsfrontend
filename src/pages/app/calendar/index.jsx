@@ -94,9 +94,6 @@ const CalendarPage = () => {
           const startTime = formatTime(schedule.events[0].startTime);
           const endTime = formatTime(schedule.events[0].endTime);
 
-          // console.log("ID", schedule._id);
-          // console.log("DATE", schedule.date);
-
           return {
             date: schedule.date,
             id: schedule._id,
@@ -124,14 +121,15 @@ const CalendarPage = () => {
     console.log("Event Date:", newEvent.date); // Check if date is valid
     console.log("Event Start Time:", newEvent.startTime); // Check if startTime is valid
     console.log("Event End Time:", newEvent.endTime); // Check if endTime is valid
-    console.log("Assigned Employee ID:", newEvent.assignedEmployeeId);
+    console.log("Assigned Employee ID:", newEvent.assignedEmployee);
 
     const eventDate = new Date(newEvent.date);
     eventDate.setHours(0, 0, 0, 0); // Set time to midnight for consistency
 
     eventDate.setDate(eventDate.getDate() + 1);
 
-    const formattedDate = eventDate.toISOString(); // Convert to ISO format
+    // const formattedDate = eventDate.toISOString(); // Convert to ISO format
+    const formattedDate = new Date(selectedEvent).toISOString(); // Format date for API
     axios
       .post(
         `${process.env.REACT_APP_BASE_URL}/admin/schedule/create-schedule`,
@@ -142,7 +140,7 @@ const CalendarPage = () => {
             {
               startTime: newEvent.startTime,
               endTime: newEvent.endTime,
-              assignedEmployee: newEvent.assignedEmployeeId,
+              assignedEmployee: newEvent.assignedEmployee,
             },
           ],
         },
@@ -168,13 +166,13 @@ const CalendarPage = () => {
   const handleDateClick = (arg) => {
     setEditEvent(null);
     setShowModal(true);
-    setSelectedEvent(arg);
+    console.log("Handle date click Arg:", arg.date);
+    setSelectedEvent(arg.date);
   };
 
   const handleEventClick = (arg) => {
     setShowModal(true);
     setEditEvent(arg.event._def);
-    // console.logs(editEvent);
   };
 
   const handleCloseModal = () => {
@@ -184,29 +182,14 @@ const CalendarPage = () => {
   };
 
   const handleDeleteEvent = async (eventId) => {
-    // Delete the event (add your deletion logic here, e.g., API call)
-    // await deleteEvent(eventId); // Assume this function handles the deletion logic
-
-    // Update the calendar events state
     setCalendarEvents((prevEvents) =>
       prevEvents.filter((event) => event.id !== eventId)
     );
 
-    // Fetch events again for the selected location
     fetchEvents(selectedLocation);
   };
 
   const onEdit = (updatedSchedule) => {
-    // Find and replace the updated event in the calendarEvents state
-    // setCalendarEvents((prevEvents) =>
-    //   prevEvents.map((event) =>
-    //     event.id === updatedSchedule._id
-    //       ? { ...event, ...updatedSchedule }
-    //       : event
-    //   )
-    // );
-
-    // Fetch events again for the selected location
     fetchEvents(selectedLocation);
   };
 
@@ -283,7 +266,17 @@ const CalendarPage = () => {
 
               return (
                 <div>
-                  <div>{arg.event.title}</div> {/* Employee name */}
+                  <div
+                    style={{
+                      whiteSpace: "normal", // Allow text to break into multiple lines
+                      wordWrap: "break-word", // Break the word if necessary
+                      maxWidth: "100%", // Ensure it doesn't overflow its container
+                      lineHeight: "1.2", // Optional: Adjust line height for better readability
+                    }}
+                  >
+                    {arg.event.title}
+                  </div>{" "}
+                  {/* Employee name */}
                   <div
                     style={{
                       fontSize: "0.65rem",
