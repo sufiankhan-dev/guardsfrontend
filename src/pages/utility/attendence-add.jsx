@@ -79,12 +79,12 @@ const AttendenceAddPage = () => {
       validationErrors.employeeId = "Employee ID is required";
     if (!formData.locationId)
       validationErrors.locationId = "Location ID is required";
-    if (!formData.checkInTime)
-      validationErrors.checkInTime = "Check-in time is required";
-    if (!formData.checkInLocationName)
-      validationErrors.checkInLocationName = "Check-in location is required";
-    if (!formData.contactNumber)
-      validationErrors.contactNumber = "Contact number is required";
+    // if (!formData.checkInTime)
+    //   validationErrors.checkInTime = "Check-in time is required";
+    // if (!formData.checkInLocationName)
+    //   validationErrors.checkInLocationName = "Check-in location is required";
+    // if (!formData.contactNumber)
+    //   validationErrors.contactNumber = "Contact number is required";
 
     return validationErrors;
   };
@@ -93,12 +93,12 @@ const AttendenceAddPage = () => {
     if (isSubmitting.current) return;
     isSubmitting.current = true;
 
-    const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      isSubmitting.current = false;
-      return;
-    }
+    // const validationErrors = validate();
+    // if (Object.keys(validationErrors).length > 0) {
+    //   setErrors(validationErrors);
+    //   isSubmitting.current = false;
+    //   return;
+    // }
 
     try {
       const response = await axios.post(
@@ -186,9 +186,9 @@ const AttendenceAddPage = () => {
                 className="form-input py-2 border-2 rounded-md px-2"
                 placeholder="Select Check-in Time"
               />
-              {errors.checkInTime && (
+              {/* {errors.checkInTime && (
                 <p className="text-red-500">{errors.checkInTime}</p>
-              )}
+              )} */}
 
               {/* Check-in Location Name */}
               <Textinput
@@ -203,9 +203,9 @@ const AttendenceAddPage = () => {
                   })
                 }
               />
-              {errors.checkInLocationName && (
+              {/* {errors.checkInLocationName && (
                 <p className="text-red-500">{errors.checkInLocationName}</p>
-              )}
+              )} */}
 
               {/* Contact Number */}
               <Textinput
@@ -217,9 +217,9 @@ const AttendenceAddPage = () => {
                   setFormData({ ...formData, contactNumber: e.target.value })
                 }
               />
-              {errors.contactNumber && (
+              {/* {errors.contactNumber && (
                 <p className="text-red-500">{errors.contactNumber}</p>
-              )}
+              )} */}
 
               <Textinput
                 label="Notes"
