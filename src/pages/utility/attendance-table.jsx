@@ -323,24 +323,24 @@ const AttendancePage = () => {
       accessor: "checkInRecords",
       Cell: ({ cell }) => {
         const initialCheckInRecords = cell.value || [];
-        const [checkInRecords, setCheckInRecords] = useState(
-          initialCheckInRecords
-        );
+        const [checkInRecords, setCheckInRecords] = useState(initialCheckInRecords);
         const [showModal, setShowModal] = useState(false);
         const [formData, setFormData] = useState({
           checkInTime: new Date(),
           checkInLocationName: "",
           contactNumber: "",
+          note: "",
         });
-        const attendanceId = cell.row.original._id; // Use the existing attendance ID
-
+        const attendanceId = cell.row.original._id;
+    
         const handleAddCheckIn = async () => {
           const newCheckIn = {
-            checkInTime: formData.checkInTime.toISOString(), // Format the date
-            checkInLocationName: formData.checkInLocationName || "N/A", // Default value if empty
-            contactNumber: formData.contactNumber || "N/A", // Default value if empty
+            checkInTime: formData.checkInTime.toISOString(),
+            checkInLocationName: formData.checkInLocationName || "N/A",
+            contactNumber: formData.contactNumber || "N/A",
+            note: formData.note || "No notes provided",
           };
-
+    
           try {
             const response = await axios.put(
               `${process.env.REACT_APP_BASE_URL}/admin/attendence/update-checkin/${attendanceId}`,
@@ -351,26 +351,30 @@ const AttendancePage = () => {
                 },
               }
             );
-
+    
             if (response.status === 200) {
-              setCheckInRecords([...checkInRecords, newCheckIn]);
-              setShowModal(false); // Close the modal after submission
+              // Only update the state if the API call succeeds
+              setCheckInRecords((prevRecords) => [...prevRecords, newCheckIn]);
+              setShowModal(false);
+              setFormData({
+                checkInTime: new Date(),
+                checkInLocationName: "",
+                contactNumber: "",
+                note: "",
+              });
             } else {
               console.error("Failed to update check-in");
             }
           } catch (error) {
-            console.error(
-              "Error updating check-in:",
-              error.response?.data || error
-            );
+            console.error("Error updating check-in:", error.response?.data || error);
           }
         };
-
+    
         return (
           <div>
             {checkInRecords.length > 0 ? (
               checkInRecords.map((record, index) => (
-                <div key={index} className="mb-4">
+                <div key={index} className="mb-4 border-b pb-2">
                   <div>
                     <b>Check-In Time:</b>
                     <p className="text-green-500">
@@ -385,18 +389,22 @@ const AttendancePage = () => {
                     <b>Contact:</b>
                     <p>{record.contactNumber || "N/A"}</p>
                   </div>
+                  <div>
+                    <b>Note:</b>
+                    <p>{record.note || "No notes provided"}</p>
+                  </div>
                 </div>
               ))
             ) : (
               <span>No check-in records</span>
             )}
             <button
-              onClick={() => setShowModal(true)} // Show the modal when clicked
+              onClick={() => setShowModal(true)}
               className="text-white flex flex-row bg-blue-700 hover:bg-blue-500 px-2 items-center justify-center py-2 rounded-md "
             >
               <FaPlus className="mr-2" /> Add Check-In
             </button>
-
+    
             {showModal && (
               <Modal
                 activeModal={showModal}
@@ -416,7 +424,7 @@ const AttendancePage = () => {
                     options={{ enableTime: true, dateFormat: "Y-m-d H:i" }}
                     className="form-input"
                   />
-
+    
                   {/* Check-in Location Name */}
                   <Textinput
                     label="Check-in Address"
@@ -430,7 +438,7 @@ const AttendancePage = () => {
                       })
                     }
                   />
-
+    
                   {/* Contact Number */}
                   <Textinput
                     label="Contact Number"
@@ -444,14 +452,25 @@ const AttendancePage = () => {
                       })
                     }
                   />
+    
+                  {/* Note */}
+                  <Textinput
+                    label="Note"
+                    type="text"
+                    placeholder="Enter any notes"
+                    value={formData.note}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        note: e.target.value,
+                      })
+                    }
+                  />
                 </div>
-
+    
                 {/* Modal Buttons */}
                 <div className="text-right mt-4 space-x-4">
-                  <Button
-                    onClick={() => setShowModal(false)}
-                    variant="secondary"
-                  >
+                  <Button onClick={() => setShowModal(false)} variant="secondary">
                     Cancel
                   </Button>
                   <Button onClick={handleAddCheckIn}>Submit</Button>
@@ -462,6 +481,8 @@ const AttendancePage = () => {
         );
       },
     },
+    
+    
 
     {
       Header: "Check Out",
@@ -488,12 +509,107 @@ const AttendancePage = () => {
         );
       },
     },
-    {
-      Header: "Notes",
-      accessor: "notes",
-      Cell: (row) => <span>{row?.cell?.value}</span>,
-    },
+    // {
+    //   Header: "Notes",
+    //   accessor: "notes",
+    //   Cell: (row) => <span>{row?.cell?.value}</span>,
+    // },
 
+    {
+      Header: "Company phone",
+      accessor: "employee.contactNumber2",
+      Cell: (row) => <span>{row?.cell?.value || "N/A"}</span>,
+    },
+    {
+      Header: "Call Time",
+      accessor: "callTime", // Use the field name from your data
+      Cell: ({ cell, row }) => {
+        const initialCallTimes = cell.value || [];
+        const [callTimes, setCallTimes] = useState(initialCallTimes);
+        const [newCallTime, setNewCallTime] = useState("");
+        const [showModal, setShowModal] = useState(false);
+        const attendanceId = row.original._id; // Get the attendance ID for the row
+    
+        // Add new call time to the backend and update local state
+        const handleAddCallTime = async () => {
+          if (!newCallTime) return; // Ensure there's a value to add
+    
+          try {
+            const response = await axios.put(
+              `${process.env.REACT_APP_BASE_URL}/admin/attendence/add-calling-time/${attendanceId}`,
+              { callingTime: newCallTime },
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+              }
+            );
+    
+            if (response.status === 200) {
+              // Update the state to reflect the new call time
+              setCallTimes((prev) => [...prev, newCallTime]);
+              setNewCallTime(""); // Clear the input field
+              setShowModal(false); // Close the modal
+            } else {
+              console.error("Failed to add call time");
+            }
+          } catch (error) {
+            console.error("Error adding call time:", error.response?.data || error);
+          }
+        };
+    
+        return (
+          <div>
+            {/* Display existing call times */}
+            {callTimes.length > 0 ? (
+              callTimes.map((time, index) => (
+                <div key={index} className="mb-2 text-gray-700">
+                  <b>{index + 1}.</b> {time}
+                </div>
+              ))
+            ) : (
+              <span>No call times added</span>
+            )}
+    
+            {/* Button to open the modal */}
+            <button
+              onClick={() => setShowModal(true)}
+              className="text-white flex flex-row bg-blue-700 hover:bg-blue-500 px-2 items-center justify-center py-2 rounded-md mt-2"
+            >
+              <FaPlus className="mr-2" /> Add Call Time
+            </button>
+    
+            {/* Modal for adding a call time */}
+            {showModal && (
+              <Modal
+                activeModal={showModal}
+                onClose={() => setShowModal(false)}
+                title="Add Call Time"
+              >
+                <div className="space-y-4">
+                  <Textinput
+                    label="Call Time"
+                    type="text"
+                    placeholder="Enter call time (e.g., 10:30 AM)"
+                    value={newCallTime}
+                    onChange={(e) => setNewCallTime(e.target.value)}
+                  />
+                </div>
+    
+                <div className="text-right mt-4 space-x-4">
+                  <Button onClick={() => setShowModal(false)} variant="secondary">
+                    Cancel
+                  </Button>
+                  <Button onClick={handleAddCallTime}>Add</Button>
+                </div>
+              </Modal>
+            )}
+          </div>
+        );
+      },
+    },
+    
+    
     {
       Header: "Created At",
       accessor: "createdAt",
