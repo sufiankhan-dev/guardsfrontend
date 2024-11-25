@@ -784,10 +784,10 @@ const AttendancePage = () => {
       });
       const columnWidths = Object.keys(exportData[0]).map((key) => ({
         wch: Math.max(
-          key.length, // Use the header length as the minimum width
+          key.length, 
           ...exportData.map((row) =>
             row[key] ? row[key].toString().length : 10
-          ) // Find the max length of the data in each column
+          ) 
         ),
       }));
       worksheet["!cols"] = columnWidths;
