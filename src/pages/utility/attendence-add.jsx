@@ -174,7 +174,7 @@ const AttendenceAddPage = () => {
               )}
 
               {/* Check-in Time */}
-              <label htmlFor="checkInTime" className="form-label">
+              {/* <label htmlFor="checkInTime" className="form-label">
                 Check-in Time
               </label>
               <Flatpickr
@@ -185,13 +185,13 @@ const AttendenceAddPage = () => {
                 options={{ enableTime: true, dateFormat: "Y-m-d H:i" }}
                 className="form-input py-2 border-2 rounded-md px-2"
                 placeholder="Select Check-in Time"
-              />
+              /> */}
               {/* {errors.checkInTime && (
                 <p className="text-red-500">{errors.checkInTime}</p>
               )} */}
 
               {/* Check-in Location Name */}
-              <Textinput
+              {/* <Textinput
                 label="Check-in Address"
                 type="text"
                 placeholder="Enter Check-in Address"
@@ -202,13 +202,13 @@ const AttendenceAddPage = () => {
                     checkInLocationName: e.target.value,
                   })
                 }
-              />
+              /> */}
               {/* {errors.checkInLocationName && (
                 <p className="text-red-500">{errors.checkInLocationName}</p>
               )} */}
 
               {/* Contact Number */}
-              <Textinput
+              {/* <Textinput
                 label="Contact Number"
                 type="text"
                 placeholder="Enter Contact Number"
@@ -216,12 +216,12 @@ const AttendenceAddPage = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, contactNumber: e.target.value })
                 }
-              />
+              /> */}
               {/* {errors.contactNumber && (
                 <p className="text-red-500">{errors.contactNumber}</p>
               )} */}
 
-              <Textinput
+              {/* <Textinput
                 label="Notes"
                 type="text"
                 placeholder="Enter Notes"
@@ -229,7 +229,7 @@ const AttendenceAddPage = () => {
                 onChange={(e) =>
                   setFormData({ ...formData, notes: e.target.value })
                 }
-              />
+              /> */}
             </div>
           </div>
         </div>
