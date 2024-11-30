@@ -401,6 +401,12 @@ const EventModal = ({
       });
   };
 
+  const handleTimeChange = (e) => {
+    setStartTime(e.target.value); // Use the passed "e" parameter
+};
+const handleTimeChnages = (e) => {
+  setEndTime(e.target.value); // Use the passed "e" parameter
+};
   return (
     <Modal
       title={event ? "Edit Event" : "Add Event"}
@@ -419,18 +425,14 @@ const EventModal = ({
                 name="startTime"
                 control={control}
                 render={({ field }) => (
-                  <Flatpickr
-                    className="text-control border-2 rounded-md px-2 py-2"
-                    placeholder="Select Start Time"
-                    id="start-time"
-                    value={startTime}
-                    onChange={(date) => setStartTime(date[0])}
-                    options={{
-                      enableTime: true,
-                      noCalendar: true,
-                      dateFormat: "h:i K",
-                    }}
-                  />
+                  <input
+        id="start-time"
+        className="text-control border-2 rounded-md px-2 py-2"
+        type="time" // HTML time picker
+        value={startTime} // Bind the state
+        onChange={handleTimeChange} // Update state on change
+        placeholder="Select Start Time" // Placeholder (may not show in some browsers when type="time")
+      />
                 )}
               />
             </FormGroup>
@@ -440,12 +442,13 @@ const EventModal = ({
                 name="endTime"
                 control={control}
                 render={({ field }) => (
-                  <Flatpickr
+                  <input
+                  type="time"
                     className="text-control py-2  border-2 rounded-md px-2"
                     placeholder="Select End Time"
                     id="end-time"
                     value={endTime}
-                    onChange={(date) => setEndTime(date[0])}
+                    onChange={handleTimeChnages}
                     options={{
                       enableTime: true,
                       noCalendar: true,

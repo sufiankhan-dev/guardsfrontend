@@ -198,10 +198,9 @@ const CalendarPage = () => {
   }
 
   const events = [
-    { id: 1, title: "Business Strategy", tag: "business" },
-    { id: 2, title: "Team Meeting", tag: "meeting" },
-    { id: 3, title: "Holiday Celebration", tag: "holiday" },
-    { id: 4, title: "Miscellaneous", tag: "etc" },
+    { id: 1, title: "Admin", tag: "business" },
+    { id: 2, title: "Employees", tag: "meeting" },
+   
   ];
 
   // console.log("Calender Event", );
