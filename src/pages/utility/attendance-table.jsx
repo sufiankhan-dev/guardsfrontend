@@ -20,7 +20,12 @@ const AttendancePage = () => {
   const [hasNextPage, setHasNextPage] = useState(false);
   const user = useSelector((state) => state.auth.user);
   const [loading, setLoading] = useState(true);
-  const [value, setValue] = useState({ startDate: null, endDate: null });
+  const [value, setValue] = useState({
+    startDate: null,
+    endDate: null,
+    checkInStart: null,
+    checkInEnd: null,
+  });
   const [selectedLocation, setSelectedLocation] = useState("");
   const [locations, setLocations] = useState([]);
 
@@ -58,6 +63,12 @@ const AttendancePage = () => {
           : undefined,
         endDate: value.endDate
           ? new Date(value.endDate).toISOString()
+          : undefined,
+        checkInStart: value.checkInStart
+          ? new Date(value.checkInStart).toISOString()
+          : undefined,
+        checkInEnd: value.checkInEnd
+          ? new Date(value.checkInEnd).toISOString()
           : undefined,
       };
 
@@ -304,27 +315,55 @@ const AttendancePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white rounded-md shadow-md p-6">
-      <div className="flex flex-row items-center gap-x-10 mb-4">
-        <h2 className="text-2xl font-bold text-gray-700">Attendance Data</h2>
-        <select
-          onChange={handleLocationChange}
-          value={selectedLocation}
-          className="bg-gray-100 px-2 py-2 rounded-lg border-1"
-        >
-          <option value="">Select Location</option>
-          {locations.map((location) => (
-            <option key={location._id} value={location._id}>
-              {location.locationName}
-            </option>
-          ))}
-        </select>
+    <div>
+      <h2>Attendance Data</h2>
+      <select onChange={handleLocationChange} value={selectedLocation}>
+        <option value="">Select Location</option>
+        {locations.map((loc) => (
+          <option key={loc.id} value={loc.id}>
+            {loc.locationName}
+          </option>
+        ))}
+      </select>
+
+      <div>
+        <label>Start Date:</label>
+        <input
+          type="date"
+          value={value.startDate || ""}
+          onChange={(e) =>
+            setValue((prev) => ({ ...prev, startDate: e.target.value }))
+          }
+        />
+        <label>End Date:</label>
+        <input
+          type="date"
+          value={value.endDate || ""}
+          onChange={(e) =>
+            setValue((prev) => ({ ...prev, endDate: e.target.value }))
+          }
+        />
+        <label>Check-In Start Time:</label>
+        <input
+          type="datetime-local"
+          value={value.checkInStart || ""}
+          onChange={(e) =>
+            setValue((prev) => ({ ...prev, checkInStart: e.target.value }))
+          }
+        />
+        <label>Check-In End Time:</label>
+        <input
+          type="datetime-local"
+          value={value.checkInEnd || ""}
+          onChange={(e) =>
+            setValue((prev) => ({ ...prev, checkInEnd: e.target.value }))
+          }
+        />
+        <button onClick={fetchData}>Apply Filters</button>
       </div>
-      <table
-        {...getTableProps()}
-        className="table-auto w-full border border-gray-300 shadow-md rounded-lg"
-      >
-        <thead className="bg-gray-100">
+
+      <table {...getTableProps()}>
+        <thead>
           {headerGroups.map((headerGroup) => (
             <tr {...headerGroup.getHeaderGroupProps()} className="text-left">
               {headerGroup.headers.map((column) => (
@@ -333,13 +372,7 @@ const AttendancePage = () => {
                   className="px-4 py-2 font-bold text-gray-700 border-b border-gray-300"
                 >
                   {column.render("Header")}
-                  <span>
-                    {column.isSorted
-                      ? column.isSortedDesc
-                        ? " 🔽"
-                        : " 🔼"
-                      : ""}
-                  </span>
+                  {column.isSorted ? (column.isSortedDesc ? " 🔽" : " 🔼") : ""}
                 </th>
               ))}
             </tr>
@@ -367,35 +400,34 @@ const AttendancePage = () => {
         </tbody>
       </table>
 
-      <div className="mt-4 flex flex-wrap items-center justify-between space-y-2">
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={() => previousPage()}
-            disabled={!canPreviousPage}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 disabled:bg-gray-300"
-          >
-            Previous
-          </button>
-          <button
-            onClick={() => nextPage()}
-            disabled={!canNextPage}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 disabled:bg-gray-300"
-          >
-            Next
-          </button>
-        </div>
-        <span className="text-gray-700 font-medium">
+      <div>
+        <button onClick={() => handlePageChange(0)} disabled={!canPreviousPage}>
+          {"<<"}
+        </button>
+        <button onClick={() => previousPage()} disabled={!canPreviousPage}>
+          Previous
+        </button>
+        <button onClick={() => nextPage()} disabled={!canNextPage}>
+          Next
+        </button>
+        <button
+          onClick={() => handlePageChange(pageOptions.length - 1)}
+          disabled={!canNextPage}
+        >
+          {">>"}
+        </button>
+        <span>
           Page{" "}
           <strong>
             {pageIndex + 1} of {pageOptions.length}
-          </strong>
+          </strong>{" "}
         </span>
         <select
           value={pageSize}
           onChange={(e) => handlePageSizeChange(Number(e.target.value))}
           className="px-4 py-2 border border-gray-300 rounded-lg shadow-md focus:outline-none"
         >
-          {[10, 25, 50, 100].map((size) => (
+          {[10, 20, 50].map((size) => (
             <option key={size} value={size}>
               Show {size}
             </option>
