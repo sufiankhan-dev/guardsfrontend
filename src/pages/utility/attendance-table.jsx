@@ -2,7 +2,13 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
-import { useTable, usePagination, useSortBy, useGlobalFilter, useRowSelect } from "react-table";
+import {
+  useTable,
+  usePagination,
+  useSortBy,
+  useGlobalFilter,
+  useRowSelect,
+} from "react-table";
 import { FaPlus } from "react-icons/fa";
 
 const AttendancePage = () => {
@@ -47,8 +53,12 @@ const AttendancePage = () => {
         page: pageIndex + 1,
         limit: pageSize,
         location: selectedLocation || undefined,
-        startDate: value.startDate ? new Date(value.startDate).toISOString() : undefined,
-        endDate: value.endDate ? new Date(value.endDate).toISOString() : undefined,
+        startDate: value.startDate
+          ? new Date(value.startDate).toISOString()
+          : undefined,
+        endDate: value.endDate
+          ? new Date(value.endDate).toISOString()
+          : undefined,
       };
 
       const response = await axios.get(
@@ -62,7 +72,6 @@ const AttendancePage = () => {
         }
       );
 
-      // Ensure all attendance fields are initialized correctly and safely access them
       const updatedData = response.data.attendances.map((attendance) => ({
         ...attendance,
         checkInTime: attendance.checkInTime || [],
@@ -93,7 +102,7 @@ const AttendancePage = () => {
     setUserData((prevData) => {
       const updatedData = [...prevData];
       updatedData[index][columnName] = [
-        ...(updatedData[index][columnName] || []), // Safe check if the field is undefined
+        ...(updatedData[index][columnName] || []),
         new Date().toISOString(),
       ];
       return updatedData;
@@ -235,12 +244,16 @@ const AttendancePage = () => {
       {
         Header: "Created At",
         accessor: "createdAt",
-        Cell: ({ value }) => <span>{new Date(value).toLocaleDateString() || "N/A"}</span>,
+        Cell: ({ value }) => (
+          <span>{new Date(value).toLocaleDateString() || "N/A"}</span>
+        ),
       },
       {
         Header: "Actions",
         Cell: ({ row }) => (
-          <button onClick={() => handleSaveChanges(row.original.id)}>Save</button>
+          <button onClick={() => handleSaveChanges(row.original.id)}>
+            Save
+          </button>
         ),
       },
     ],
@@ -291,23 +304,34 @@ const AttendancePage = () => {
   }
 
   return (
-    <div>
-      <h2>Attendance Data</h2>
-      <select onChange={handleLocationChange} value={selectedLocation}>
-        <option value="">Select Location</option>
-        {locations.map((location) => (
-          <option key={location._id} value={location._id}>
-            {location.locationName}
-          </option>
-        ))}
-      </select>
-
-      <table {...getTableProps()} border="1">
-        <thead>
+    <div className="min-h-screen bg-white rounded-md shadow-md p-6">
+      <div className="flex flex-row items-center gap-x-10 mb-4">
+        <h2 className="text-2xl font-bold text-gray-700">Attendance Data</h2>
+        <select
+          onChange={handleLocationChange}
+          value={selectedLocation}
+          className="bg-gray-100 px-2 py-2 rounded-lg border-1"
+        >
+          <option value="">Select Location</option>
+          {locations.map((location) => (
+            <option key={location._id} value={location._id}>
+              {location.locationName}
+            </option>
+          ))}
+        </select>
+      </div>
+      <table
+        {...getTableProps()}
+        className="table-auto w-full border border-gray-300 shadow-md rounded-lg"
+      >
+        <thead className="bg-gray-100">
           {headerGroups.map((headerGroup) => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
+            <tr {...headerGroup.getHeaderGroupProps()} className="text-left">
               {headerGroup.headers.map((column) => (
-                <th {...column.getHeaderProps(column.getSortByToggleProps())}>
+                <th
+                  {...column.getHeaderProps(column.getSortByToggleProps())}
+                  className="px-4 py-2 font-bold text-gray-700 border-b border-gray-300"
+                >
                   {column.render("Header")}
                   <span>
                     {column.isSorted
@@ -321,13 +345,21 @@ const AttendancePage = () => {
             </tr>
           ))}
         </thead>
-        <tbody {...getTableBodyProps()}>
+        <tbody {...getTableBodyProps()} className="bg-white">
           {page.map((row) => {
             prepareRow(row);
             return (
-              <tr {...row.getRowProps()}>
+              <tr
+                {...row.getRowProps()}
+                className="hover:bg-gray-50 transition duration-200"
+              >
                 {row.cells.map((cell) => (
-                  <td {...cell.getCellProps()}>{cell.render("Cell")}</td>
+                  <td
+                    {...cell.getCellProps()}
+                    className="px-4 py-2 text-gray-600 border-b border-gray-300"
+                  >
+                    {cell.render("Cell")}
+                  </td>
                 ))}
               </tr>
             );
@@ -335,14 +367,24 @@ const AttendancePage = () => {
         </tbody>
       </table>
 
-      <div>
-        <button onClick={() => previousPage()} disabled={!canPreviousPage}>
-          Previous
-        </button>
-        <button onClick={() => nextPage()} disabled={!canNextPage}>
-          Next
-        </button>
-        <span>
+      <div className="mt-4 flex flex-wrap items-center justify-between space-y-2">
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => previousPage()}
+            disabled={!canPreviousPage}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 disabled:bg-gray-300"
+          >
+            Previous
+          </button>
+          <button
+            onClick={() => nextPage()}
+            disabled={!canNextPage}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 disabled:bg-gray-300"
+          >
+            Next
+          </button>
+        </div>
+        <span className="text-gray-700 font-medium">
           Page{" "}
           <strong>
             {pageIndex + 1} of {pageOptions.length}
@@ -351,6 +393,7 @@ const AttendancePage = () => {
         <select
           value={pageSize}
           onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+          className="px-4 py-2 border border-gray-300 rounded-lg shadow-md focus:outline-none"
         >
           {[10, 25, 50, 100].map((size) => (
             <option key={size} value={size}>
