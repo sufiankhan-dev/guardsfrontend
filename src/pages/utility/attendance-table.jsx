@@ -14,7 +14,12 @@ const AttendancePage = () => {
   const [hasNextPage, setHasNextPage] = useState(false);
   const user = useSelector((state) => state.auth.user);
   const [loading, setLoading] = useState(true);
-  const [value, setValue] = useState({ startDate: null, endDate: null });
+  const [value, setValue] = useState({
+    startDate: null,
+    endDate: null,
+    checkInStart: null,
+    checkInEnd: null,
+  });
   const [selectedLocation, setSelectedLocation] = useState("");
   const [locations, setLocations] = useState([]);
 
@@ -49,6 +54,8 @@ const AttendancePage = () => {
         location: selectedLocation || undefined,
         startDate: value.startDate ? new Date(value.startDate).toISOString() : undefined,
         endDate: value.endDate ? new Date(value.endDate).toISOString() : undefined,
+        checkInStart: value.checkInStart ? new Date(value.checkInStart).toISOString() : undefined,
+        checkInEnd: value.checkInEnd ? new Date(value.checkInEnd).toISOString() : undefined,
       };
 
       const response = await axios.get(
@@ -62,7 +69,6 @@ const AttendancePage = () => {
         }
       );
 
-      // Ensure all attendance fields are initialized correctly and safely access them
       const updatedData = response.data.attendances.map((attendance) => ({
         ...attendance,
         checkInTime: attendance.checkInTime || [],
@@ -93,7 +99,7 @@ const AttendancePage = () => {
     setUserData((prevData) => {
       const updatedData = [...prevData];
       updatedData[index][columnName] = [
-        ...(updatedData[index][columnName] || []), // Safe check if the field is undefined
+        ...(updatedData[index][columnName] || []),
         new Date().toISOString(),
       ];
       return updatedData;
@@ -295,27 +301,53 @@ const AttendancePage = () => {
       <h2>Attendance Data</h2>
       <select onChange={handleLocationChange} value={selectedLocation}>
         <option value="">Select Location</option>
-        {locations.map((location) => (
-          <option key={location._id} value={location._id}>
-            {location.locationName}
+        {locations.map((loc) => (
+          <option key={loc.id} value={loc.id}>
+            {loc.locationName}
           </option>
         ))}
       </select>
 
-      <table {...getTableProps()} border="1">
+      <div>
+        <label>Start Date:</label>
+        <input
+          type="date"
+          value={value.startDate || ""}
+          onChange={(e) => setValue((prev) => ({ ...prev, startDate: e.target.value }))}
+        />
+        <label>End Date:</label>
+        <input
+          type="date"
+          value={value.endDate || ""}
+          onChange={(e) => setValue((prev) => ({ ...prev, endDate: e.target.value }))}
+        />
+        <label>Check-In Start Time:</label>
+        <input
+          type="datetime-local"
+          value={value.checkInStart || ""}
+          onChange={(e) => setValue((prev) => ({ ...prev, checkInStart: e.target.value }))}
+        />
+        <label>Check-In End Time:</label>
+        <input
+          type="datetime-local"
+          value={value.checkInEnd || ""}
+          onChange={(e) => setValue((prev) => ({ ...prev, checkInEnd: e.target.value }))}
+        />
+        <button onClick={fetchData}>Apply Filters</button>
+      </div>
+
+      <table {...getTableProps()}>
         <thead>
           {headerGroups.map((headerGroup) => (
             <tr {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map((column) => (
                 <th {...column.getHeaderProps(column.getSortByToggleProps())}>
                   {column.render("Header")}
-                  <span>
-                    {column.isSorted
-                      ? column.isSortedDesc
-                        ? " 🔽"
-                        : " 🔼"
-                      : ""}
-                  </span>
+                  {column.isSorted
+                    ? column.isSortedDesc
+                      ? " 🔽"
+                      : " 🔼"
+                    : ""}
                 </th>
               ))}
             </tr>
@@ -336,23 +368,29 @@ const AttendancePage = () => {
       </table>
 
       <div>
+        <button onClick={() => handlePageChange(0)} disabled={!canPreviousPage}>
+          {"<<"}
+        </button>
         <button onClick={() => previousPage()} disabled={!canPreviousPage}>
           Previous
         </button>
         <button onClick={() => nextPage()} disabled={!canNextPage}>
           Next
         </button>
+        <button onClick={() => handlePageChange(pageOptions.length - 1)} disabled={!canNextPage}>
+          {">>"}
+        </button>
         <span>
           Page{" "}
           <strong>
             {pageIndex + 1} of {pageOptions.length}
-          </strong>
+          </strong>{" "}
         </span>
         <select
           value={pageSize}
           onChange={(e) => handlePageSizeChange(Number(e.target.value))}
         >
-          {[10, 25, 50, 100].map((size) => (
+          {[10, 20, 50].map((size) => (
             <option key={size} value={size}>
               Show {size}
             </option>
