@@ -10,6 +10,7 @@ import {
   useRowSelect,
 } from "react-table";
 import { FaPlus } from "react-icons/fa";
+import Button from "@/components/ui/Button";
 
 const AttendancePage = () => {
   const navigate = useNavigate();
@@ -112,27 +113,34 @@ const AttendancePage = () => {
   const handleAddTime = (columnName, index) => {
     setUserData((prevData) => {
       const updatedData = [...prevData];
-      updatedData[index][columnName] = [
-        ...(updatedData[index][columnName] || []),
-        new Date().toISOString(),
-      ];
+      if (!updatedData[index][columnName]) {
+        updatedData[index][columnName] = [];
+      }
+      updatedData[index][columnName].push(new Date().toISOString());
       return updatedData;
     });
   };
 
   const handleAddNote = (index) => {
-    const newNote = prompt("Enter note: ");
+    const newNote = prompt("Enter a note:");
     if (newNote) {
       setUserData((prevData) => {
         const updatedData = [...prevData];
-        updatedData[index].note = [...(updatedData[index].note || []), newNote];
+        if (!updatedData[index].note) {
+          updatedData[index].note = [];
+        }
+        updatedData[index].note.push(newNote);
         return updatedData;
       });
     }
   };
 
   const handleSaveChanges = async (attendanceId) => {
-    const updatedAttendance = userData.find((data) => data.id === attendanceId);
+    console.log("Received attendanceId:", attendanceId); // Debugging
+    const updatedAttendance = userData.find(
+      (data) => data._id === attendanceId
+    );
+    console.log("Updated Attendance Data:", updatedAttendance); // Debugging
 
     if (!updatedAttendance) {
       alert("Attendance not found!");
@@ -157,6 +165,8 @@ const AttendancePage = () => {
           },
         }
       );
+
+      console.log("Server response:", response); // Debugging
 
       if (response.status === 200) {
         alert("Attendance updated successfully!");
@@ -195,14 +205,17 @@ const AttendancePage = () => {
       {
         Header: "Check-in Time",
         accessor: "checkInTime",
-        Cell: ({ value, rowIndex }) => (
+        Cell: ({ value, row }) => (
           <div>
             {value?.length > 0
               ? value.map((time, index) => (
                   <div key={index}>{new Date(time).toLocaleTimeString()}</div>
                 ))
               : "Not Checked In"}
-            <button onClick={() => handleAddTime("checkInTime", rowIndex)}>
+            <button
+              className="ml-2 text-blue-500"
+              onClick={() => handleAddTime("checkInTime", row.index)}
+            >
               <FaPlus />
             </button>
           </div>
@@ -211,14 +224,17 @@ const AttendancePage = () => {
       {
         Header: "Check-out Time",
         accessor: "checkOutTime",
-        Cell: ({ value, rowIndex }) => (
+        Cell: ({ value, row }) => (
           <div>
             {value?.length > 0
               ? value.map((time, index) => (
                   <div key={index}>{new Date(time).toLocaleTimeString()}</div>
                 ))
               : "Not Checked Out"}
-            <button onClick={() => handleAddTime("checkOutTime", rowIndex)}>
+            <button
+              className="ml-2 text-blue-500"
+              onClick={() => handleAddTime("checkOutTime", row.index)}
+            >
               <FaPlus />
             </button>
           </div>
@@ -227,12 +243,15 @@ const AttendancePage = () => {
       {
         Header: "Calling Times",
         accessor: "callingTimes",
-        Cell: ({ value, rowIndex }) => (
+        Cell: ({ value, row }) => (
           <div>
             {value?.length > 0
               ? value.map((time, index) => <div key={index}>{time}</div>)
               : "N/A"}
-            <button onClick={() => handleAddTime("callingTimes", rowIndex)}>
+            <button
+              className="ml-2 text-blue-500"
+              onClick={() => handleAddTime("callingTimes", row.index)}
+            >
               <FaPlus />
             </button>
           </div>
@@ -241,12 +260,15 @@ const AttendancePage = () => {
       {
         Header: "Notes",
         accessor: "note",
-        Cell: ({ value, rowIndex }) => (
+        Cell: ({ value, row }) => (
           <div>
             {value?.length > 0
               ? value.map((note, index) => <div key={index}>{note}</div>)
               : "N/A"}
-            <button onClick={() => handleAddNote(rowIndex)}>
+            <button
+              className="ml-2 text-blue-500"
+              onClick={() => handleAddNote(row.index)}
+            >
               <FaPlus />
             </button>
           </div>
@@ -262,7 +284,10 @@ const AttendancePage = () => {
       {
         Header: "Actions",
         Cell: ({ row }) => (
-          <button onClick={() => handleSaveChanges(row.original.id)}>
+          <button
+            className="px-2 py-1 bg-green-500 text-white rounded-md"
+            onClick={() => handleSaveChanges(row.original._id)}
+          >
             Save
           </button>
         ),
@@ -315,61 +340,126 @@ const AttendancePage = () => {
   }
 
   return (
-    <div>
-      <h2>Attendance Data</h2>
-      <select onChange={handleLocationChange} value={selectedLocation}>
-        <option value="">Select Location</option>
-        {locations.map((loc) => (
-          <option key={loc.id} value={loc.id}>
-            {loc.locationName}
-          </option>
-        ))}
-      </select>
-
-      <div>
-        <label>Start Date:</label>
-        <input
-          type="date"
-          value={value.startDate || ""}
-          onChange={(e) =>
-            setValue((prev) => ({ ...prev, startDate: e.target.value }))
-          }
+    <div className="min-h-screen bg-white rounded-md shadow-md p-6">
+      <div className="flex flex-row items-center justify-between">
+        <div className="flex flex-row gap-x-10 items-center mb-4">
+          <h2 className="text-2xl font-bold text-gray-700">Attendance Data</h2>
+          <select
+            onChange={handleLocationChange}
+            value={selectedLocation}
+            className="bg-gray-100 px-2 py-2 rounded-md border-1"
+          >
+            <option value="">Select Location</option>
+            {locations.map((loc) => (
+              <option key={loc._id} value={loc._id}>
+                {loc.locationName}
+              </option>
+            ))}
+          </select>
+        </div>
+        <Button
+          icon="heroicons:plus"
+          text="Add Attendence"
+          className="btn-dark font-normal btn-sm absolute right-16 top-28"
+          iconClass="text-lg"
+          onClick={() => {
+            navigate("/attendence-add");
+          }}
         />
-        <label>End Date:</label>
-        <input
-          type="date"
-          value={value.endDate || ""}
-          onChange={(e) =>
-            setValue((prev) => ({ ...prev, endDate: e.target.value }))
-          }
-        />
-        <label>Check-In Start Time:</label>
-        <input
-          type="datetime-local"
-          value={value.checkInStart || ""}
-          onChange={(e) =>
-            setValue((prev) => ({ ...prev, checkInStart: e.target.value }))
-          }
-        />
-        <label>Check-In End Time:</label>
-        <input
-          type="datetime-local"
-          value={value.checkInEnd || ""}
-          onChange={(e) =>
-            setValue((prev) => ({ ...prev, checkInEnd: e.target.value }))
-          }
-        />
-        <button onClick={fetchData}>Apply Filters</button>
+      </div>
+      <div className="bg-gray-100 p-6 rounded-lg shadow-md">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex flex-col">
+            <label className="text-sm font-semibold text-gray-700">
+              Start Date:
+            </label>
+            <input
+              type="date"
+              placeholder="YYYY-MM-DD"
+              value={value.startDate || ""}
+              onChange={(e) =>
+                setValue((prev) => ({ ...prev, startDate: e.target.value }))
+              }
+              className="p-2 mt-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="flex flex-col">
+            <label className="text-sm font-semibold text-gray-700">
+              End Date:
+            </label>
+            <input
+              type="date"
+              placeholder="YYYY-MM-DD"
+              value={value.endDate || ""}
+              onChange={(e) =>
+                setValue((prev) => ({ ...prev, endDate: e.target.value }))
+              }
+              className="p-2 mt-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="flex flex-col">
+            <label className="text-sm font-semibold text-gray-700">
+              Check-In Start Time:
+            </label>
+            <input
+              type="datetime-local"
+              placeholder="YYYY-MM-DDTHH:MM"
+              value={value.checkInStart || ""}
+              onChange={(e) =>
+                setValue((prev) => ({ ...prev, checkInStart: e.target.value }))
+              }
+              className="p-2 mt-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="flex flex-col">
+            <label className="text-sm font-semibold text-gray-700">
+              Check-In End Time:
+            </label>
+            <input
+              type="datetime-local"
+              placeholder="YYYY-MM-DDTHH:MM"
+              value={value.checkInEnd || ""}
+              onChange={(e) =>
+                setValue((prev) => ({ ...prev, checkInEnd: e.target.value }))
+              }
+              className="p-2 mt-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+        <div className="flex gap-4 mt-4">
+          <button
+            onClick={fetchData}
+            className="px-4 py-2 bg-black-500 text-white rounded-md shadow-md hover:bg-black-700 transition"
+          >
+            Apply Filters
+          </button>
+          <button
+            onClick={() =>
+              setValue({
+                startDate: "",
+                endDate: "",
+                checkInStart: "",
+                checkInEnd: "",
+              })
+            }
+            className="px-4 py-2 bg-white text-gray-800 rounded-md shadow-md hover:bg-gray-400 transition"
+          >
+            Clear Filters
+          </button>
+        </div>
       </div>
 
-      <table {...getTableProps()}>
-        <thead>
+      <table
+        {...getTableProps()}
+        className="table-auto w-full mt-6 border border-gray-300 shadow-md rounded-lg"
+      >
+        <thead className="bg-gradient-to-r from-[#304352] to-[#d7d2cc] dark:bg-slate-800">
           {headerGroups.map((headerGroup) => (
             <tr {...headerGroup.getHeaderGroupProps()} className="text-left">
               {headerGroup.headers.map((column) => (
                 <th
                   {...column.getHeaderProps(column.getSortByToggleProps())}
-                  className="px-4 py-2 font-bold text-gray-700 border-b border-gray-300"
+                  className="table-th text-slate-50"
                 >
                   {column.render("Header")}
                   {column.isSorted ? (column.isSortedDesc ? " 🔽" : " 🔼") : ""}
@@ -400,27 +490,42 @@ const AttendancePage = () => {
         </tbody>
       </table>
 
-      <div>
-        <button onClick={() => handlePageChange(0)} disabled={!canPreviousPage}>
-          {"<<"}
-        </button>
-        <button onClick={() => previousPage()} disabled={!canPreviousPage}>
-          Previous
-        </button>
-        <button onClick={() => nextPage()} disabled={!canNextPage}>
-          Next
-        </button>
-        <button
-          onClick={() => handlePageChange(pageOptions.length - 1)}
-          disabled={!canNextPage}
-        >
-          {">>"}
-        </button>
-        <span>
+      <div className="mt-4 flex flex-wrap items-center justify-between space-y-2">
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => handlePageChange(0)}
+            disabled={!canPreviousPage}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 disabled:bg-gray-300"
+          >
+            {"<<"}
+          </button>
+          <button
+            onClick={() => previousPage()}
+            disabled={!canPreviousPage}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 disabled:bg-gray-300"
+          >
+            Previous
+          </button>
+          <button
+            onClick={() => nextPage()}
+            disabled={!canNextPage}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 disabled:bg-gray-300"
+          >
+            Next
+          </button>
+          <button
+            onClick={() => handlePageChange(pageOptions.length - 1)}
+            disabled={!canNextPage}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 disabled:bg-gray-300"
+          >
+            {">>"}
+          </button>
+        </div>
+        <span className="text-gray-700 font-medium">
           Page{" "}
           <strong>
             {pageIndex + 1} of {pageOptions.length}
-          </strong>{" "}
+          </strong>
         </span>
         <select
           value={pageSize}
