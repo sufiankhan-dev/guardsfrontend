@@ -427,7 +427,7 @@ const handleTimeChnages = (e) => {
                 render={({ field }) => (
                   <input
         id="start-time"
-        className="text-control border-2 rounded-md px-2 py-2"
+        className="text-control border-2 rounded-md px-2 py-2 text-base"
         type="time" // HTML time picker
         value={startTime} // Bind the state
         onChange={handleTimeChange} // Update state on change

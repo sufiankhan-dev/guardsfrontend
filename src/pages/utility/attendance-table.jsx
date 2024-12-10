@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -11,17 +12,19 @@ import {
 } from "react-table";
 import { FaPlus } from "react-icons/fa";
 import Button from "@/components/ui/Button";
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
 
 const AttendancePage = () => {
   const navigate = useNavigate();
+  const user = useSelector((state) => state.auth.user);
   const [userData, setUserData] = useState([]);
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [total, setTotal] = useState(0);
   const [hasNextPage, setHasNextPage] = useState(false);
-  const user = useSelector((state) => state.auth.user);
   const [loading, setLoading] = useState(true);
-  const [value, setValue] = useState({
+  const [filters, setFilters] = useState({
     startDate: null,
     endDate: null,
     checkInStart: null,
@@ -29,14 +32,19 @@ const AttendancePage = () => {
   });
   const [selectedLocation, setSelectedLocation] = useState("");
   const [locations, setLocations] = useState([]);
+ 
+ const handleLocationChange = (event) => {
+    setSelectedLocation(event.target.value);
+  };
 
+
+  // Fetch locations
   const fetchLocations = async () => {
     try {
       const response = await axios.get(
         `${process.env.REACT_APP_BASE_URL}/admin/location/get-locations`,
         {
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
@@ -51,25 +59,21 @@ const AttendancePage = () => {
     fetchLocations();
   }, []);
 
+  // Fetch attendance data
   const fetchData = async () => {
     try {
       setLoading(true);
-
       const params = {
         page: pageIndex + 1,
         limit: pageSize,
         location: selectedLocation || undefined,
-        startDate: value.startDate
-          ? new Date(value.startDate).toISOString()
+        startDate: filters.startDate ? new Date(filters.startDate).toISOString() : undefined,
+        endDate: filters.endDate ? new Date(filters.endDate).toISOString() : undefined,
+        checkInStart: filters.checkInStart
+          ? new Date(filters.checkInStart).toISOString()
           : undefined,
-        endDate: value.endDate
-          ? new Date(value.endDate).toISOString()
-          : undefined,
-        checkInStart: value.checkInStart
-          ? new Date(value.checkInStart).toISOString()
-          : undefined,
-        checkInEnd: value.checkInEnd
-          ? new Date(value.checkInEnd).toISOString()
+        checkInEnd: filters.checkInEnd
+          ? new Date(filters.checkInEnd).toISOString()
           : undefined,
       };
 
@@ -77,7 +81,6 @@ const AttendancePage = () => {
         `${process.env.REACT_APP_BASE_URL}/${user.type}/attendence/get-attendances`,
         {
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
           params,
@@ -104,19 +107,13 @@ const AttendancePage = () => {
 
   useEffect(() => {
     fetchData();
-  }, [pageIndex, pageSize, selectedLocation, value]);
+  }, [pageIndex, pageSize, selectedLocation, filters]);
 
-  const handleLocationChange = (event) => {
-    setSelectedLocation(event.target.value);
-  };
-
-  const handleAddTime = (columnName, index) => {
+  // Add new time or note
+  const handleAddTime = (field, index) => {
     setUserData((prevData) => {
       const updatedData = [...prevData];
-      if (!updatedData[index][columnName]) {
-        updatedData[index][columnName] = [];
-      }
-      updatedData[index][columnName].push(new Date().toISOString());
+      updatedData[index][field] = [...(updatedData[index][field] || []), new Date().toISOString()];
       return updatedData;
     });
   };
@@ -126,39 +123,24 @@ const AttendancePage = () => {
     if (newNote) {
       setUserData((prevData) => {
         const updatedData = [...prevData];
-        if (!updatedData[index].note) {
-          updatedData[index].note = [];
-        }
-        updatedData[index].note.push(newNote);
+        updatedData[index].note = [...(updatedData[index].note || []), newNote];
         return updatedData;
       });
     }
   };
 
-  const handleSaveChanges = async (attendanceId) => {
-    console.log("Received attendanceId:", attendanceId); // Debugging
-    const updatedAttendance = userData.find(
-      (data) => data._id === attendanceId
-    );
-    console.log("Updated Attendance Data:", updatedAttendance); // Debugging
-
+  // Save changes to backend
+  const handleSaveChanges = async (rowId) => {
+    const updatedAttendance = userData.find((data) => data._id === rowId);
     if (!updatedAttendance) {
-      alert("Attendance not found!");
+      alert("Attendance record not found.");
       return;
     }
 
-    const payload = {
-      checkInTime: updatedAttendance.checkInTime || [],
-      checkOutTime: updatedAttendance.checkOutTime || [],
-      callingTimes: updatedAttendance.callingTimes || [],
-      note: updatedAttendance.note || [],
-      location: updatedAttendance.location,
-    };
-
     try {
       const response = await axios.put(
-        `${process.env.REACT_APP_BASE_URL}/admin/attendence/update-attendance/${attendanceId}`,
-        payload,
+        `${process.env.REACT_APP_BASE_URL}/admin/attendence/update-attendance/${rowId}`,
+        updatedAttendance,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -166,56 +148,38 @@ const AttendancePage = () => {
         }
       );
 
-      console.log("Server response:", response); // Debugging
-
       if (response.status === 200) {
         alert("Attendance updated successfully!");
-        fetchData();
+        fetchData(); // Refresh data after saving
       } else {
         alert("Failed to update attendance.");
       }
     } catch (error) {
       console.error("Error updating attendance:", error);
-      alert("Failed to update attendance!");
+      alert("Error updating attendance.");
     }
   };
 
+  // Table columns
   const columns = useMemo(
     () => [
-      {
-        Header: "Sr no",
-        accessor: "id",
-        Cell: ({ row, flatRows }) => <span>{flatRows.indexOf(row) + 1}</span>,
-      },
-      {
-        Header: "Employee Name",
-        accessor: "employee.employeeName",
-        Cell: ({ value }) => <span>{value}</span>,
-      },
-      {
-        Header: "Employee Contact",
-        accessor: "employee.contactNumber1",
-        Cell: ({ value }) => <span>{value}</span>,
-      },
-      {
-        Header: "Location",
-        accessor: "location.locationName",
-        Cell: ({ value }) => <span>{value}</span>,
-      },
+      { Header: "Sr No", accessor: "id", Cell: ({ row, flatRows }) => flatRows.indexOf(row) + 1 },
+      { Header: "Accounts", accessor: "location.locationName" },
+      { Header: "Guards", accessor: "employee.employeeName" },
+      { Header: "E.ID", accessor: "employee.employeeIDNumber" },
+
+      { Header: "Phone", accessor: "employee.contactNumber1" },
+      { Header: "Company number", accessor: "employee.contactNumber2" },
+
       {
         Header: "Check-in Time",
         accessor: "checkInTime",
         Cell: ({ value, row }) => (
           <div>
-            {value?.length > 0
-              ? value.map((time, index) => (
-                  <div key={index}>{new Date(time).toLocaleTimeString()}</div>
-                ))
-              : "Not Checked In"}
-            <button
-              className="ml-2 text-blue-500"
-              onClick={() => handleAddTime("checkInTime", row.index)}
-            >
+            {value.map((time, index) => (
+              <div key={index}><b>in</b><br />{new Date(time).toLocaleTimeString()}</div>
+            ))}
+            <button onClick={() => handleAddTime("checkInTime", row.index)}>
               <FaPlus />
             </button>
           </div>
@@ -226,15 +190,10 @@ const AttendancePage = () => {
         accessor: "checkOutTime",
         Cell: ({ value, row }) => (
           <div>
-            {value?.length > 0
-              ? value.map((time, index) => (
-                  <div key={index}>{new Date(time).toLocaleTimeString()}</div>
-                ))
-              : "Not Checked Out"}
-            <button
-              className="ml-2 text-blue-500"
-              onClick={() => handleAddTime("checkOutTime", row.index)}
-            >
+            {value.map((time, index) => (
+              <div key={index}><b>out</b><br />{new Date(time).toLocaleTimeString()}</div>
+            ))}
+            <button onClick={() => handleAddTime("checkOutTime", row.index)}>
               <FaPlus />
             </button>
           </div>
@@ -245,13 +204,10 @@ const AttendancePage = () => {
         accessor: "callingTimes",
         Cell: ({ value, row }) => (
           <div>
-            {value?.length > 0
-              ? value.map((time, index) => <div key={index}>{time}</div>)
-              : "N/A"}
-            <button
-              className="ml-2 text-blue-500"
-              onClick={() => handleAddTime("callingTimes", row.index)}
-            >
+            {value.map((time, index) => (
+              <div key={index}>{new Date(time).toLocaleTimeString()}</div>
+            ))}
+            <button onClick={() => handleAddTime("callingTimes", row.index)}>
               <FaPlus />
             </button>
           </div>
@@ -262,25 +218,16 @@ const AttendancePage = () => {
         accessor: "note",
         Cell: ({ value, row }) => (
           <div>
-            {value?.length > 0
-              ? value.map((note, index) => <div key={index}>{note}</div>)
-              : "N/A"}
-            <button
-              className="ml-2 text-blue-500"
-              onClick={() => handleAddNote(row.index)}
-            >
+            {value.map((note, index) => (
+              <div key={index}>{note}</div>
+            ))}
+            <button onClick={() => handleAddNote(row.index)}>
               <FaPlus />
             </button>
           </div>
         ),
       },
-      {
-        Header: "Created At",
-        accessor: "createdAt",
-        Cell: ({ value }) => (
-          <span>{new Date(value).toLocaleDateString() || "N/A"}</span>
-        ),
-      },
+      { Header: "Created At", accessor: "createdAt", Cell: ({ value }) => new Date(value).toLocaleDateString() },
       {
         Header: "Actions",
         Cell: ({ row }) => (
@@ -293,9 +240,10 @@ const AttendancePage = () => {
         ),
       },
     ],
-    []
+    [userData]
   );
 
+  // Table instance
   const tableInstance = useTable(
     {
       columns,
@@ -325,51 +273,162 @@ const AttendancePage = () => {
     pageOptions,
   } = tableInstance;
 
-  const handlePageChange = (pageIndex) => {
-    gotoPage(pageIndex);
-    setPageIndex(pageIndex);
+
+
+  const exportToExcel = async (selectedLocationName) => {
+    const fileName = "AttendanceData.xlsx";
+    const workbook = new ExcelJS.Workbook();
+    let worksheet;
+  
+    try {
+      // Check if the file already exists by attempting to load it
+      const existingFile = await fetch(fileName);
+      const arrayBuffer = await existingFile.arrayBuffer();
+      await workbook.xlsx.load(arrayBuffer);
+  
+      // Try to get the "Attendance" worksheet
+      worksheet = workbook.getWorksheet("Attendance");
+    } catch (error) {
+      worksheet = workbook.addWorksheet("Attendance");
+  
+      // Define columns
+      worksheet.columns = [
+        { header: "Sr No", key: "srNo", width: 10 },
+        { header: "Account", key: "location", width: 20 },
+        { header: "Guards", key: "employeeName", width: 20 },
+        { header: "E.ID", key: "employeeIDNumber", width: 15 },
+        { header: "Employee Contact", key: "employeeContact", width: 20 },
+        { header: "Company Phone", key: "contactNumber2", width: 20 },
+        { header: "Check-in Times", key: "checkInTimes", width: 30 },
+        { header: "Check-out Times", key: "checkOutTimes", width: 30 },
+        { header: "Calling Times", key: "callingTimes", width: 30 },
+        { header: "Notes", key: "notes", width: 30 },
+        { header: "Created At", key: "createdAt", width: 15 },
+      ];
+  
+      // Add the title row for the location
+      worksheet.mergeCells("A1:K1");
+      const locationCell = worksheet.getCell("A1");
+      locationCell.value = `Location: ${selectedLocationName || "All Locations"}`;
+      locationCell.font = { bold: true, size: 14 };
+      locationCell.alignment = { horizontal: "center", vertical: "middle" };
+  
+      // Add header row
+      worksheet.addRow([
+        "Sr No", "Account", "Guards", "E.ID", "Phone", "Company Phone",
+        "Check-in Times", "Check-out Times", "Calling Times", "Notes", "Created At"
+      ]);
+
+      worksheet.getRow(1).eachCell((cell) => {
+        cell.font = { bold: true, color: { argb: "f4f5f7 " } };
+        cell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FF000000" },
+        };
+        cell.alignment = { horizontal: "center", vertical: "middle" };
+      });
+    
+  
+      // Style the header row
+      worksheet.getRow(2).eachCell((cell) => {
+        cell.font = { bold: true, color: { argb: "FF000000" } };
+        cell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FF808080" },
+        };
+        cell.alignment = { horizontal: "center", vertical: "middle" };
+      });
+    }
+    
+  
+    // Format the time strings
+    const formatTime = (timeString) => {
+      if (!timeString || typeof timeString !== "string") return "";
+      const match = timeString.match(/T(\d{2}:\d{2}:\d{2})/);
+      if (match) timeString = match[1];
+      const date = new Date(`1970-01-01T${timeString}Z`);
+      return isNaN(date.getTime()) ? "" : date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    };
+  
+    // Prepare data for export
+    const data = userData.map((row, index) => ({
+      srNo: worksheet.rowCount - 1 + index + 1, // Adjust Sr No to account for existing rows
+      location: row.location?.locationName || "N/A",
+      employeeName: row.employee?.employeeName || "N/A",
+      employeeIDNumber: row.employee?.employeeIDNumber || "N/A",
+      employeeContact: row.employee?.contactNumber1 || "N/A",
+      contactNumber2: row.employee?.contactNumber2 || "N/A",
+      checkInTimes: (row.checkInTime || []).map(formatTime).join(", "),
+      checkOutTimes: (row.checkOutTime || []).map(formatTime).join(", "),
+      callingTimes: (row.callingTimes || []).map(formatTime).join(", "),
+      notes: (row.note || []).join(", "),
+      createdAt: new Date(row.createdAt).toLocaleDateString(),
+    }));
+  
+    // Add new rows
+    worksheet.addRows(data);
+  
+    // Save the updated workbook to a file
+    workbook.xlsx.writeBuffer().then((buffer) => {
+      saveAs(new Blob([buffer], { type: "application/octet-stream" }), fileName);
+    });
   };
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-  const handlePageSizeChange = (pageSize) => {
-    setPageSize(pageSize);
-    setPageIndex(0);
-  };
-
-  if (loading) {
-    return <div>Loading Attendance...</div>;
-  }
-
+  if (loading) return <div>Loading Attendance...</div>;
   return (
     <div className="min-h-screen bg-white rounded-md shadow-md p-6">
       <div className="flex flex-row items-center justify-between">
         <div className="flex flex-row gap-x-10 items-center mb-4">
           <h2 className="text-2xl font-bold text-gray-700">Attendance Data</h2>
-          <select
-            onChange={handleLocationChange}
-            value={selectedLocation}
-            className="bg-gray-100 px-2 py-2 rounded-md border-1"
-          >
-            <option value="">Select Location</option>
-            {locations.map((loc) => (
-              <option key={loc._id} value={loc._id}>
-                {loc.locationName}
-              </option>
-            ))}
-          </select>
+          {/* <input type="file" id="fileInput" accept=".xlsx" /> */}
+
+          <button             className="px-2 py-1 bg-green-500 text-white rounded-md"
+ onClick={() => exportToExcel(selectedLocation?.locationName)}>
+  Export to Excel
+</button>
+<select
+  onChange={(e) => {
+    const selected = locations.find((loc) => loc._id === e.target.value);
+    setSelectedLocation(selected); // Save the entire location object
+  }}
+  value={selectedLocation?._id || ""}
+  className="bg-gray-100 px-2 py-2 rounded-md border-1"
+>
+  <option value="">Select Location</option>
+  {locations.map((loc) => (
+    <option key={loc._id} value={loc._id}>
+      {loc.locationName}
+    </option>
+  ))}
+</select>
         </div>
+       
         <Button
           icon="heroicons:plus"
           text="Add Attendence"
-          className="btn-dark font-normal btn-sm absolute right-16 top-28"
+          className="btn-dark  font-normal btn-sm absolute right-16 top-28"
           iconClass="text-lg"
           onClick={() => {
             navigate("/attendence-add");
           }}
         />
+       
       </div>
       <div className="bg-gray-100 p-6 rounded-lg shadow-md">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="flex flex-col">
+          {/* <div className="flex flex-col">
             <label className="text-sm font-semibold text-gray-700">
               Start Date:
             </label>
@@ -382,8 +441,8 @@ const AttendancePage = () => {
               }
               className="p-2 mt-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
             />
-          </div>
-          <div className="flex flex-col">
+          </div> */}
+          {/* <div className="flex flex-col">
             <label className="text-sm font-semibold text-gray-700">
               End Date:
             </label>
@@ -396,7 +455,7 @@ const AttendancePage = () => {
               }
               className="p-2 mt-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
             />
-          </div>
+          </div> */}
           <div className="flex flex-col">
             <label className="text-sm font-semibold text-gray-700">
               Check-In Start Time:
@@ -404,9 +463,9 @@ const AttendancePage = () => {
             <input
               type="datetime-local"
               placeholder="YYYY-MM-DDTHH:MM"
-              value={value.checkInStart || ""}
+              value={filters.checkInStart || ""}
               onChange={(e) =>
-                setValue((prev) => ({ ...prev, checkInStart: e.target.value }))
+                setFilters((prev) => ({ ...prev, checkInStart: e.target.value }))
               }
               className="p-2 mt-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
             />
@@ -418,9 +477,9 @@ const AttendancePage = () => {
             <input
               type="datetime-local"
               placeholder="YYYY-MM-DDTHH:MM"
-              value={value.checkInEnd || ""}
+              value={filters.checkInEnd || ""}
               onChange={(e) =>
-                setValue((prev) => ({ ...prev, checkInEnd: e.target.value }))
+                setFilters((prev) => ({ ...prev, checkInEnd: e.target.value }))
               }
               className="p-2 mt-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
             />
@@ -435,7 +494,7 @@ const AttendancePage = () => {
           </button>
           <button
             onClick={() =>
-              setValue({
+              setFilters({
                 startDate: "",
                 endDate: "",
                 checkInStart: "",
@@ -450,45 +509,53 @@ const AttendancePage = () => {
       </div>
 
       <table
-        {...getTableProps()}
-        className="table-auto w-full mt-6 border border-gray-300 shadow-md rounded-lg"
-      >
-        <thead className="bg-gradient-to-r from-[#304352] to-[#d7d2cc] dark:bg-slate-800">
-          {headerGroups.map((headerGroup) => (
-            <tr {...headerGroup.getHeaderGroupProps()} className="text-left">
-              {headerGroup.headers.map((column) => (
-                <th
-                  {...column.getHeaderProps(column.getSortByToggleProps())}
-                  className="table-th text-slate-50"
-                >
-                  {column.render("Header")}
-                  {column.isSorted ? (column.isSortedDesc ? " 🔽" : " 🔼") : ""}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody {...getTableBodyProps()} className="bg-white">
-          {page.map((row) => {
-            prepareRow(row);
-            return (
-              <tr
-                {...row.getRowProps()}
-                className="hover:bg-gray-50 transition duration-200"
+                className="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700"
+                {...getTableProps()}
               >
-                {row.cells.map((cell) => (
-                  <td
-                    {...cell.getCellProps()}
-                    className="px-4 py-2 text-gray-600 border-b border-gray-300"
-                  >
-                    {cell.render("Cell")}
-                  </td>
-                ))}
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+                <thead className="bg-gradient-to-r from-[#304352] to-[#d7d2cc] dark:bg-slate-800">
+                  {headerGroups.map((headerGroup) => (
+                    <tr {...headerGroup.getHeaderGroupProps()}>
+                      {headerGroup.headers.map((column) => (
+                        <th
+                          {...column.getHeaderProps(
+                            column.getSortByToggleProps()
+                          )}
+                          scope="col"
+                          className="table-th text-slate-50"
+                        >
+                          {column.render("Header")}
+                          <span>
+                            {column.isSorted
+                              ? column.isSortedDesc
+                                ? " 🔽"
+                                : " 🔼"
+                              : ""}
+                          </span>
+                        </th>
+                      ))}
+                    </tr>
+                  ))}
+                </thead>
+                <tbody
+                  className="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700"
+                  {...getTableBodyProps()}
+                >
+                  {page.map((row) => {
+                    prepareRow(row);
+                    return (
+                      <tr
+                        {...row.getRowProps()}
+                      >
+                        {row.cells.map((cell) => (
+                          <td {...cell.getCellProps()} className="table-td">
+                            {cell.render("Cell")}
+                          </td>
+                        ))}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
 
       <div className="mt-4 flex flex-wrap items-center justify-between space-y-2">
         <div className="flex items-center space-x-2">

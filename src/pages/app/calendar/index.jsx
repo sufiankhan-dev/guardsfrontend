@@ -8,11 +8,10 @@ import axios from "axios";
 
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
-import Checkbox from "@/components/ui/Checkbox";
 import EventModal from "./EventModal";
 import LoaderCircle from "@/components/Loader-circle";
+import ExternalDraggingevent from "./dragging-events"; // External event component
 import "./../../../assets/scss/utility/_full-calender.scss";
-import ExternalDraggingevent from "./dragging-events";
 
 const CalendarPage = () => {
   const calendarComponentRef = useRef(null);
@@ -38,7 +37,6 @@ const CalendarPage = () => {
       })
       .then((response) => {
         setLocations(response.data);
-        console.log(response.data);
         if (response.data.length > 0) {
           setSelectedLocation(response.data[0]._id); // Default to first location
         }
@@ -53,6 +51,53 @@ const CalendarPage = () => {
     }
   }, [selectedLocation]);
 
+  useEffect(() => {
+    if (calendarComponentRef.current) {
+      const calendarApi = calendarComponentRef.current.getApi();
+      
+      // Use FullCalendar's internal drag-and-drop feature
+      const draggableElements = document.querySelectorAll('#external-events .fc-event');
+      
+      draggableElements.forEach((element) => {
+        new Draggable(element, {
+          eventData: function (eventEl) {
+            return {
+              title: eventEl.innerText.trim(),
+              start: new Date(), // Set the start date as per your requirement
+            };
+          }
+        });
+      });
+  
+      // Now, when an event is dropped, the `eventReceive` event will fire
+      calendarApi.on('eventReceive', (info) => {
+        console.log('Event received:', info.event);
+  
+        // Create a copy of the dropped event
+        const newEvent = {
+          title: info.event.title,
+          start: info.event.start,
+          end: info.event.end,
+        };
+
+        // Make an API call to save the new event
+        axios
+          .post(`${process.env.REACT_APP_BASE_URL}/admin/schedule/create-schedule`, newEvent, {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          })
+          .then(() => {
+            fetchEvents(selectedLocation); // Refresh events after adding
+          })
+          .catch((error) => {
+            console.error('Error adding event:', error);
+          });
+      });
+    }
+  }, [calendarEvents]); // Re-run after calendar events are loaded
+
   const fetchEvents = (locationId) => {
     setIsLoading(true);
     axios
@@ -66,23 +111,13 @@ const CalendarPage = () => {
         }
       )
       .then((response) => {
-        const colors = [
-          "primary",
-          "secondary",
-          "danger",
-          "info",
-          "warning",
-          "success",
-          "dark",
-        ];
-        console.log("responese", response.data);
+        const colors = ["primary", "secondary", "danger", "info", "warning", "success", "dark"];
         const events = response.data.map((schedule, index) => {
           const eventDate = new Date(schedule.date);
           eventDate.setHours(0, 0, 0, 0);
-          const timezoneOffset = eventDate.getTimezoneOffset() * 60000; // Convert offset to milliseconds
-          eventDate.setTime(eventDate.getTime() + timezoneOffset); // Set end date to the next day
+          const timezoneOffset = eventDate.getTimezoneOffset() * 60000;
+          eventDate.setTime(eventDate.getTime() + timezoneOffset);
 
-          // Format start and end time
           const formatTime = (time) => {
             const date = new Date(`1970-01-01T${time}Z`);
             return date.toLocaleTimeString([], {
@@ -108,7 +143,6 @@ const CalendarPage = () => {
           };
         });
         setCalendarEvents(events);
-        console.log("Calender Events:", calendarEvents);
         setIsLoading(false);
       })
       .catch((error) => {
@@ -116,20 +150,12 @@ const CalendarPage = () => {
         setIsLoading(false);
       });
   };
-  const handleAddEvent = (newEvent) => {
-    console.log("Selected Location:", selectedLocation); // Check if locationId is present
-    console.log("Event Date:", newEvent.date); // Check if date is valid
-    console.log("Event Start Time:", newEvent.startTime); // Check if startTime is valid
-    console.log("Event End Time:", newEvent.endTime); // Check if endTime is valid
-    console.log("Assigned Employee ID:", newEvent.assignedEmployee);
 
+  const handleAddEvent = (newEvent) => {
     const eventDate = new Date(newEvent.date);
     eventDate.setHours(0, 0, 0, 0); // Set time to midnight for consistency
+    const formattedDate = eventDate.toISOString(); // Format date for API
 
-    eventDate.setDate(eventDate.getDate() + 1);
-
-    // const formattedDate = eventDate.toISOString(); // Convert to ISO format
-    const formattedDate = new Date(selectedEvent).toISOString(); // Format date for API
     axios
       .post(
         `${process.env.REACT_APP_BASE_URL}/admin/schedule/create-schedule`,
@@ -151,7 +177,6 @@ const CalendarPage = () => {
           },
         }
       )
-
       .then(() => {
         fetchEvents(selectedLocation); // Refresh events after adding
       })
@@ -166,7 +191,6 @@ const CalendarPage = () => {
   const handleDateClick = (arg) => {
     setEditEvent(null);
     setShowModal(true);
-    console.log("Handle date click Arg:", arg.date);
     setSelectedEvent(arg.date);
   };
 
@@ -185,7 +209,6 @@ const CalendarPage = () => {
     setCalendarEvents((prevEvents) =>
       prevEvents.filter((event) => event.id !== eventId)
     );
-
     fetchEvents(selectedLocation);
   };
 
@@ -200,10 +223,7 @@ const CalendarPage = () => {
   const events = [
     { id: 1, title: "Admin", tag: "business" },
     { id: 2, title: "Employees", tag: "meeting" },
-   
   ];
-
-  // console.log("Calender Event", );
 
   return (
     <div className="dashcode-calender">
@@ -233,8 +253,8 @@ const CalendarPage = () => {
             onClick={() => setShowModal(!showModal)}
           />
 
-          <div id="external-events" className=" space-y-1.5 mt-6 ">
-            <p className=" text-sm pb-2">
+          <div id="external-events" className="space-y-1.5 mt-6">
+            <p className="text-sm pb-2">
               Drag and drop your event or click in the calendar
             </p>
             {events.map((event) => (
@@ -244,55 +264,73 @@ const CalendarPage = () => {
         </Card>
 
         <Card className="lg:col-span-9 col-span-12">
-          <FullCalendar
-            plugins={[
-              dayGridPlugin,
-              timeGridPlugin,
-              interactionPlugin,
-              listPlugin,
-            ]}
-            ref={calendarComponentRef}
-            headerToolbar={{
-              left: "prev,next today",
-              center: "title",
-              right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek",
-            }}
-            events={calendarEvents}
-            editable={true}
-            selectable={true}
-            eventContent={(arg) => {
-              const { startTime, endTime } = arg.event.extendedProps;
+        <FullCalendar
+  plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
+  ref={calendarComponentRef}
+  headerToolbar={{
+    left: "prev,next today",
+    center: "title",
+    right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek",
+  }}
+  events={calendarEvents}
+  editable={true}
+  selectable={true}
+  eventContent={(arg) => {
+    const { startTime, endTime } = arg.event.extendedProps;
 
-              return (
-                <div>
-                  <div
-                    style={{
-                      whiteSpace: "normal", // Allow text to break into multiple lines
-                      wordWrap: "break-word", // Break the word if necessary
-                      maxWidth: "100%", // Ensure it doesn't overflow its container
-                      lineHeight: "1.2", // Optional: Adjust line height for better readability
-                    }}
-                  >
-                    {arg.event.title}
-                  </div>{" "}
-                  {/* Employee name */}
-                  <div
-                    style={{
-                      fontSize: "0.65rem",
-                      color: "#ffffff",
-                      textAlign: "center",
-                    }}
-                  >
-                    {startTime} - {endTime}
-                  </div>{" "}
-                  {/* Start and End time on new line */}
-                </div>
-              );
-            }}
-            dateClick={handleDateClick}
-            eventClick={handleEventClick}
-            initialView="dayGridMonth"
-          />
+    return (
+      <div>
+        <div
+          style={{
+            whiteSpace: "normal", // Allow text to break into multiple lines
+            wordWrap: "break-word", // Break the word if necessary
+            maxWidth: "100%", // Ensure it doesn't overflow its container
+            lineHeight: "1.2", // Optional: Adjust line height for better readability
+          }}
+        >
+          {arg.event.title}
+        </div>
+        <div
+          style={{
+            fontSize: "1rem",
+            color: "#ffffff",
+            textAlign: "center",
+          }}
+        >
+          {startTime} - {endTime}
+        </div>
+      </div>
+    );
+  }}
+  dateClick={handleDateClick}
+  eventClick={handleEventClick}
+  eventDrop={(arg) => {
+    // Copy the event instead of moving it
+    const newEvent = {
+      title: arg.event.title,
+      start: arg.event.start, // New start date after drop
+      end: arg.event.end,     // New end date after drop
+      extendedProps: arg.event.extendedProps, // Use the original event's extended props
+    };
+
+    // Send the new event to the backend
+    axios
+      .post(`${process.env.REACT_APP_BASE_URL}/admin/schedule/create-schedule`, newEvent, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then(() => {
+        fetchEvents(selectedLocation); // Refresh events after adding
+      })
+      .catch((error) => {
+        console.error("Error adding event:", error);
+      });
+  }}
+  initialView="dayGridMonth"
+/>
+
         </Card>
       </div>
 
@@ -310,224 +348,3 @@ const CalendarPage = () => {
 };
 
 export default CalendarPage;
-
-// import React, { useState, useEffect, useRef } from "react";
-// import FullCalendar from "@fullcalendar/react";
-// import dayGridPlugin from "@fullcalendar/daygrid";
-// import timeGridPlugin from "@fullcalendar/timegrid";
-// import interactionPlugin from "@fullcalendar/interaction";
-// import listPlugin from "@fullcalendar/list";
-// import axios from "axios";
-
-// import Card from "@/components/ui/Card";
-// import Button from "@/components/ui/Button";
-// import EventModal from "./EventModal";
-// import LoaderCircle from "@/components/Loader-circle";
-// import "./../../../assets/scss/utility/_full-calender.scss";
-// import ExternalDraggingevent from "./dragging-events";
-
-// const CalendarPage = () => {
-//   const calendarComponentRef = useRef(null);
-//   const [calendarEvents, setCalendarEvents] = useState([]);
-//   const [locations, setLocations] = useState([]);
-//   const [selectedLocation, setSelectedLocation] = useState(null);
-//   const [showModal, setShowModal] = useState(false);
-//   const [selectedEvent, setSelectedEvent] = useState(null);
-//   const [editEvent, setEditEvent] = useState(null);
-//   const [isLoading, setIsLoading] = useState(true);
-
-//   const currentMonth = new Date().getMonth() + 1;
-//   const currentYear = new Date().getFullYear();
-
-//   // Fetch locations
-//   useEffect(() => {
-//     axios
-//       .get(`${process.env.REACT_APP_BASE_URL}/admin/location/get-locations`, {
-//         headers: {
-//           "Content-Type": "application/json",
-//           Authorization: `Bearer ${localStorage.getItem("token")}`,
-//         },
-//       })
-//       .then((response) => {
-//         setLocations(response.data);
-//         if (response.data.length > 0) {
-//           setSelectedLocation(response.data[0]._id); // Default to first location
-//         }
-//       })
-//       .catch((error) => console.error("Error fetching locations:", error));
-//   }, []);
-
-//   // Fetch events when location changes
-//   useEffect(() => {
-//     if (selectedLocation) {
-//       fetchEvents(selectedLocation);
-//     }
-//   }, [selectedLocation]);
-
-//   const fetchEvents = (locationId) => {
-//     setIsLoading(true);
-//     axios
-//       .get(
-//         `${process.env.REACT_APP_BASE_URL}/event/get-events?locationId=${locationId}&month=${currentMonth}&year=${currentYear}`,
-//         {
-//           headers: {
-//             Authorization: `Bearer ${localStorage.getItem("token")}`,
-//           },
-//         }
-//       )
-//       .then((response) => {
-//         const events = response.data.map((schedule) => ({
-//           title: schedule.events[0].assignedEmployee.employeeName,
-//           start: schedule.date,
-//           end: schedule.date,
-//           extendedProps: {
-//             startTime: schedule.events[0].startTime,
-//             endTime: schedule.events[0].endTime,
-//           },
-//         }));
-//         setCalendarEvents(events);
-//         setIsLoading(false);
-//       })
-//       .catch((error) => {
-//         console.error("Error fetching events:", error);
-//         setIsLoading(false);
-//       });
-//   };
-
-//   const handleAddEvent = (newEvent) => {
-//     axios
-//       .post(
-//         `${process.env.REACT_APP_BASE_URL}/admin/event/create-events`,
-//         {
-//           locationId: selectedLocation,
-//           date: newEvent.date,
-//           events: [
-//             {
-//               startTime: newEvent.startTime,
-//               endTime: newEvent.endTime,
-//               assignedEmployee: newEvent.assignedEmployeeId,
-//             },
-//           ],
-//         },
-//         {
-//           headers: {
-//             Authorization: `Bearer ${localStorage.getItem("token")}`,
-//           },
-//         }
-//       )
-//       .then(() => {
-//         fetchEvents(selectedLocation);
-//       })
-//       .catch((error) =>
-//         console.error("Error adding event:", error.response.data)
-//       );
-//   };
-
-//   const handleDeleteEvent = (id) => {
-//     axios
-//       .delete(
-//         `${process.env.REACT_APP_BASE_URL}/admin/event/delete-events/${id}`,
-//         {
-//           headers: {
-//             Authorization: `Bearer ${localStorage.getItem("token")}`,
-//           },
-//         }
-//       )
-//       .then(() => {
-//         fetchEvents(selectedLocation); // Refresh events
-//       })
-//       .catch((error) => console.error("Error deleting event:", error));
-//   };
-
-//   const handleDateClick = (arg) => {
-//     setEditEvent(null);
-//     setShowModal(true);
-//     setSelectedEvent(arg);
-//   };
-
-//   const handleEventClick = (arg) => {
-//     setShowModal(true);
-//     setEditEvent(arg);
-//   };
-
-//   const handleCloseModal = () => {
-//     setShowModal(false);
-//     setEditEvent(null);
-//     setSelectedEvent(null);
-//   };
-
-//   if (isLoading) {
-//     return <LoaderCircle />;
-//   }
-
-//   return (
-//     <div className="dashcode-calender">
-//       <div className="grid grid-cols-12 gap-4">
-//         <Card className="lg:col-span-3 col-span-12">
-//           <div className="mb-4">
-//             <label htmlFor="location-select">Select Location:</label>
-//             <select
-//               id="location-select"
-//               value={selectedLocation}
-//               onChange={(e) => setSelectedLocation(e.target.value)}
-//               className="w-full mt-2 p-2 border border-gray-300"
-//             >
-//               {locations.map((location) => (
-//                 <option key={location._id} value={location._id}>
-//                   {location.locationName}
-//                 </option>
-//               ))}
-//             </select>
-//           </div>
-
-//           <Button
-//             icon="heroicons-outline:plus"
-//             text="Add Event"
-//             className="btn-dark w-full block"
-//             onClick={() => setShowModal(!showModal)}
-//           />
-
-//           <div id="external-events" className="space-y-1.5 mt-6">
-//             <p className="text-sm pb-2">
-//               Drag and drop your event or click in the calendar
-//             </p>
-//             {/* Dragging events here */}
-//           </div>
-//         </Card>
-
-//         <Card className="lg:col-span-9 col-span-12">
-//           <FullCalendar
-//             plugins={[
-//               dayGridPlugin,
-//               timeGridPlugin,
-//               interactionPlugin,
-//               listPlugin,
-//             ]}
-//             ref={calendarComponentRef}
-//             headerToolbar={{
-//               left: "prev,next today",
-//               center: "title",
-//               right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek",
-//             }}
-//             events={calendarEvents}
-//             editable={true}
-//             selectable={true}
-//             dateClick={handleDateClick}
-//             eventClick={handleEventClick}
-//             initialView="dayGridMonth"
-//           />
-//         </Card>
-//       </div>
-
-//       <EventModal
-//         show={showModal}
-//         onClose={handleCloseModal}
-//         selectedEvent={selectedEvent}
-//         editEvent={editEvent}
-//         onAddEvent={handleAddEvent}
-//       />
-//     </div>
-//   );
-// };
-
-// export default CalendarPage;
