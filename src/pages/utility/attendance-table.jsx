@@ -14,6 +14,7 @@ import { FaPlus } from "react-icons/fa";
 import Button from "@/components/ui/Button";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
+import Card from "@/components/ui/Card";
 
 const AttendancePage = () => {
   const navigate = useNavigate();
@@ -60,50 +61,72 @@ const AttendancePage = () => {
   }, []);
 
   // Fetch attendance data
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const params = {
-        page: pageIndex + 1,
-        limit: pageSize,
-        location: selectedLocation || undefined,
-        startDate: filters.startDate ? new Date(filters.startDate).toISOString() : undefined,
-        endDate: filters.endDate ? new Date(filters.endDate).toISOString() : undefined,
-        checkInStart: filters.checkInStart
-          ? new Date(filters.checkInStart).toISOString()
-          : undefined,
-        checkInEnd: filters.checkInEnd
-          ? new Date(filters.checkInEnd).toISOString()
-          : undefined,
-      };
+ // Fetch attendance data
+// Fetch attendance data
+const fetchData = async () => {
+  try {
+    setLoading(true);
 
-      const response = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}/${user.type}/attendence/get-attendances`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          params,
-        }
-      );
-
-      const updatedData = response.data.attendances.map((attendance) => ({
-        ...attendance,
-        checkInTime: attendance.checkInTime || [],
-        checkOutTime: attendance.checkOutTime || [],
-        callingTimes: attendance.callingTimes || [],
-        note: attendance.note || [],
-      }));
-
-      setUserData(updatedData);
-      setTotal(response.data.total);
-      setHasNextPage(response.data.hasNextPage);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setLoading(false);
+    // Validate the date range before proceeding
+    if (filters.checkInStart && filters.checkInEnd) {
+      const startTime = new Date(filters.checkInStart);
+      const endTime = new Date(filters.checkInEnd);
+      if (endTime < startTime) {
+        alert("End time cannot be earlier than start time.");
+        setLoading(false);
+        return;
+      }
     }
-  };
+
+    // Prepare API parameters
+    const params = {
+      page: pageIndex + 1,
+      limit: pageSize,
+      location: selectedLocation || undefined,
+      startDate: filters.startDate ? new Date(filters.startDate).toISOString() : undefined,
+      endDate: filters.endDate ? new Date(filters.endDate).toISOString() : undefined,
+      checkInStart: filters.checkInStart ? new Date(filters.checkInStart).toISOString() : undefined,
+      checkInEnd: filters.checkInEnd ? new Date(filters.checkInEnd).toISOString() : undefined,
+    };
+
+    // Send request to backend
+    const response = await axios.get(
+      `${process.env.REACT_APP_BASE_URL}/${user.type}/attendence/get-attendances`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        params,
+      }
+    );
+
+    // Handle empty results
+    if (response.data.attendances.length === 0) {
+      alert("No records found for the selected time range.");
+    }
+
+    // Update state with fetched data
+    const updatedData = response.data.attendances.map((attendance) => ({
+      ...attendance,
+      checkInTime: attendance.checkInTime || [],
+      checkOutTime: attendance.checkOutTime || [],
+      callingTimes: attendance.callingTimes || [],
+      note: attendance.note || [],
+    }));
+
+    setUserData(updatedData);
+    setTotal(response.data.total);
+    setHasNextPage(response.data.hasNextPage);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  } finally {
+    setLoading(false); // Remove loading once data has been fetched
+  }
+};
+
+
+
+  
 
   useEffect(() => {
     fetchData();
@@ -388,81 +411,63 @@ const AttendancePage = () => {
 
   if (loading) return <div>Loading Attendance...</div>;
   return (
-    <div className="min-h-screen bg-white rounded-md shadow-md p-6">
-      <div className="flex flex-row items-center justify-between">
-        <div className="flex flex-row gap-x-10 items-center mb-4">
-          <h2 className="text-2xl font-bold text-gray-700">Attendance Data</h2>
-          {/* <input type="file" id="fileInput" accept=".xlsx" /> */}
-
-          <button             className="px-2 py-1 bg-green-500 text-white rounded-md"
- onClick={() => exportToExcel(selectedLocation?.locationName)}>
-  Export to Excel
-</button>
-<select
-  onChange={(e) => {
-    const selected = locations.find((loc) => loc._id === e.target.value);
-    setSelectedLocation(selected); // Save the entire location object
-  }}
-  value={selectedLocation?._id || ""}
-  className="bg-gray-100 px-2 py-2 rounded-md border-1"
->
-  <option value="">Select Location</option>
-  {locations.map((loc) => (
-    <option key={loc._id} value={loc._id}>
-      {loc.locationName}
-    </option>
-  ))}
-</select>
+    <Card>
+    <div className="overflow-x-auto mt-6 max-w-full">
+      <div className="flex flex-col md:flex-row items-center justify-between mb-4">
+        
+        <div className="flex flex-col md:flex-row gap-4 md:gap-10 items-center mb-4 w-full md:w-auto">
+          <h2 className="text-2xl font-bold text-gray-700 flex-1">Attendance Data</h2>
+          
+  
+          {/* Export to Excel Button */}
+          <button
+            className="px-4 py-2 bg-green-500 text-white rounded-md"
+            onClick={() => exportToExcel(selectedLocation?.locationName)}
+          >
+            Export to Excel
+          </button>
+  
+          {/* Select Location */}
+          <select
+            onChange={(e) => {
+              const selected = locations.find((loc) => loc._id === e.target.value);
+              setSelectedLocation(selected);
+            }}
+            value={selectedLocation?._id || ""}
+            className="bg-gray-100 px-4 py-2 rounded-md border-1 w-full md:w-auto"
+          >
+            <option value="">Select Location</option>
+            {locations.map((loc) => (
+              <option key={loc._id} value={loc._id}>
+                {loc.locationName}
+              </option>
+            ))}
+          </select>
+          
         </div>
-       
         <Button
           icon="heroicons:plus"
-          text="Add Attendence"
-          className="btn-dark  font-normal btn-sm absolute right-16 top-28"
+          text="Add Attendance"
+          className="btn-dark font-normal btn-sm md:absolute right-16 "
           iconClass="text-lg"
           onClick={() => {
             navigate("/attendence-add");
           }}
         />
+        
+  
        
+      
       </div>
+  
+      {/* Filters Section */}
       <div className="bg-gray-100 p-6 rounded-lg shadow-md">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* <div className="flex flex-col">
-            <label className="text-sm font-semibold text-gray-700">
-              Start Date:
-            </label>
-            <input
-              type="date"
-              placeholder="YYYY-MM-DD"
-              value={value.startDate || ""}
-              onChange={(e) =>
-                setValue((prev) => ({ ...prev, startDate: e.target.value }))
-              }
-              className="p-2 mt-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-            />
-          </div> */}
-          {/* <div className="flex flex-col">
-            <label className="text-sm font-semibold text-gray-700">
-              End Date:
-            </label>
-            <input
-              type="date"
-              placeholder="YYYY-MM-DD"
-              value={value.endDate || ""}
-              onChange={(e) =>
-                setValue((prev) => ({ ...prev, endDate: e.target.value }))
-              }
-              className="p-2 mt-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-            />
-          </div> */}
+          {/* Check-In Start Time */}
           <div className="flex flex-col">
-            <label className="text-sm font-semibold text-gray-700">
-              Check-In Start Time:
-            </label>
+            <label className="text-sm font-semibold text-gray-700">Check-In Start Time:</label>
             <input
               type="datetime-local"
-              placeholder="YYYY-MM-DDTHH:MM"
               value={filters.checkInStart || ""}
               onChange={(e) =>
                 setFilters((prev) => ({ ...prev, checkInStart: e.target.value }))
@@ -470,13 +475,12 @@ const AttendancePage = () => {
               className="p-2 mt-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
             />
           </div>
+  
+          {/* Check-In End Time */}
           <div className="flex flex-col">
-            <label className="text-sm font-semibold text-gray-700">
-              Check-In End Time:
-            </label>
+            <label className="text-sm font-semibold text-gray-700">Check-In End Time:</label>
             <input
               type="datetime-local"
-              placeholder="YYYY-MM-DDTHH:MM"
               value={filters.checkInEnd || ""}
               onChange={(e) =>
                 setFilters((prev) => ({ ...prev, checkInEnd: e.target.value }))
@@ -485,10 +489,12 @@ const AttendancePage = () => {
             />
           </div>
         </div>
-        <div className="flex gap-4 mt-4">
+  
+        {/* Filter and Clear Buttons */}
+        <div className="flex gap-4 mt-4 flex-wrap">
           <button
             onClick={fetchData}
-            className="px-4 py-2 bg-black-500 text-white rounded-md shadow-md hover:bg-black-700 transition"
+            className="px-4 py-2 bg-black-500 text-white rounded-md shadow-md hover:bg-black-700 transition w-full sm:w-auto"
           >
             Apply Filters
           </button>
@@ -501,62 +507,55 @@ const AttendancePage = () => {
                 checkInEnd: "",
               })
             }
-            className="px-4 py-2 bg-white text-gray-800 rounded-md shadow-md hover:bg-gray-400 transition"
+            className="px-4 py-2 bg-white text-gray-800 rounded-md shadow-md hover:bg-gray-400 transition w-full sm:w-auto"
           >
             Clear Filters
           </button>
         </div>
       </div>
-
-      <table
-                className="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700"
-                {...getTableProps()}
-              >
-                <thead className="bg-gradient-to-r from-[#304352] to-[#d7d2cc] dark:bg-slate-800">
-                  {headerGroups.map((headerGroup) => (
-                    <tr {...headerGroup.getHeaderGroupProps()}>
-                      {headerGroup.headers.map((column) => (
-                        <th
-                          {...column.getHeaderProps(
-                            column.getSortByToggleProps()
-                          )}
-                          scope="col"
-                          className="table-th text-slate-50"
-                        >
-                          {column.render("Header")}
-                          <span>
-                            {column.isSorted
-                              ? column.isSortedDesc
-                                ? " 🔽"
-                                : " 🔼"
-                              : ""}
-                          </span>
-                        </th>
-                      ))}
-                    </tr>
+  
+      {/* Attendance Table */}
+      <div className="overflow-x-auto mt-6 max-w-full">
+      <table className="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700" {...getTableProps()}>
+          <thead className="bg-gradient-to-r from-[#304352] to-[#d7d2cc] dark:bg-slate-800">
+            {headerGroups.map((headerGroup) => (
+              <tr {...headerGroup.getHeaderGroupProps()}>
+                {headerGroup.headers.map((column) => (
+                  <th
+                    {...column.getHeaderProps(column.getSortByToggleProps())}
+                    scope="col"
+                    className="table-th text-slate-50"
+                  >
+                    {column.render("Header")}
+                    <span>
+                      {column.isSorted ? (column.isSortedDesc ? " 🔽" : " 🔼") : ""}
+                    </span>
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody
+            className="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700"
+            {...getTableBodyProps()}
+          >
+            {page.map((row) => {
+              prepareRow(row);
+              return (
+                <tr {...row.getRowProps()}>
+                  {row.cells.map((cell) => (
+                    <td {...cell.getCellProps()} className="table-td">
+                      {cell.render("Cell")}
+                    </td>
                   ))}
-                </thead>
-                <tbody
-                  className="bg-white divide-y divide-slate-100 dark:bg-slate-800 dark:divide-slate-700"
-                  {...getTableBodyProps()}
-                >
-                  {page.map((row) => {
-                    prepareRow(row);
-                    return (
-                      <tr
-                        {...row.getRowProps()}
-                      >
-                        {row.cells.map((cell) => (
-                          <td {...cell.getCellProps()} className="table-td">
-                            {cell.render("Cell")}
-                          </td>
-                        ))}
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+  
+      {/* Pagination Section */}
       <div className="mt-4 flex flex-wrap items-center justify-between space-y-2">
         <div className="flex items-center space-x-2">
           <button
@@ -589,10 +588,7 @@ const AttendancePage = () => {
           </button>
         </div>
         <span className="text-gray-700 font-medium">
-          Page{" "}
-          <strong>
-            {pageIndex + 1} of {pageOptions.length}
-          </strong>
+          Page <strong>{pageIndex + 1} of {pageOptions.length}</strong>
         </span>
         <select
           value={pageSize}
@@ -607,6 +603,9 @@ const AttendancePage = () => {
         </select>
       </div>
     </div>
+    </Card>
+  
+  
   );
 };
 

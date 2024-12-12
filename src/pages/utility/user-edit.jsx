@@ -184,6 +184,7 @@ const UserEditPage = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
+                  readOnly
                 />
                 {errors.email && (
                   <p className="text-red-500 text-xs">{errors.email}</p>
