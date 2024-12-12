@@ -78,18 +78,20 @@ const fetchData = async () => {
       }
     }
 
-    // Prepare API parameters
     const params = {
       page: pageIndex + 1,
       limit: pageSize,
       location: selectedLocation || undefined,
       startDate: filters.startDate ? new Date(filters.startDate).toISOString() : undefined,
       endDate: filters.endDate ? new Date(filters.endDate).toISOString() : undefined,
-      checkInStart: filters.checkInStart ? new Date(filters.checkInStart).toISOString() : undefined,
-      checkInEnd: filters.checkInEnd ? new Date(filters.checkInEnd).toISOString() : undefined,
+      checkInStart: filters.checkInStart
+        ? new Date(filters.checkInStart).toISOString()
+        : undefined,
+      checkInEnd: filters.checkInEnd
+        ? new Date(filters.checkInEnd).toISOString()
+        : undefined,
     };
 
-    // Send request to backend
     const response = await axios.get(
       `${process.env.REACT_APP_BASE_URL}/${user.type}/attendence/get-attendances`,
       {
@@ -100,12 +102,11 @@ const fetchData = async () => {
       }
     );
 
-    // Handle empty results
+    // Check if there are any results
     if (response.data.attendances.length === 0) {
       alert("No records found for the selected time range.");
     }
 
-    // Update state with fetched data
     const updatedData = response.data.attendances.map((attendance) => ({
       ...attendance,
       checkInTime: attendance.checkInTime || [],
@@ -123,7 +124,6 @@ const fetchData = async () => {
     setLoading(false); // Remove loading once data has been fetched
   }
 };
-
 
 
   
