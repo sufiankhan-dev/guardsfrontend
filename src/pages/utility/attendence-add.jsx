@@ -1,5 +1,3 @@
-// New file created by me
-
 import React, { useState, useRef, useEffect } from "react";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
@@ -51,11 +49,10 @@ const AttendenceAddPage = () => {
       }
     };
 
-    // Fetch location data
     const fetchLocations = async () => {
       try {
         const response = await axios.get(
-          `${process.env.REACT_APP_BASE_URL}/admin/location/get-locations`, // Replace with correct endpoint
+          `${process.env.REACT_APP_BASE_URL}/admin/location/get-locations`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -118,7 +115,7 @@ const AttendenceAddPage = () => {
 
       if (response.status === 201) {
         toast.success("Attendance added successfully");
-        navigate("/attendance"); // Adjust as per your routes
+        navigate("/attendance");
       }
     } catch (error) {
       console.error("Error adding attendance:", error);
@@ -131,14 +128,11 @@ const AttendenceAddPage = () => {
     navigate("/attendance");
   };
 
-  // console.log(formData);
   return (
     <div className="max-w-6xl mx-auto mt-8">
       <Card title="Create Attendence">
         <div className="grid lg:grid-cols-1 grid-cols-1 gap-8">
-          {/* Personal Information */}
           <div>
-            {/* <h3 className="text-lg font-semibold mb-4">Personal Information</h3> */}
             <div className="space-y-4">
               <label htmlFor="employeeId" className="form-label">
                 Select Employee
@@ -172,64 +166,6 @@ const AttendenceAddPage = () => {
               {errors.locationId && (
                 <p className="text-red-500">{errors.locationId}</p>
               )}
-
-              {/* Check-in Time */}
-              {/* <label htmlFor="checkInTime" className="form-label">
-                Check-in Time
-              </label>
-              <Flatpickr
-                value={formData.checkInTime}
-                onChange={(date) =>
-                  setFormData({ ...formData, checkInTime: date[0] })
-                }
-                options={{ enableTime: true, dateFormat: "Y-m-d H:i" }}
-                className="form-input py-2 border-2 rounded-md px-2"
-                placeholder="Select Check-in Time"
-              /> */}
-              {/* {errors.checkInTime && (
-                <p className="text-red-500">{errors.checkInTime}</p>
-              )} */}
-
-              {/* Check-in Location Name */}
-              {/* <Textinput
-                label="Check-in Address"
-                type="text"
-                placeholder="Enter Check-in Address"
-                value={formData.checkInLocationName}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    checkInLocationName: e.target.value,
-                  })
-                }
-              /> */}
-              {/* {errors.checkInLocationName && (
-                <p className="text-red-500">{errors.checkInLocationName}</p>
-              )} */}
-
-              {/* Contact Number */}
-              {/* <Textinput
-                label="Contact Number"
-                type="text"
-                placeholder="Enter Contact Number"
-                value={formData.contactNumber}
-                onChange={(e) =>
-                  setFormData({ ...formData, contactNumber: e.target.value })
-                }
-              /> */}
-              {/* {errors.contactNumber && (
-                <p className="text-red-500">{errors.contactNumber}</p>
-              )} */}
-
-              {/* <Textinput
-                label="Notes"
-                type="text"
-                placeholder="Enter Notes"
-                value={formData.notes}
-                onChange={(e) =>
-                  setFormData({ ...formData, notes: e.target.value })
-                }
-              /> */}
             </div>
           </div>
         </div>

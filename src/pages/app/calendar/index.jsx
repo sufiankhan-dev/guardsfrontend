@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import FullCalendar from "@fullcalendar/react"; // must go before plugins
+import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin, { Draggable } from "@fullcalendar/interaction";
@@ -10,7 +10,7 @@ import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import EventModal from "./EventModal";
 import LoaderCircle from "@/components/Loader-circle";
-import ExternalDraggingevent from "./dragging-events"; // External event component
+import ExternalDraggingevent from "./dragging-events";
 import "./../../../assets/scss/utility/_full-calender.scss";
 
 const CalendarPage = () => {
@@ -27,7 +27,6 @@ const CalendarPage = () => {
   const currentYear = new Date().getFullYear();
 
   useEffect(() => {
-    // Fetch available locations
     axios
       .get(`${process.env.REACT_APP_BASE_URL}/admin/location/get-locations`, {
         headers: {
@@ -38,14 +37,13 @@ const CalendarPage = () => {
       .then((response) => {
         setLocations(response.data);
         if (response.data.length > 0) {
-          setSelectedLocation(response.data[0]._id); // Default to first location
+          setSelectedLocation(response.data[0]._id);
         }
       })
       .catch((error) => console.error("Error fetching locations:", error));
   }, []);
 
   useEffect(() => {
-    // Fetch events when the location changes
     if (selectedLocation) {
       fetchEvents(selectedLocation);
     }
@@ -54,49 +52,51 @@ const CalendarPage = () => {
   useEffect(() => {
     if (calendarComponentRef.current) {
       const calendarApi = calendarComponentRef.current.getApi();
-      
-      // Use FullCalendar's internal drag-and-drop feature
-      const draggableElements = document.querySelectorAll('#external-events .fc-event');
-      
+
+      const draggableElements = document.querySelectorAll(
+        "#external-events .fc-event"
+      );
+
       draggableElements.forEach((element) => {
         new Draggable(element, {
           eventData: function (eventEl) {
             return {
               title: eventEl.innerText.trim(),
-              start: new Date(), // Set the start date as per your requirement
+              start: new Date(),
             };
-          }
+          },
         });
       });
-  
-      // Now, when an event is dropped, the `eventReceive` event will fire
-      calendarApi.on('eventReceive', (info) => {
-        console.log('Event received:', info.event);
-  
-        // Create a copy of the dropped event
+
+      calendarApi.on("eventReceive", (info) => {
+        console.log("Event received:", info.event);
+
         const newEvent = {
           title: info.event.title,
           start: info.event.start,
           end: info.event.end,
         };
 
-        // Make an API call to save the new event
         axios
-          .post(`${process.env.REACT_APP_BASE_URL}/admin/schedule/create-schedule`, newEvent, {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          })
+          .post(
+            `${process.env.REACT_APP_BASE_URL}/admin/schedule/create-schedule`,
+            newEvent,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+            }
+          )
           .then(() => {
-            fetchEvents(selectedLocation); // Refresh events after adding
+            fetchEvents(selectedLocation);
           })
           .catch((error) => {
-            console.error('Error adding event:', error);
+            console.error("Error adding event:", error);
           });
       });
     }
-  }, [calendarEvents]); // Re-run after calendar events are loaded
+  }, [calendarEvents]);
 
   const fetchEvents = (locationId) => {
     setIsLoading(true);
@@ -111,7 +111,15 @@ const CalendarPage = () => {
         }
       )
       .then((response) => {
-        const colors = ["primary", "secondary", "danger", "info", "warning", "success", "dark"];
+        const colors = [
+          "primary",
+          "secondary",
+          "danger",
+          "info",
+          "warning",
+          "success",
+          "dark",
+        ];
         const events = response.data.map((schedule, index) => {
           const eventDate = new Date(schedule.date);
           eventDate.setHours(0, 0, 0, 0);
@@ -132,7 +140,7 @@ const CalendarPage = () => {
           return {
             date: schedule.date,
             id: schedule._id,
-            title: `${schedule.events[0].assignedEmployee}`, // Add times to title
+            title: `${schedule.events[0].assignedEmployee}`,
             start: schedule.date,
             end: schedule.date,
             classNames: [colors[index % colors.length]],
@@ -153,8 +161,8 @@ const CalendarPage = () => {
 
   const handleAddEvent = (newEvent) => {
     const eventDate = new Date(newEvent.date);
-    eventDate.setHours(0, 0, 0, 0); // Set time to midnight for consistency
-    const formattedDate = eventDate.toISOString(); // Format date for API
+    eventDate.setHours(0, 0, 0, 0);
+    const formattedDate = eventDate.toISOString();
 
     axios
       .post(
@@ -178,7 +186,7 @@ const CalendarPage = () => {
         }
       )
       .then(() => {
-        fetchEvents(selectedLocation); // Refresh events after adding
+        fetchEvents(selectedLocation);
       })
       .catch((error) =>
         console.error(
@@ -229,7 +237,6 @@ const CalendarPage = () => {
     <div className="dashcode-calender">
       <div className="grid grid-cols-12 gap-4">
         <Card className="lg:col-span-3 col-span-12">
-          {/* Location Dropdown */}
           <div className="mb-4">
             <label htmlFor="location-select">Select Location:</label>
             <select
@@ -264,73 +271,90 @@ const CalendarPage = () => {
         </Card>
 
         <Card className="lg:col-span-9 col-span-12">
-        <FullCalendar
-  plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
-  ref={calendarComponentRef}
-  headerToolbar={{
-    left: "prev,next today",
-    center: "title",
-    right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek",
-  }}
-  events={calendarEvents}
-  editable={true}
-  selectable={true}
-  eventContent={(arg) => {
-    const { startTime, endTime } = arg.event.extendedProps;
+          <FullCalendar
+            plugins={[
+              dayGridPlugin,
+              timeGridPlugin,
+              interactionPlugin,
+              listPlugin,
+            ]}
+            ref={calendarComponentRef}
+            headerToolbar={{
+              left: "prev,next today",
+              center: "title",
+              right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek",
+            }}
+            events={calendarEvents}
+            editable={true}
+            selectable={true}
+            eventContent={(arg) => {
+              const { startTime, endTime } = arg.event.extendedProps;
 
-    return (
-      <div>
-        <div
-          style={{
-            whiteSpace: "normal", // Allow text to break into multiple lines
-            wordWrap: "break-word", // Break the word if necessary
-            maxWidth: "100%", // Ensure it doesn't overflow its container
-            lineHeight: "1.2", // Optional: Adjust line height for better readability
-          }}
-        >
-          {arg.event.title}
-        </div>
-        <div
-          style={{
-            fontSize: "1rem",
-            color: "#ffffff",
-            textAlign: "center",
-          }}
-        >
-          {startTime} - {endTime}
-        </div>
-      </div>
-    );
-  }}
-  dateClick={handleDateClick}
-  eventClick={handleEventClick}
-  eventDrop={(arg) => {
-    // Copy the event instead of moving it
-    const newEvent = {
-      title: arg.event.title,
-      start: arg.event.start, // New start date after drop
-      end: arg.event.end,     // New end date after drop
-      extendedProps: arg.event.extendedProps, // Use the original event's extended props
-    };
+              return (
+                <div>
+                  <div
+                    style={{
+                      whiteSpace: "normal",
+                      wordWrap: "break-word",
+                      maxWidth: "100%",
+                      lineHeight: "1.2",
+                    }}
+                  >
+                    {arg.event.title}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "1rem",
+                      color: "#ffffff",
+                      textAlign: "center",
+                    }}
+                  >
+                    {startTime} - {endTime}
+                  </div>
+                </div>
+              );
+            }}
+            dateClick={handleDateClick}
+            eventClick={handleEventClick}
+            eventDrop={(arg) => {
+              const assignedEmployee = arg.event.title;
+              const newEvent = {
+                locationId: selectedLocation,
+                date: arg.event.start.toISOString().split("T")[0],
+                events: [
+                  {
+                    startTime: arg.event.extendedProps.startTime,
+                    endTime: arg.event.extendedProps.endTime,
+                    assignedEmployee: assignedEmployee,
+                  },
+                ],
+              };
 
-    // Send the new event to the backend
-    axios
-      .post(`${process.env.REACT_APP_BASE_URL}/admin/schedule/create-schedule`, newEvent, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      })
-      .then(() => {
-        fetchEvents(selectedLocation); // Refresh events after adding
-      })
-      .catch((error) => {
-        console.error("Error adding event:", error);
-      });
-  }}
-  initialView="dayGridMonth"
-/>
+              console.log("New Event Payload:", newEvent);
 
+              axios
+                .post(
+                  `${process.env.REACT_APP_BASE_URL}/admin/schedule/create-schedule`,
+                  newEvent,
+                  {
+                    headers: {
+                      "Content-Type": "application/json",
+                      Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                  }
+                )
+                .then(() => {
+                  fetchEvents(selectedLocation);
+                })
+                .catch((error) => {
+                  console.error(
+                    "Error adding event:",
+                    error.response ? error.response.data : error
+                  );
+                });
+            }}
+            initialView="dayGridMonth"
+          />
         </Card>
       </div>
 
