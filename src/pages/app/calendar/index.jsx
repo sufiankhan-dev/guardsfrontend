@@ -43,6 +43,8 @@ const CalendarPage = () => {
       .catch((error) => console.error("Error fetching locations:", error));
   }, []);
 
+  //event added
+
   useEffect(() => {
     if (selectedLocation) {
       fetchEvents(selectedLocation);
@@ -272,7 +274,12 @@ const CalendarPage = () => {
 
         <Card className="lg:col-span-9 col-span-12">
           <FullCalendar
-            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
+            plugins={[
+              dayGridPlugin,
+              timeGridPlugin,
+              interactionPlugin,
+              listPlugin,
+            ]}
             ref={calendarComponentRef}
             headerToolbar={{
               left: "prev,next today",
