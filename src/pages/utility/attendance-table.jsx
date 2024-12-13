@@ -15,6 +15,7 @@ import Button from "@/components/ui/Button";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import Card from "@/components/ui/Card";
+import { toast } from "react-toastify";
 
 const AttendancePage = () => {
   const navigate = useNavigate();
@@ -65,19 +66,35 @@ const AttendancePage = () => {
 // Fetch attendance data
 const fetchData = async () => {
   try {
-    setLoading(true);
+    setLoading(false);
 
-    // Validate the date range before proceeding
+    // Validate the check-in time range before proceeding
     if (filters.checkInStart && filters.checkInEnd) {
       const startTime = new Date(filters.checkInStart);
       const endTime = new Date(filters.checkInEnd);
+
+      // Ensure the end time is not earlier than the start time
       if (endTime < startTime) {
-        alert("End time cannot be earlier than start time.");
+        toast.error("End time cannot be earlier than start time.");
         setLoading(false);
         return;
       }
     }
 
+    // Validate the check-out time range if provided
+    if (filters.checkOutStart && filters.checkOutEnd) {
+      const startTime = new Date(filters.checkOutStart);
+      const endTime = new Date(filters.checkOutEnd);
+
+      // Ensure the end time is not earlier than the start time
+      if (endTime < startTime) {
+        toast.error("End time cannot be earlier than start time.");
+        setLoading(false);
+        return;
+      }
+    }
+
+    // Prepare API query parameters
     const params = {
       page: pageIndex + 1,
       limit: pageSize,
@@ -90,8 +107,17 @@ const fetchData = async () => {
       checkInEnd: filters.checkInEnd
         ? new Date(filters.checkInEnd).toISOString()
         : undefined,
+      checkOutStart: filters.checkOutStart
+        ? new Date(filters.checkOutStart).toISOString()
+        : undefined,
+      checkOutEnd: filters.checkOutEnd
+        ? new Date(filters.checkOutEnd).toISOString()
+        : undefined,
     };
 
+    console.log("Request Params:", params); // Debugging purposes
+
+    // Send request to the backend
     const response = await axios.get(
       `${process.env.REACT_APP_BASE_URL}/${user.type}/attendence/get-attendances`,
       {
@@ -102,11 +128,14 @@ const fetchData = async () => {
       }
     );
 
+    console.log("API Response:", response); // Debugging purposes
+
     // Check if there are any results
     if (response.data.attendances.length === 0) {
-      alert("No records found for the selected time range.");
+      toast.error("No records found for the selected time range.");
     }
 
+    // Map the fetched attendance data to ensure all fields are present
     const updatedData = response.data.attendances.map((attendance) => ({
       ...attendance,
       checkInTime: attendance.checkInTime || [],
@@ -115,15 +144,25 @@ const fetchData = async () => {
       note: attendance.note || [],
     }));
 
+    // Update state with the fetched data
     setUserData(updatedData);
     setTotal(response.data.total);
     setHasNextPage(response.data.hasNextPage);
   } catch (error) {
     console.error("Error fetching data:", error);
+
+    if (error.response) {
+      console.error("Backend Error:", error.response.data);
+    } else if (error.request) {
+      console.error("Request Error:", error.request);
+    } else {
+      console.error("Error Message:", error.message);
+    }
   } finally {
-    setLoading(false); // Remove loading once data has been fetched
+    setLoading(false); // Remove loading once the data fetch is complete
   }
 };
+
 
 
   
@@ -172,14 +211,14 @@ const fetchData = async () => {
       );
 
       if (response.status === 200) {
-        alert("Attendance updated successfully!");
+        toast.success("Attendance updated successfully!");
         fetchData(); // Refresh data after saving
       } else {
-        alert("Failed to update attendance.");
+        toast.error("Failed to update attendance.");
       }
     } catch (error) {
       console.error("Error updating attendance:", error);
-      alert("Error updating attendance.");
+      toast.error("Error updating attendance.");
     }
   };
 
