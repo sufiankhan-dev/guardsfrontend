@@ -186,12 +186,12 @@ const LocationAddPage = () => {
     if (isSubmitting.current) return;
     isSubmitting.current = true;
 
-    const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      isSubmitting.current = false;
-      return;
-    }
+    // const validationErrors = validate();
+    // if (Object.keys(validationErrors).length > 0) {
+    //   setErrors(validationErrors);
+    //   isSubmitting.current = false;
+    //   return;
+    // }
 
     // Prepare data for submission
     const submissionData = {
@@ -339,7 +339,7 @@ const LocationAddPage = () => {
               }
             /> */}
             <Textinput
-              label="Customer Name"
+              label="Location Name*"
               type="text"
               placeholder="Customer Name"
               value={formData.locationName}
@@ -624,7 +624,6 @@ const LocationAddPage = () => {
               className="bg-black-500 text-white hover:bg-gray-700"
               onClick={handleSubmit}
               isLoading={uploadingData}
-              disabled={uploadingData}
             />
           </div>
         </div>

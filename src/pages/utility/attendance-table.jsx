@@ -455,12 +455,12 @@ const fetchData = async () => {
       <div className="flex flex-col md:flex-row items-center justify-between mb-4">
         
         <div className="flex flex-col md:flex-row gap-4 md:gap-10 items-center mb-4 w-full md:w-auto">
-          <h2 className="text-2xl font-bold text-gray-700 flex-1">Attendance Data</h2>
+          <h2 className="text-2xl font-bold text-gray-700 flex-1 ">Attendance Data</h2>
           
   
           {/* Export to Excel Button */}
           <button
-            className="px-4 py-2 bg-green-500 text-white rounded-md"
+            className="px-4 py-2 bg-green-500 text-white rounded-md mb-2"
             onClick={() => exportToExcel(selectedLocation?.locationName)}
           >
             Export to Excel

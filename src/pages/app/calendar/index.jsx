@@ -23,8 +23,10 @@ const CalendarPage = () => {
   const [editEvent, setEditEvent] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const currentMonth = new Date().getMonth() + 1;
+  const currentMonth = new Date().getMonth() + 1; // 1 for January, 12 for December
   const currentYear = new Date().getFullYear();
+  const nextMonth = currentMonth === 12 ? 1 : currentMonth + 1;
+  const nextYear = currentMonth === 12 ? currentYear + 1 : currentYear;
 
   useEffect(() => {
     axios
@@ -37,7 +39,7 @@ const CalendarPage = () => {
       .then((response) => {
         setLocations(response.data);
         if (response.data.length > 0) {
-          setSelectedLocation(response.data[0]._id);
+          setSelectedLocation(response.data[0]._id); // Set the first location by default
         }
       })
       .catch((error) => console.error("Error fetching locations:", error));
@@ -45,17 +47,16 @@ const CalendarPage = () => {
 
   useEffect(() => {
     if (selectedLocation) {
-      fetchEvents(selectedLocation);
+      // Fetch events for both the current and next month whenever the location changes
+      fetchEvents(selectedLocation, currentMonth, currentYear); // Current month
+      fetchEvents(selectedLocation, nextMonth, nextYear); // Next month
     }
-  }, [selectedLocation]);
+  }, [selectedLocation]); // When location is selected or changed
 
   useEffect(() => {
     if (calendarComponentRef.current) {
       const calendarApi = calendarComponentRef.current.getApi();
-
-      const draggableElements = document.querySelectorAll(
-        "#external-events .fc-event"
-      );
+      const draggableElements = document.querySelectorAll("#external-events .fc-event");
 
       draggableElements.forEach((element) => {
         new Draggable(element, {
@@ -89,7 +90,8 @@ const CalendarPage = () => {
             }
           )
           .then(() => {
-            fetchEvents(selectedLocation);
+            fetchEvents(selectedLocation, currentMonth, currentYear); // Fetch current month data
+            fetchEvents(selectedLocation, nextMonth, nextYear); // Fetch next month data
           })
           .catch((error) => {
             console.error("Error adding event:", error);
@@ -98,11 +100,11 @@ const CalendarPage = () => {
     }
   }, [calendarEvents]);
 
-  const fetchEvents = (locationId) => {
+  const fetchEvents = (locationId, month = currentMonth, year = currentYear) => {
     setIsLoading(true);
     axios
       .get(
-        `${process.env.REACT_APP_BASE_URL}/admin/schedule/get-schedules?locationId=${locationId}&month=${currentMonth}&year=${currentYear}`,
+        `${process.env.REACT_APP_BASE_URL}/admin/schedule/get-schedules?locationId=${locationId}&month=${month}&year=${year}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -111,47 +113,26 @@ const CalendarPage = () => {
         }
       )
       .then((response) => {
-        const colors = [
-          "primary",
-          "secondary",
-          "danger",
-          "info",
-          "warning",
-          "success",
-          "dark",
-        ];
-        const events = response.data.map((schedule, index) => {
-          const eventDate = new Date(schedule.date);
-          eventDate.setHours(0, 0, 0, 0);
-          const timezoneOffset = eventDate.getTimezoneOffset() * 60000;
-          eventDate.setTime(eventDate.getTime() + timezoneOffset);
-
-          const formatTime = (time) => {
-            const date = new Date(`1970-01-01T${time}Z`);
-            return date.toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            });
-          };
-
-          const startTime = formatTime(schedule.events[0].startTime);
-          const endTime = formatTime(schedule.events[0].endTime);
-
-          return {
-            date: schedule.date,
-            id: schedule._id,
-            title: `${schedule.events[0].assignedEmployee}`,
-            start: schedule.date,
-            end: schedule.date,
-            classNames: [colors[index % colors.length]],
-            extendedProps: {
-              startTime: schedule.events[0].startTime,
-              endTime: schedule.events[0].endTime,
-            },
-          };
+        const colors = ["primary", "secondary", "danger", "info", "warning", "success", "dark"];
+        const events = response.data.map((schedule, index) => ({
+          date: schedule.date,
+          id: schedule._id,
+          title: `${schedule.events[0].assignedEmployee}`,
+          start: schedule.date,
+          end: schedule.date,
+          classNames: [colors[index % colors.length]],
+          extendedProps: {
+            startTime: schedule.events[0].startTime,
+            endTime: schedule.events[0].endTime,
+          },
+        }));
+        setCalendarEvents((prevEvents) => {
+          const newEvents = prevEvents.filter(
+            (event) => new Date(event.start).getMonth() !== month - 1 // Filter out events for the same month
+          );
+          return [...newEvents, ...events]; // Combine the new events with the existing ones
         });
-        setCalendarEvents(events);
-        setIsLoading(false);
+        setIsLoading(false); // Remove loader when data is loaded
       })
       .catch((error) => {
         console.error("Error fetching events:", error);
@@ -186,7 +167,8 @@ const CalendarPage = () => {
         }
       )
       .then(() => {
-        fetchEvents(selectedLocation);
+        fetchEvents(selectedLocation, currentMonth, currentYear); // Re-fetch current month events
+        fetchEvents(selectedLocation, nextMonth, nextYear); // Re-fetch next month events
       })
       .catch((error) =>
         console.error(
@@ -217,21 +199,18 @@ const CalendarPage = () => {
     setCalendarEvents((prevEvents) =>
       prevEvents.filter((event) => event.id !== eventId)
     );
-    fetchEvents(selectedLocation);
+    fetchEvents(selectedLocation, currentMonth, currentYear); // Re-fetch after deletion
+    fetchEvents(selectedLocation, nextMonth, nextYear); // Re-fetch after deletion
   };
 
   const onEdit = (updatedSchedule) => {
-    fetchEvents(selectedLocation);
+    fetchEvents(selectedLocation, currentMonth, currentYear); // Re-fetch after edit
+    fetchEvents(selectedLocation, nextMonth, nextYear); // Re-fetch after edit
   };
 
   if (isLoading) {
     return <LoaderCircle />;
   }
-
-  const events = [
-    { id: 1, title: "Admin", tag: "business" },
-    { id: 2, title: "Employees", tag: "meeting" },
-  ];
 
   return (
     <div className="dashcode-calender">
@@ -264,9 +243,7 @@ const CalendarPage = () => {
             <p className="text-sm pb-2">
               Drag and drop your event or click in the calendar
             </p>
-            {events.map((event) => (
-              <ExternalDraggingevent key={event.id} event={event} />
-            ))}
+            {/* Add your draggable events here */}
           </div>
         </Card>
 
@@ -284,7 +261,6 @@ const CalendarPage = () => {
             selectable={true}
             eventContent={(arg) => {
               const { startTime, endTime } = arg.event.extendedProps;
-
               return (
                 <div>
                   <div
@@ -325,8 +301,6 @@ const CalendarPage = () => {
                 ],
               };
 
-              console.log("New Event Payload:", newEvent);
-
               axios
                 .post(
                   `${process.env.REACT_APP_BASE_URL}/admin/schedule/create-schedule`,
@@ -339,13 +313,11 @@ const CalendarPage = () => {
                   }
                 )
                 .then(() => {
-                  fetchEvents(selectedLocation);
+                  fetchEvents(selectedLocation, currentMonth, currentYear);
+                  fetchEvents(selectedLocation, nextMonth, nextYear);
                 })
                 .catch((error) => {
-                  console.error(
-                    "Error adding event:",
-                    error.response ? error.response.data : error
-                  );
+                  console.error("Error adding event:", error.response ? error.response.data : error);
                 });
             }}
             initialView="dayGridMonth"
