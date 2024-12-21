@@ -45,6 +45,8 @@ const CalendarPage = () => {
       .catch((error) => console.error("Error fetching locations:", error));
   }, []);
 
+  //event added
+
   useEffect(() => {
     if (selectedLocation) {
       // Fetch events for both the current and next month whenever the location changes
@@ -249,7 +251,12 @@ const CalendarPage = () => {
 
         <Card className="lg:col-span-9 col-span-12">
           <FullCalendar
-            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
+            plugins={[
+              dayGridPlugin,
+              timeGridPlugin,
+              interactionPlugin,
+              listPlugin,
+            ]}
             ref={calendarComponentRef}
             headerToolbar={{
               left: "prev,next today",
