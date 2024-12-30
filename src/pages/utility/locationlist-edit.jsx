@@ -80,6 +80,21 @@ const LocationEditPage = () => {
     });
   };
 
+  const handleAddClient = () => {
+    setFormData({
+      ...formData,
+      clientDetails: [
+        ...formData.clientDetails,
+        { name: "", designation: "", email: "", phone: "", customerNo: "" },
+      ],
+    });
+  };
+  const handleClientDetailsChange = (index, key, value) => {
+    const updatedClientDetails = [...formData.clientDetails];
+    updatedClientDetails[index][key] = value;
+    setFormData({ ...formData, clientDetails: updatedClientDetails });
+  };
+
   const handleSubmit = async () => {
     try {
       setUploadingData(true);
@@ -135,7 +150,90 @@ const LocationEditPage = () => {
                 />
               </div>
               {/* Other fields for Address, Time Zone, Location Type, etc. */}
-              
+              <div className="space-y-4">
+            {formData.clientDetails.map((client, index) => (
+              <div key={index}>
+                <span className="text-2xl font-semibold">Client Details</span>
+                <div className="mt-3" />
+                <div className="grid grid-cols-2 space-x-6">
+                  <input
+                    label="Client Name"
+                    type="text"
+                    placeholder="Name"
+                    className="border-[2px] rounded-md text-gray-700 h-10 w-[100%] mb-3 p-2"
+
+                    value={client.name}
+                    onChange={(e) =>
+                      handleClientDetailsChange(index, "name", e.target.value)
+                    }
+                    // error={
+                    //   errors[`clientDetails.${index}.name`] &&
+                    //   errors[`clientDetails.${index}.name`]
+                    // }
+                  />
+                  <input
+                    label="Designation"
+                    type="text"
+                    placeholder="Designation"
+                    className="border-[2px] rounded-md text-gray-700 h-10 w-[100%] mb-3 p-2"
+
+                    value={client.designation}
+                    onChange={(e) =>
+                      handleClientDetailsChange(
+                        index,
+                        "designation",
+                        e.target.value
+                      )
+                    }
+                    // error={
+                    //   errors[`clientDetails.${index}.designation`] &&
+                    //   errors[`clientDetails.${index}.designation`]
+                    // }
+                  />
+                </div>
+                <div className="mt-3" />
+                <div className="grid grid-cols-2 space-x-6">
+                  <input
+                    label="Email"
+                    type="email"
+                    className="border-[2px] rounded-md text-gray-700 h-10 w-[100%] mb-3 p-2"
+
+                    placeholder="Email"
+                    value={client.email}
+                    onChange={(e) =>
+                      handleClientDetailsChange(index, "email", e.target.value)
+                    }
+                    // error={
+                    //   errors[`clientDetails.${index}.email`] &&
+                    //   errors[`clientDetails.${index}.email`]
+                    // }
+                  />
+                  <input
+                    label="Phone"
+                    type="text"
+                    className="border-[2px] rounded-md text-gray-700 h-10 w-[100%] mb-3 p-2"
+
+                    placeholder="Phone"
+                    value={client.phone}
+                    onChange={(e) =>
+                      handleClientDetailsChange(index, "phone", e.target.value)
+                    }
+                    // error={
+                    //   errors[`clientDetails.${index}.phone`] &&
+                    //   errors[`clientDetails.${index}.phone`]
+                    // }
+                  />
+                </div>
+              </div>
+            ))}
+            <Button
+              onClick={handleAddClient}
+              className="bg-black-500 text-white hover:bg-gray-700 flex flex-row items-center"
+            >
+              <FaPlus className="mr-2" />
+              Add Another Client
+            </Button>
+          </div>
             </div>
 
             {/* Schedule Section */}

@@ -339,7 +339,7 @@ const LocationAddPage = () => {
               }
             /> */}
             <Textinput
-              label="Location Name*"
+              label="Customer Name"
               type="text"
               placeholder="Customer Name"
               value={formData.locationName}
