@@ -211,10 +211,25 @@ const LocationPage = () => {
       Cell: (row) => <span>{row?.cell?.value}</span>,
     },
     {
-      Header: "Location Type",
+      Header: "location Type",
       accessor: "locationType",
-      Cell: (row) => <span>{row?.cell?.value}</span>,
+      Cell: (row) => (
+        <span className="block w-full">
+          <span
+            className={`inline-block px-3 min-w-[90px] text-center mx-auto py-1 rounded-[999px] bg-opacity-25 ${
+              row?.cell?.value === "commercial"
+                ? "text-success-500 bg-success-500"
+                : row?.cell?.value === "construction"
+                ? "text-yellow-700 bg-yellow-300"
+                : ""
+            }`}
+          >
+            {row?.cell?.value}
+          </span>
+        </span>
+      ),
     },
+   
     {
       Header: "Client Details",
       accessor: "clientDetails",
@@ -256,49 +271,31 @@ const LocationPage = () => {
         </ul>
       ),
     },
-    {
-      Header: "Schedule",
-      accessor: "schedule",
-      Cell: ({ cell: { value } }) => (
-        <ul>
-          {value && value.length > 0 ? (
-            value.map((schedule) => (
-              <li key={schedule._id}>
-                <span className="bg-yellow-300 font-bold">{schedule.day}:</span>
-                <ul>
-                  {schedule.intervals.map((interval) => (
-                    <li key={interval._id}>
-                      {interval.startTime} - {interval.endTime}
-                    </li>
-                  ))}
-                </ul>
-              </li>
-            ))
-          ) : (
-            <li>No schedule available</li>
-          )}
-        </ul>
-      ),
-    },
     // {
-    //   Header: "Status",
-    //   accessor: "status",
-    //   Cell: (row) => (
-    //     <span className="block w-full">
-    //       <span
-    //         className={`inline-block px-3 min-w-[90px] text-center mx-auto py-1 rounded-[999px] bg-opacity-25 ${
-    //           row?.cell?.value === "active"
-    //             ? "text-success-500 bg-success-500"
-    //             : row?.cell?.value === "inactive"
-    //             ? "text-warning-500 bg-warning-500"
-    //             : ""
-    //         }`}
-    //       >
-    //         {row?.cell?.value}
-    //       </span>
-    //     </span>
+    //   Header: "Schedule",
+    //   accessor: "schedule",
+    //   Cell: ({ cell: { value } }) => (
+    //     <ul>
+    //       {value && value.length > 0 ? (
+    //         value.map((schedule) => (
+    //           <li key={schedule._id}>
+    //             <span className="bg-yellow-300 font-bold">{schedule.day}:</span>
+    //             <ul>
+    //               {schedule.intervals.map((interval) => (
+    //                 <li key={interval._id}>
+    //                   {interval.startTime} - {interval.endTime}
+    //                 </li>
+    //               ))}
+    //             </ul>
+    //           </li>
+    //         ))
+    //       ) : (
+    //         <li>No schedule available</li>
+    //       )}
+    //     </ul>
     //   ),
     // },
+  
     {
       Header: "Created-At",
       accessor: "createdAt",

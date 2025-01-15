@@ -8,7 +8,7 @@ import { logOut } from "@/store/api/auth/authSlice";
 
 import UserAvatar from "@/assets/images/all-img/user.png";
 
-const profileLabel = () => {
+const profileLabel = (username) => {
   return (
     <div className="flex items-center">
       <div className="flex-1 ltr:mr-[10px] rtl:ml-[10px]">
@@ -22,7 +22,7 @@ const profileLabel = () => {
       </div>
       <div className="flex-none text-slate-600 dark:text-white text-sm font-normal items-center lg:flex hidden overflow-hidden text-ellipsis whitespace-nowrap">
         <span className="overflow-hidden text-ellipsis whitespace-nowrap w-[85px] block">
-          Admin
+          {username || "Guest"}
         </span>
         <span className="text-base inline-block ltr:ml-[10px] rtl:mr-[10px]">
           <Icon icon="heroicons-outline:chevron-down"></Icon>
@@ -36,6 +36,9 @@ const Profile = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  // Assuming username is stored in Redux or localStorage
+  const userData = JSON.parse(localStorage.getItem("user") || "{}");
+  const username = userData.firstName || "Guest"; // Use "username" from parsed data
   const handleLogout = () => {
     // Clear user data from local storage
     localStorage.removeItem("user");
@@ -45,67 +48,18 @@ const Profile = () => {
   };
 
   const ProfileMenu = [
-    {
-      label: "Profile",
-      icon: "heroicons-outline:user",
-
-      action: () => {
-        navigate("/profile");
-      },
-    },
-    {
-      label: "Chat",
-      icon: "heroicons-outline:chat",
-      action: () => {
-        navigate("/chat");
-      },
-    },
-    {
-      label: "Email",
-      icon: "heroicons-outline:mail",
-      action: () => {
-        navigate("/email");
-      },
-    },
-    {
-      label: "Todo",
-      icon: "heroicons-outline:clipboard-check",
-      action: () => {
-        navigate("/todo");
-      },
-    },
-    {
-      label: "Settings",
-      icon: "heroicons-outline:cog",
-      action: () => {
-        navigate("/settings");
-      },
-    },
-    {
-      label: "Price",
-      icon: "heroicons-outline:credit-card",
-      action: () => {
-        navigate("/pricing");
-      },
-    },
-    {
-      label: "Faq",
-      icon: "heroicons-outline:information-circle",
-      action: () => {
-        navigate("/faq");
-      },
-    },
+   
     {
       label: "Logout",
       icon: "heroicons-outline:login",
       action: () => {
-        dispatch(handleLogout);
+        handleLogout();
       },
     },
   ];
 
   return (
-    <Dropdown label={profileLabel()} classMenuItems="w-[180px] top-[58px]">
+    <Dropdown label={profileLabel(username)} classMenuItems="w-[180px] top-[58px]">
       {ProfileMenu.map((item, index) => (
         <Menu.Item key={index}>
           {({ active }) => (

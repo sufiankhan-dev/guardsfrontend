@@ -191,7 +191,7 @@ const LoginForm = () => {
           throw new Error(response?.message || "Failed to send OTP");
         }
       } catch (error) {
-        toast.error(error.message);
+        toast.error(error.response?.data?.message );
       }
     } else if (step === 2) {
       // OTP Verification step

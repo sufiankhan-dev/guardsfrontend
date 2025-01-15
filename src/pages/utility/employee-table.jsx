@@ -51,6 +51,8 @@ const EmployeePage = () => {
   const [loading, setLoading] = useState(true); // Loading state
   const [isAnimated, setIsAnimated] = useState(false);
 
+  const userdata = JSON.parse(localStorage.getItem("user") || "{}");
+
   console.log(user.role);
 
   const fetchData = async (pageIndex, pageSize) => {
@@ -213,34 +215,35 @@ const EmployeePage = () => {
       },
     },
     {
-      Header: "First Name",
-      accessor: "employeeName",
-      Cell: (row) => <span>{row?.cell?.value}</span>,
+      Header: "Id Number",
+      accessor: "employeeIDNumber",
+      Cell: (row) => <span>{row?.cell?.value || "N/A"}</span>,
     },
     {
       Header: "Last Name",
       accessor: "employeeLastName",
-      Cell: (row) => <span>{row?.cell?.value}</span>,
+      Cell: (row) => <span>{row?.cell?.value || "N/A"}</span>,
     },
     {
-      Header: "Id Number",
-      accessor: "employeeIDNumber",
-      Cell: (row) => <span>{row?.cell?.value}</span>,
+      Header: "First Name",
+      accessor: "employeeName",
+      Cell: (row) => <span>{row?.cell?.value || "N/A"}</span>,
     },
+    
     {
       Header: "Address",
       accessor: "employeeAddress",
-      Cell: (row) => <span>{row?.cell?.value}</span>,
+      Cell: (row) => <span>{row?.cell?.value || "N/A"}</span>,
     },
     {
       Header: "Phone Number",
       accessor: "contactNumber1",
-      Cell: (row) => <span>{row?.cell?.value}</span>,
+      Cell: (row) => <span>{row?.cell?.value || "N/A"}</span>,
     },
     {
       Header: "Company Phone",
       accessor: "contactNumber2",
-      Cell: (row) => <span>{row?.cell?.value}</span>,
+      Cell: (row) => <span>{row?.cell?.value || "N/A"}</span>,
     },
     // {
     //   Header: "Category",
@@ -266,18 +269,21 @@ const EmployeePage = () => {
     //     <span>{new Date(row?.cell?.value).toLocaleDateString()}</span>
     //   ),
     // },
-    {
-      Header: "Pay Rate",
-      accessor: "payRate",
-      Cell: (row) => {
-        return user.role === "66eef36e34ab04e7e1b41cef" ||
-          user.role === "66eef34934ab04e7e1b41ce9" ? (
-          <span>{row.cell.value}</span>
-        ) : (
-          <span>Not Access</span>
-        ); // Return null if the role doesn't match
-      },
-    },
+    // {
+    //   Header: "Pay Rate",
+    //   accessor: "payRate",
+    //   Cell: (row) => {
+    //     // Check if the user's role is either Admin or Super Admin
+    //     return userdata?.type === "66eef34934ab04e7e1b41ce9" || // Super Admin ID
+    //            userdata?.type === "66eef36e34ab04e7e1b41cef" ? // Admin ID
+    //       (
+    //         <span>{row.cell.value}</span>
+    //       ) : (
+    //         <span>Not Access</span>
+    //       );
+    //   },
+    // },
+    
     {
       Header: "Status",
       accessor: "status",
@@ -297,25 +303,25 @@ const EmployeePage = () => {
         </span>
       ),
     },
-    {
-      Header: "Salary Status",
-      accessor: "salarystatus",
-      Cell: (row) => (
-        <span className="block w-full">
-          <span
-            className={`inline-block px-3 min-w-[90px] text-center mx-auto py-1 rounded-[999px] bg-opacity-25 ${
-              row?.cell?.value === "paid"
-                ? "text-success-500 bg-success-500"
-                : row?.cell?.value === "unpaid"
-                ? "text-warning-500 bg-warning-500"
-                : ""
-            }`}
-          >
-            {row?.cell?.value}
-          </span>
-        </span>
-      ),
-    },
+    // {
+    //   Header: "Salary Status",
+    //   accessor: "salarystatus",
+    //   Cell: (row) => (
+    //     <span className="block w-full">
+    //       <span
+    //         className={`inline-block px-3 min-w-[90px] text-center mx-auto py-1 rounded-[999px] bg-opacity-25 ${
+    //           row?.cell?.value === "paid"
+    //             ? "text-success-500 bg-success-500"
+    //             : row?.cell?.value === "unpaid"
+    //             ? "text-warning-500 bg-warning-500"
+    //             : ""
+    //         }`}
+    //       >
+    //         {row?.cell?.value}
+    //       </span>
+    //     </span>
+    //   ),
+    // },
 
     {
       Header: "Created-At",

@@ -15,6 +15,8 @@ import "./../../../assets/scss/utility/_full-calender.scss";
 
 const CalendarPage = () => {
   const calendarComponentRef = useRef(null);
+  const [address, setAddress] = useState('');
+
   const [calendarEvents, setCalendarEvents] = useState([]);
   const [locations, setLocations] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState(null);
@@ -22,6 +24,8 @@ const CalendarPage = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [editEvent, setEditEvent] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [schedule, setSchedule] = useState([]);
+
 
   const currentMonth = new Date().getMonth() + 1; // 1 for January, 12 for December
   const currentYear = new Date().getFullYear();
@@ -214,6 +218,23 @@ const CalendarPage = () => {
     return <LoaderCircle />;
   }
 
+  const handleLocationChange = (e) => {
+    const locationId = e.target.value;
+    setSelectedLocation(locationId);
+
+    // Find the selected location
+    const selectedLocationObj = locations.find((location) => location._id === locationId);
+
+    if (selectedLocationObj) {
+      // Update address and schedule
+      setAddress(selectedLocationObj.address); // Assuming the location has an 'address' property
+      setSchedule(selectedLocationObj.schedule || []); // Assuming the location has a 'schedule' property
+    } else {
+      setAddress('');
+      setSchedule([]); // Clear schedule if no location is selected
+    }
+  };
+
   return (
     <div className="dashcode-calender">
       <div className="grid grid-cols-12 gap-4">
@@ -221,17 +242,23 @@ const CalendarPage = () => {
           <div className="mb-4">
             <label htmlFor="location-select">Select Location:</label>
             <select
-              id="location-select"
-              value={selectedLocation}
-              onChange={(e) => setSelectedLocation(e.target.value)}
-              className="w-full mt-2 p-2 border border-gray-300"
-            >
-              {locations.map((location) => (
-                <option key={location._id} value={location._id}>
-                  {location.locationName}
-                </option>
-              ))}
-            </select>
+        id="location-select"
+        value={selectedLocation}
+        onChange={handleLocationChange}
+        className="w-full mt-2 p-2 border border-gray-300 mb-2"
+      >
+        <option value="">Select a location</option>
+        {locations.map((location) => (
+          <option key={location._id} value={location._id}>
+            {location.locationName}
+          </option>
+        ))}
+      </select>
+      <div>
+      <label htmlFor="location-select">Address</label>
+
+        <p>{address}</p>
+      </div>
           </div>
 
           <Button
@@ -245,8 +272,30 @@ const CalendarPage = () => {
             <p className="text-sm pb-2">
               Drag and drop your event or click in the calendar
             </p>
-            {/* Add your draggable events here */}
+            <div>
+          <h3>Schedule:</h3>
+          {schedule.length > 0 ? (
+            <ul>
+              {schedule.map((item, index) => (
+                <li key={index} >
+                  <strong className="text-blue-400"> {item.day}:</strong>
+                  <ul>
+                    {item.intervals.map((interval, idx) => (
+                      <li key={idx }className="mb-2">
+                        <strong className="text-green-400 mb-4">Start Time:</strong> {interval.startTime} 
+                        <strong className="text-red-400 mb-2"> End Time:</strong> {interval.endTime}
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No schedule available</p>
+          )}
+        </div>
           </div>
+         
         </Card>
 
         <Card className="lg:col-span-9 col-span-12">
