@@ -30,6 +30,7 @@ const AttendenceAddPage = () => {
   const isSubmitting = useRef(false);
   const [employees, setEmployees] = useState([]);
   const [locations, setLocations] = useState([]);
+  
 
   useEffect(() => {
     // Fetch employee data

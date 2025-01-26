@@ -35,7 +35,6 @@ const EmployeeAddPage = () => {
     employeeIDNumber: "",
     contactNumber1: "",
     contactNumber2: "",
-    employeeCategory: "",
     guardCardNumber: "",
     issueDate: "000",
     expiryDate: "",

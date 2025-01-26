@@ -24,8 +24,8 @@ const AttendancePage = () => {
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [total, setTotal] = useState(0);
-  const [hasNextPage, setHasNextPage] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [hasNextPage, setHasNextPage] = useState(false);
   const [filters, setFilters] = useState({
     startDate: null,
     endDate: null,
@@ -34,11 +34,10 @@ const AttendancePage = () => {
   });
   const [selectedLocation, setSelectedLocation] = useState("");
   const [locations, setLocations] = useState([]);
- 
- const handleLocationChange = (event) => {
-    setSelectedLocation(event.target.value);
-  };
+  const [updatedRows, setUpdatedRows] = useState({});
 
+  const urlParams = new URLSearchParams(window.location.search);
+  const attendanceId = urlParams.get("id");
 
   // Fetch locations
   const fetchLocations = async () => {
@@ -58,188 +57,196 @@ const AttendancePage = () => {
   };
 
   useEffect(() => {
-    fetchLocations();
+    fetchLocations(); 
   }, []);
 
-  // Fetch attendance data
- // Fetch attendance data
-// Fetch attendance data
-const fetchData = async () => {
-  try {
-    setLoading(false);
-
-    // Validate the check-in time range before proceeding
-    if (filters.checkInStart && filters.checkInEnd) {
-      const startTime = new Date(filters.checkInStart);
-      const endTime = new Date(filters.checkInEnd);
-
-      // Ensure the end time is not earlier than the start time
-      if (endTime < startTime) {
-        toast.error("End time cannot be earlier than start time.");
-        setLoading(false);
-        return;
-      }
+  // Fetch attendance and schedule data
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+  
+      const params = {
+        page: pageIndex + 1,
+        limit: pageSize ,
+        location: selectedLocation || undefined,
+        startDate: filters.startDate ? new Date(filters.startDate).toISOString() : undefined,
+        endDate: filters.endDate ? new Date(filters.endDate).toISOString() : undefined,
+      };
+  
+      const response = await axios.get(
+        `${process.env.REACT_APP_BASE_URL}/admin/attendence/get-attendances`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          params,
+        }
+      );
+  
+      const { schedules, attendances } = response.data;
+  
+      // Convert attendances to a map for quick lookup
+      const attendanceMap = new Map(
+        attendances.map((attendance) => [attendance._id, attendance])
+      );
+  
+   
+      setUserData(schedules,attendances);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      toast.error("Failed to fetch data.");
+    } finally {
+      setLoading(false);
     }
-
-    // Validate the check-out time range if provided
-    if (filters.checkOutStart && filters.checkOutEnd) {
-      const startTime = new Date(filters.checkOutStart);
-      const endTime = new Date(filters.checkOutEnd);
-
-      // Ensure the end time is not earlier than the start time
-      if (endTime < startTime) {
-        toast.error("End time cannot be earlier than start time.");
-        setLoading(false);
-        return;
-      }
-    }
-
-    // Prepare API query parameters
-    const params = {
-      page: pageIndex + 1,
-      limit: pageSize,
-      location: selectedLocation || undefined,
-      startDate: filters.startDate ? new Date(filters.startDate).toISOString() : undefined,
-      endDate: filters.endDate ? new Date(filters.endDate).toISOString() : undefined,
-      checkInStart: filters.checkInStart
-        ? new Date(filters.checkInStart).toISOString()
-        : undefined,
-      checkInEnd: filters.checkInEnd
-        ? new Date(filters.checkInEnd).toISOString()
-        : undefined,
-      checkOutStart: filters.checkOutStart
-        ? new Date(filters.checkOutStart).toISOString()
-        : undefined,
-      checkOutEnd: filters.checkOutEnd
-        ? new Date(filters.checkOutEnd).toISOString()
-        : undefined,
-    };
-
-    console.log("Request Params:", params); // Debugging purposes
-
-    // Send request to the backend
-    const response = await axios.get(
-      `${process.env.REACT_APP_BASE_URL}/${user.type}/attendence/get-attendances`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        params,
-      }
-    );
-
-    console.log("API Response:", response); // Debugging purposes
-
-    // Check if there are any results
-    if (response.data.attendances.length === 0) {
-      toast.error("No records found for the selected time range.");
-    }
-
-    // Map the fetched attendance data to ensure all fields are present
-    const updatedData = response.data.attendances.map((attendance) => ({
-      ...attendance,
-      checkInTime: attendance.checkInTime || [],
-      checkOutTime: attendance.checkOutTime || [],
-      callingTimes: attendance.callingTimes || [],
-      note: attendance.note || [],
-    }));
-
-    // Update state with the fetched data
-    setUserData(updatedData);
-    setTotal(response.data.total);
-    setHasNextPage(response.data.hasNextPage);
-  } catch (error) {
-    console.error("Error fetching data:", error);
-
-    if (error.response) {
-      console.error("Backend Error:", error.response.data);
-    } else if (error.request) {
-      console.error("Request Error:", error.request);
-    } else {
-      console.error("Error Message:", error.message);
-    }
-  } finally {
-    setLoading(false); // Remove loading once the data fetch is complete
-  }
-};
-
-
-
+  };
+  
+  
+  
   
 
   useEffect(() => {
     fetchData();
   }, [pageIndex, pageSize, selectedLocation, filters]);
 
-  // Add new time or note
-  const handleAddTime = (field, index) => {
-    setUserData((prevData) => {
-      const updatedData = [...prevData];
-      updatedData[index][field] = [...(updatedData[index][field] || []), new Date().toISOString()];
-      return updatedData;
+  // Handle adding a time (e.g., check-in/check-out)
+  const handleAddTime = (field, rowIndex) => {
+    setUserData((prev) => {
+      const newData = [...prev];
+      const currentRow = newData[rowIndex];
+      if (!currentRow[field]) currentRow[field] = [];
+      currentRow[field].push(new Date().toISOString());
+      setUpdatedRows((prevUpdated) => ({
+        ...prevUpdated,
+        [currentRow._id]: currentRow,
+      }));
+      return newData;
     });
   };
 
-  const handleAddNote = (index) => {
-    const newNote = prompt("Enter a note:");
-    if (newNote) {
-      setUserData((prevData) => {
-        const updatedData = [...prevData];
-        updatedData[index].note = [...(updatedData[index].note || []), newNote];
-        return updatedData;
+  // Handle adding a note
+  const handleAddNote = (rowIndex) => {
+    const note = prompt("Enter your note:");
+    if (note) {
+      setUserData((prev) => {
+        const newData = [...prev];
+        const currentRow = newData[rowIndex];
+        if (!currentRow.note) currentRow.note = [];
+        currentRow.note.push(note);
+        setUpdatedRows((prevUpdated) => ({
+          ...prevUpdated,
+          [currentRow._id]: currentRow,
+        }));
+        return newData;
       });
     }
   };
 
-  // Save changes to backend
-  const handleSaveChanges = async (rowId) => {
-    const updatedAttendance = userData.find((data) => data._id === rowId);
-    if (!updatedAttendance) {
-      alert("Attendance record not found.");
+  const handleSaveChanges = async (attendanceId) => {
+    if (!attendanceId) {
+      console.error("Attendance ID is missing.");
       return;
     }
-
+  
+    // Find the row using the attendanceId
+    const updatedRow = userData.find((row) => String(row.attendanceId) === String(attendanceId));
+  
+    if (!updatedRow) {
+      console.error("No matching row found for attendanceId:", attendanceId);
+      return;
+    }
+  
+    // Construct the payload
+    const payload = {
+      employeeId: updatedRow.employeeId, // Ensure employeeId is included
+      locationId: updatedRow.location._id, // Ensure locationId is included
+      scheduleId: updatedRow._id, // Ensure scheduleId is included
+      callingTimes: updatedRow.callingTimes || [],
+      checkInTime: updatedRow.checkInTime || [],
+      checkOutTime: updatedRow.checkOutTime || [],
+      note: updatedRow.note || [],
+      status: updatedRow.attendanceStatus || "Present",
+    };
+  
+    console.log("Payload being sent to backend:", payload);
+  
     try {
       const response = await axios.put(
-        `${process.env.REACT_APP_BASE_URL}/admin/attendence/update-attendance/${rowId}`,
-        updatedAttendance,
+        `${process.env.REACT_APP_BASE_URL}/admin/attendence/update-attendance/${attendanceId}`,
+        payload,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
-
+  
       if (response.status === 200) {
         toast.success("Attendance updated successfully!");
-        fetchData(); // Refresh data after saving
-      } else {
-        toast.error("Failed to update attendance.");
+        fetchData(); // Re-fetch data if needed
       }
     } catch (error) {
-      console.error("Error updating attendance:", error);
-      toast.error("Error updating attendance.");
+      console.error("Error saving changes:", error);
+      toast.error("Failed to save changes.");
     }
   };
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
-  // Table columns
+
   const columns = useMemo(
     () => [
-      { Header: "Sr No", accessor: "id", Cell: ({ row, flatRows }) => flatRows.indexOf(row) + 1 },
-      { Header: "Accounts", accessor: "location.locationName" },
-      { Header: "Guards", accessor: "employee.employeeName" },
-      { Header: "E.ID", accessor: "employee.employeeIDNumber" },
-
-      { Header: "Phone", accessor: "employee.contactNumber1" },
-      { Header: "Company number", accessor: "employee.contactNumber2" },
-
+      {
+        Header: "Sr No",
+        accessor: "id",
+        Cell: ({ row, flatRows }) => flatRows.indexOf(row) + 1,
+      },
+      {
+        Header: "Account",
+        accessor: "location.locationName", // Adjust based on the field you want to display
+        Cell: ({ value }) => <span>{value || "N/A"}</span>, // Fallback if the value is missing
+      }
+      ,
+      {
+        Header: "Employee",
+        accessor: "events",
+        Cell: ({ value = [] }) =>
+          Array.isArray(value) && value.length > 0 ? (
+            <div>
+              {value.map((event, index) => (
+                <div key={index}>
+                  <div className="inline-block px-3 min-w-[90px] text-center mx-auto py-1 rounded-[999px] bg-opacity-25 text-success-500 bg-success-500">
+                  {event.assignedEmployee || "Unassigned"}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div>No events available</div>
+          ),
+      },
+      {
+        Header: "Post Phone",
+        accessor: "location?.postphone",
+      },
       {
         Header: "Check-in Time",
         accessor: "checkInTime",
-        Cell: ({ value, row }) => (
+        Cell: ({ value = [], row }) => (
           <div>
-            {value.map((time, index) => (
-              <div key={index}><b>in</b><br />{new Date(time).toLocaleTimeString()}</div>
+            {(value || []).map((time, index) => (
+              <div key={index}>
+                <b>in</b>
+                <br />
+                {new Date(time).toLocaleTimeString()}
+              </div>
             ))}
             <button onClick={() => handleAddTime("checkInTime", row.index)}>
               <FaPlus />
@@ -250,10 +257,14 @@ const fetchData = async () => {
       {
         Header: "Check-out Time",
         accessor: "checkOutTime",
-        Cell: ({ value, row }) => (
+        Cell: ({ value = [], row }) => (
           <div>
-            {value.map((time, index) => (
-              <div key={index}><b>out</b><br />{new Date(time).toLocaleTimeString()}</div>
+            {(value || []).map((time, index) => (
+              <div key={index}>
+                <b>out</b>
+                <br />
+                {new Date(time).toLocaleTimeString()}
+              </div>
             ))}
             <button onClick={() => handleAddTime("checkOutTime", row.index)}>
               <FaPlus />
@@ -264,9 +275,9 @@ const fetchData = async () => {
       {
         Header: "Calling Times",
         accessor: "callingTimes",
-        Cell: ({ value, row }) => (
+        Cell: ({ value = [], row }) => (
           <div>
-            {value.map((time, index) => (
+            {(value || []).map((time, index) => (
               <div key={index}>{new Date(time).toLocaleTimeString()}</div>
             ))}
             <button onClick={() => handleAddTime("callingTimes", row.index)}>
@@ -278,9 +289,9 @@ const fetchData = async () => {
       {
         Header: "Notes",
         accessor: "note",
-        Cell: ({ value, row }) => (
+        Cell: ({ value = [], row }) => (
           <div>
-            {value.map((note, index) => (
+            {(value || []).map((note, index) => (
               <div key={index}>{note}</div>
             ))}
             <button onClick={() => handleAddNote(row.index)}>
@@ -289,23 +300,27 @@ const fetchData = async () => {
           </div>
         ),
       },
-      { Header: "Created At", accessor: "createdAt", Cell: ({ value }) => new Date(value).toLocaleDateString() },
       {
         Header: "Actions",
-        Cell: ({ row }) => (
-          <button
-            className="px-2 py-1 bg-green-500 text-white rounded-md"
-            onClick={() => handleSaveChanges(row.original._id)}
-          >
-            Save
-          </button>
-        ),
+        Cell: ({ row }) => {
+          const attendanceId = row.original.attendanceId; // Ensure attendanceId is correctly fetched
+          console.log("Attendance ID in row:", attendanceId); // Log the attendanceId to check if it's available
+          return (
+            <button
+              className="px-2 py-1 bg-green-500 text-white rounded-md"
+              onClick={() => handleSaveChanges(attendanceId)} // Pass only the attendanceId
+            >
+              Save
+            </button>
+          );
+        },
       },
     ],
-    [userData]
+    [userData] // Dependency array to ensure memoization
   );
+  
+  
 
-  // Table instance
   const tableInstance = useTable(
     {
       columns,
@@ -330,7 +345,6 @@ const fetchData = async () => {
     canPreviousPage,
     canNextPage,
     gotoPage,
-    setGlobalFilter,
     prepareRow,
     pageOptions,
   } = tableInstance;
@@ -351,6 +365,7 @@ const fetchData = async () => {
       // Try to get the "Attendance" worksheet
       worksheet = workbook.getWorksheet("Attendance");
     } catch (error) {
+      // Create a new worksheet if not found
       worksheet = workbook.addWorksheet("Attendance");
   
       // Define columns
@@ -376,13 +391,13 @@ const fetchData = async () => {
       locationCell.alignment = { horizontal: "center", vertical: "middle" };
   
       // Add header row
-      worksheet.addRow([
+      const headerRow = worksheet.addRow([
         "Sr No", "Account", "Guards", "E.ID", "Phone", "Company Phone",
-        "Check-in Times", "Check-out Times", "Calling Times", "Notes", "Created At"
+        "Check-in Times", "Check-out Times", "Calling Times", "Notes", "Created At",
       ]);
-
-      worksheet.getRow(1).eachCell((cell) => {
-        cell.font = { bold: true, color: { argb: "f4f5f7 " } };
+  
+      headerRow.eachCell((cell) => {
+        cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
         cell.fill = {
           type: "pattern",
           pattern: "solid",
@@ -390,20 +405,7 @@ const fetchData = async () => {
         };
         cell.alignment = { horizontal: "center", vertical: "middle" };
       });
-    
-  
-      // Style the header row
-      worksheet.getRow(2).eachCell((cell) => {
-        cell.font = { bold: true, color: { argb: "FF000000" } };
-        cell.fill = {
-          type: "pattern",
-          pattern: "solid",
-          fgColor: { argb: "FF808080" },
-        };
-        cell.alignment = { horizontal: "center", vertical: "middle" };
-      });
     }
-    
   
     // Format the time strings
     const formatTime = (timeString) => {
@@ -411,7 +413,9 @@ const fetchData = async () => {
       const match = timeString.match(/T(\d{2}:\d{2}:\d{2})/);
       if (match) timeString = match[1];
       const date = new Date(`1970-01-01T${timeString}Z`);
-      return isNaN(date.getTime()) ? "" : date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      return isNaN(date.getTime())
+        ? ""
+        : date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     };
   
     // Prepare data for export
@@ -437,6 +441,7 @@ const fetchData = async () => {
       saveAs(new Blob([buffer], { type: "application/octet-stream" }), fileName);
     });
   };
+  
   
   
   
@@ -504,12 +509,12 @@ const fetchData = async () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Check-In Start Time */}
           <div className="flex flex-col">
-            <label className="text-sm font-semibold text-gray-700">Check-In Start Time:</label>
+            <label className="text-sm font-semibold text-gray-700">Start Time:</label>
             <input
               type="datetime-local"
-              value={filters.checkInStart || ""}
+              value={filters.startDate || ""}
               onChange={(e) =>
-                setFilters((prev) => ({ ...prev, checkInStart: e.target.value }))
+                setFilters((prev) => ({ ...prev, startDate: e.target.value }))
               }
               className="p-2 mt-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
             />
@@ -517,12 +522,12 @@ const fetchData = async () => {
   
           {/* Check-In End Time */}
           <div className="flex flex-col">
-            <label className="text-sm font-semibold text-gray-700">Check-In End Time:</label>
+            <label className="text-sm font-semibold text-gray-700"> End Time:</label>
             <input
               type="datetime-local"
-              value={filters.checkInEnd || ""}
+              value={filters.endDate || ""}
               onChange={(e) =>
-                setFilters((prev) => ({ ...prev, checkInEnd: e.target.value }))
+                setFilters((prev) => ({ ...prev, endDate: e.target.value }))
               }
               className="p-2 mt-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
             />
@@ -542,8 +547,10 @@ const fetchData = async () => {
               setFilters({
                 startDate: "",
                 endDate: "",
-                checkInStart: "",
-                checkInEnd: "",
+                location:""
+                // checkInStart: "",
+                // checkInEnd: "",
+                
               })
             }
             className="px-4 py-2 bg-white text-gray-800 rounded-md shadow-md hover:bg-gray-400 transition w-full sm:w-auto"
