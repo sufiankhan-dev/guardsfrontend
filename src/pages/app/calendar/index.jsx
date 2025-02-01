@@ -108,6 +108,7 @@ const CalendarPage = () => {
 
   const fetchEvents = (locationId, month = currentMonth, year = currentYear) => {
     setIsLoading(true);
+  
     axios
       .get(
         `${process.env.REACT_APP_BASE_URL}/admin/schedule/get-schedules?locationId=${locationId}&month=${month}&year=${year}`,
@@ -119,37 +120,52 @@ const CalendarPage = () => {
         }
       )
       .then((response) => {
+        console.log("Fetched events:", response.data); // Check the response data
+  
+        if (!response.data || !Array.isArray(response.data)) {
+          console.error("Invalid response structure:", response.data);
+          setIsLoading(false);
+          return;
+        }
+  
         const colors = ["primary", "secondary", "danger", "info", "warning", "success", "dark"];
   
-        const events = response.data.map((schedule, index) => ({
-          id: schedule._id,
-          title: schedule.events.length > 0 ? schedule.events[0].assignedEmployee : "No Event",
-          start: new Date(schedule.date), // Ensure date is parsed correctly
-          end: new Date(schedule.date),
-          classNames: [colors[index % colors.length]],
-          extendedProps: {
-            startTime: schedule.events.length > 0 ? schedule.events[0].startTime : "",
-            endTime: schedule.events.length > 0 ? schedule.events[0].endTime : "",
-          },
-        }));
+        const events = response.data.map((schedule, index) => {
+          const assignedEvent = schedule.events.length > 0 ? schedule.events[0] : {};
+          return {
+            id: schedule._id,
+            title: assignedEvent.assignedEmployee || "No Event",
+            start: new Date(schedule.date),
+            end: new Date(schedule.date),
+            classNames: [colors[index % colors.length]],
+            extendedProps: {
+              startTime: assignedEvent.startTime || "",
+              endTime: assignedEvent.endTime || "",
+            },
+          };
+        });
   
-        // Instead of merging with previous events, replace the state with new events
-        setCalendarEvents(events);
-        setIsLoading(false);
+        console.log("Formatted events:", events); // Log events to check
+  
+        setCalendarEvents(events); // Update state
       })
       .catch((error) => {
         console.error("Error fetching events:", error);
+        setIsLoading(false);
+      })
+      .finally(() => {
         setIsLoading(false);
       });
   };
   
   
+  
 
   const handleAddEvent = (newEvent) => {
-    const eventDate = new Date(newEvent.date);  
+    const eventDate = new Date(newEvent.date);
     const utcDate = new Date(Date.UTC(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate()));  
     const formattedDate = utcDate.toISOString(); // Ensures UTC storage
-
+  
     axios.post(`${process.env.REACT_APP_BASE_URL}/admin/schedule/create-schedule`, 
       {
         locationId: selectedLocation,
@@ -170,13 +186,29 @@ const CalendarPage = () => {
       }
     )
     .then(() => {
+      // Directly update the calendarEvents state here to reflect the new event
+      const newEventObject = {
+        id: newEvent.id,  // Set a new ID
+        title: newEvent.assignedEmployee || "No Event",
+        start: new Date(formattedDate),
+        end: new Date(formattedDate),
+        classNames: ["primary"], // You can assign a color based on your logic
+        extendedProps: {
+          startTime: newEvent.startTime,
+          endTime: newEvent.endTime,
+        },
+      };
+  
+      setCalendarEvents((prevEvents) => [...prevEvents, newEventObject]); // Add to the existing events
+  
+      // Optionally, you can also fetch events to ensure the calendar is up-to-date.
       fetchEvents(selectedLocation, currentMonth, currentYear);
-      fetchEvents(selectedLocation, nextMonth, nextYear);
     })
-    .catch((error) => 
-      console.error("Error adding event:", error.response ? error.response.data : error)
-    );
-};
+    .catch((error) => {
+      console.error("Error adding event:", error.response ? error.response.data : error);
+    });
+  };
+  
 
 
   const handleDateClick = (arg) => {
@@ -307,8 +339,10 @@ const CalendarPage = () => {
               center: "title",
               right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek",
             }}
-            events={calendarEvents}
+            events={calendarEvents} // Ensure this prop is populated
             editable={true}
+            loading={isLoading}      // Loading indicator if the data is still being fetched
+
             selectable={true}
             eventContent={(arg) => {
               const { startTime, endTime } = arg.event.extendedProps;
