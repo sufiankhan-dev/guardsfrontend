@@ -144,21 +144,21 @@ const LocationPage = () => {
         handleDelete(id);
       },
     },
-    {
-      name: "view",
-      icon: "heroicons-outline:eye",
-      doit: (id) => {
-        navigate(`/customer-view?id=${id}`);
-      },
-    },
-    {
-      name: "change status",
-      icon: "heroicons-outline:refresh",
-      doit: (id, currentStatus) => {
-        const newStatus = currentStatus === "active" ? "inactive" : "active";
-        handleChangeStatus(id, newStatus);
-      },
-    },
+    // {
+    //   name: "view",
+    //   icon: "heroicons-outline:eye",
+    //   doit: (id) => {
+    //     navigate(`/customer-view?id=${id}`);
+    //   },
+    // },
+    // {
+    //   name: "change status",
+    //   icon: "heroicons-outline:refresh",
+    //   doit: (id, currentStatus) => {
+    //     const newStatus = currentStatus === "active" ? "inactive" : "active";
+    //     handleChangeStatus(id, newStatus);
+    //   },
+    // },
   ];
 
   const COLUMNS = [

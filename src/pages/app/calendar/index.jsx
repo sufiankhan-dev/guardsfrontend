@@ -120,69 +120,64 @@ const CalendarPage = () => {
       )
       .then((response) => {
         const colors = ["primary", "secondary", "danger", "info", "warning", "success", "dark"];
+  
         const events = response.data.map((schedule, index) => ({
-          date: schedule.date,
           id: schedule._id,
-          title: `${schedule.events[0].assignedEmployee}`,
-          start: schedule.date,
-          end: schedule.date,
+          title: schedule.events.length > 0 ? schedule.events[0].assignedEmployee : "No Event",
+          start: new Date(schedule.date), // Ensure date is parsed correctly
+          end: new Date(schedule.date),
           classNames: [colors[index % colors.length]],
           extendedProps: {
-            startTime: schedule.events[0].startTime,
-            endTime: schedule.events[0].endTime,
+            startTime: schedule.events.length > 0 ? schedule.events[0].startTime : "",
+            endTime: schedule.events.length > 0 ? schedule.events[0].endTime : "",
           },
         }));
-        setCalendarEvents((prevEvents) => {
-          const newEvents = prevEvents.filter(
-            (event) => new Date(event.start).getMonth() !== month - 1 // Filter out events for the same month
-          );
-          return [...newEvents, ...events]; // Combine the new events with the existing ones
-        });
-        setIsLoading(false); // Remove loader when data is loaded
+  
+        // Instead of merging with previous events, replace the state with new events
+        setCalendarEvents(events);
+        setIsLoading(false);
       })
       .catch((error) => {
         console.error("Error fetching events:", error);
         setIsLoading(false);
       });
   };
+  
+  
 
   const handleAddEvent = (newEvent) => {
-    const eventDate = new Date(newEvent.date);
-    eventDate.setHours(0, 0, 0, 0);
-    const formattedDate = eventDate.toISOString();
+    const eventDate = new Date(newEvent.date);  
+    const utcDate = new Date(Date.UTC(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate()));  
+    const formattedDate = utcDate.toISOString(); // Ensures UTC storage
 
-    axios
-      .post(
-        `${process.env.REACT_APP_BASE_URL}/admin/schedule/create-schedule`,
-        {
-          locationId: selectedLocation,
-          date: formattedDate,
-          events: [
-            {
-              startTime: newEvent.startTime,
-              endTime: newEvent.endTime,
-              assignedEmployee: newEvent.assignedEmployee,
-            },
-          ],
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+    axios.post(`${process.env.REACT_APP_BASE_URL}/admin/schedule/create-schedule`, 
+      {
+        locationId: selectedLocation,
+        date: formattedDate, // ✅ Send UTC-formatted date
+        events: [
+          {
+            startTime: newEvent.startTime,
+            endTime: newEvent.endTime,
+            assignedEmployee: newEvent.assignedEmployee,
           },
-        }
-      )
-      .then(() => {
-        fetchEvents(selectedLocation, currentMonth, currentYear); // Re-fetch current month events
-        fetchEvents(selectedLocation, nextMonth, nextYear); // Re-fetch next month events
-      })
-      .catch((error) =>
-        console.error(
-          "Error adding event:",
-          error.response ? error.response.data : error
-        )
-      );
-  };
+        ],
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    )
+    .then(() => {
+      fetchEvents(selectedLocation, currentMonth, currentYear);
+      fetchEvents(selectedLocation, nextMonth, nextYear);
+    })
+    .catch((error) => 
+      console.error("Error adding event:", error.response ? error.response.data : error)
+    );
+};
+
 
   const handleDateClick = (arg) => {
     setEditEvent(null);
@@ -345,9 +340,12 @@ const CalendarPage = () => {
             eventClick={handleEventClick}
             eventDrop={(arg) => {
               const assignedEmployee = arg.event.title;
+              const eventDate = new Date(arg.event.start); // Get original date
+              const utcDate = new Date(Date.UTC(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate())); // Convert to UTC
+            
               const newEvent = {
                 locationId: selectedLocation,
-                date: arg.event.start.toLocaleDateString().split("T")[0],
+                date: utcDate.toISOString(), // ✅ Send correct UTC date
                 events: [
                   {
                     startTime: arg.event.extendedProps.startTime,
@@ -356,28 +354,29 @@ const CalendarPage = () => {
                   },
                 ],
               };
-
-              axios
-                .post(
-                  `${process.env.REACT_APP_BASE_URL}/admin/schedule/create-schedule`,
-                  newEvent,
-                  {
-                    headers: {
-                      "Content-Type": "application/json",
-                      Authorization: `Bearer ${localStorage.getItem("token")}`,
-                    },
-                  }
-                )
-                .then(() => {
-                  fetchEvents(selectedLocation, currentMonth, currentYear);
-                  fetchEvents(selectedLocation, nextMonth, nextYear);
-                })
-                .catch((error) => {
-                  console.error("Error adding event:", error.response ? error.response.data : error);
-                });
+            
+              axios.post(`${process.env.REACT_APP_BASE_URL}/admin/schedule/create-schedule`, newEvent, {
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+              })
+              .then(() => {
+                fetchEvents(selectedLocation, currentMonth, currentYear);
+                fetchEvents(selectedLocation, nextMonth, nextYear);
+              })
+              .catch((error) => {
+                console.error("Error adding event:", error.response ? error.response.data : error);
+              });
             }}
-            initialView="dayGridMonth"
-          />
+            
+            initialView="dayGridMonth" // Shows the full month, 1-30 or 1-31
+            views={{
+              dayGridMonth: {
+                showNonCurrentDates: false,
+              },
+            }}
+            />
         </Card>
       </div>
 

@@ -39,7 +39,7 @@ const EventModal = ({
   useEffect(() => {
     if (showModal) {
       axios
-        .get(`${process.env.REACT_APP_BASE_URL}/admin/employe/get-employees`, {
+        .get(`${process.env.REACT_APP_BASE_URL}/admin/employe/get-employees?limit=200000`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },

@@ -386,7 +386,14 @@ const Dashboard = () => {
         <div className="lg:col-span-8 col-span-12">
           <Card>
             <div className="legend-ring">
-              <RevenueBarChart />
+            <RevenueBarChart
+  height={400}
+  dash={{
+    employee: 120,
+    activeUsers: 95,
+    location: 35,
+  }}
+/>
             </div>
           </Card>
         </div>
